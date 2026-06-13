@@ -1,5 +1,5 @@
 name: app_mobile
-description: "{{APP_DESCRIPTION}}"
+description: "Self-hosted read-it-later with Kobo sync and Obsidian export"
 publish_to: "none"
 version: 0.1.0+1
 
