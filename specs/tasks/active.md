@@ -17,8 +17,8 @@
   - [x] Task 3: AppSkeleton
   - [x] Task 4: AppEmptyState
   - [x] Task 5: AppItemCard
-  - [ ] Task 6: AppFilterBar
-  - [ ] Task 7: barrel exports
-  - [ ] Task 8: full green + Storybook a11y
+  - [x] Task 6: AppFilterBar
+  - [x] Task 7: barrel exports
+  - [x] Task 8: full green + Storybook a11y (215 tests; axe→CI)
 - Status: in-progress
 - Blockers: —

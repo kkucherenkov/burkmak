@@ -52,7 +52,7 @@ describe('AppItemCard', () => {
     const w = mountCard();
     const chips = w.findAll('.app-tag-chip');
     expect(chips).toHaveLength(2);
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- length asserted above
+
     await chips[0]!.trigger('click');
     expect(w.emitted('tagClick')?.[0]).toEqual(['rust']);
   });

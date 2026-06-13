@@ -8,28 +8,15 @@
 </script>
 
 <template>
-  <div
-    class="app-empty-state"
-    role="status"
-  >
-    <AppIcon
-      class="app-empty-state__icon"
-      :name="icon"
-      size="xl"
-    />
+  <div class="app-empty-state" role="status">
+    <AppIcon class="app-empty-state__icon" :name="icon" size="xl" />
     <p class="app-empty-state__title">
       {{ title }}
     </p>
-    <p
-      v-if="description"
-      class="app-empty-state__desc"
-    >
+    <p v-if="description" class="app-empty-state__desc">
       {{ description }}
     </p>
-    <div
-      v-if="$slots['default']"
-      class="app-empty-state__action"
-    >
+    <div v-if="$slots['default']" class="app-empty-state__action">
       <slot />
     </div>
   </div>
