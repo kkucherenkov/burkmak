@@ -1,0 +1,164 @@
+/*
+ * burkmak — canonical token preview stylesheet (hand-authored).
+ *
+ * Mirrors the CSS custom properties that `pnpm design:build` generates from
+ * specs/design/tokens/*.json, using the SAME variable names the emitter
+ * produces (--brand-accent, --surface-page, --text-fg, --dur-base, …).
+ *
+ * Purpose: let the standalone HTML mockups in specs/design/mockups/*.html
+ * render with the real burkmak palette BEFORE the build pipeline runs, and to
+ * pin the canonical variable-name contract that .vue components must use.
+ * Values are from specs/design/DESIGN.md. Shadows are preview approximations.
+ */
+
+:root,
+[data-theme='light'] {
+  /* brand (clay / terracotta) */
+  --brand-accent: #B5491F;
+  --brand-accent-hover: #9A3D18;
+  --brand-accent-active: #7E3213;
+  --brand-accent-fg: #FFFFFF;
+  --brand-accent-subtle: #FBEDE6;
+
+  /* surface (warm paper) */
+  --surface-page: #FAF7F1;
+  --surface-surface: #F3EEE4;
+  --surface-raised: #FFFFFF;
+  --surface-overlay: #FFFFFF;
+
+  /* border */
+  --border-default: #E7DFD1;
+  --border-strong: #D2C7B5;
+  --border-focus: #B5491F;
+
+  /* text (warm ink) */
+  --text-fg: #221C15;
+  --text-secondary: #5C5247;
+  --text-tertiary: #8A7E70;
+  --text-disabled: #C8BEAD;
+  --text-inverse: #FAF7F1;
+  --text-link: #B5491F;
+
+  /* status */
+  --status-success-fg: #3F7D3A;
+  --status-success-subtle: #EEF6EC;
+  --status-warning-fg: #B26B12;
+  --status-warning-subtle: #FBF1E1;
+  --status-error-fg: #B23A2E;
+  --status-error-subtle: #F8E9E6;
+  --status-info-fg: #2E6F8E;
+  --status-info-subtle: #E9F2F6;
+
+  /* elevation (preview approximations, warm-tinted) */
+  --shadow-sm: 0 1px 2px rgba(40, 25, 10, 0.06);
+  --shadow-md: 0 4px 16px rgba(40, 25, 10, 0.10);
+  --shadow-lg: 0 12px 32px rgba(40, 25, 10, 0.14);
+}
+
+[data-theme='dark'],
+.dark {
+  --brand-accent: #E9805A;
+  --brand-accent-hover: #F09A7B;
+  --brand-accent-active: #F4B19A;
+  --brand-accent-fg: #2A1206;
+  --brand-accent-subtle: #3A1C10;
+
+  --surface-page: #14110D;
+  --surface-surface: #1D1813;
+  --surface-raised: #261F18;
+  --surface-overlay: #1D1813;
+
+  --border-default: #2E261D;
+  --border-strong: #463B2E;
+  --border-focus: #E9805A;
+
+  --text-fg: #ECE4D8;
+  --text-secondary: #B3A795;
+  --text-tertiary: #837868;
+  --text-disabled: #4A4136;
+  --text-inverse: #14110D;
+  --text-link: #E9805A;
+
+  --status-success-fg: #86C97F;
+  --status-success-subtle: #1B2E19;
+  --status-warning-fg: #E7B45A;
+  --status-warning-subtle: #33240C;
+  --status-error-fg: #EC8478;
+  --status-error-subtle: #36140F;
+  --status-info-fg: #6FB6D6;
+  --status-info-subtle: #0E2733;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.40);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.46);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.52);
+}
+
+/* theme-invariant scales (same in light + dark) */
+:root {
+  /* font families */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-reading: 'Literata', Georgia, serif;
+  --font-sans: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* font weights */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* font sizes (px ramp) */
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-md: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 36px;
+  --text-5xl: 48px;
+  --text-6xl: 60px;
+  --text-7xl: 72px;
+
+  /* leading + tracking */
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.02em;
+
+  /* spacing (4px grid) */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* radius (DESIGN.md scale) */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* motion */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0, 1);
+  --ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+}

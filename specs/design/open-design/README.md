@@ -41,11 +41,17 @@ cp specs/design/DESIGN.md ~/projects/petProjects/tools/open-design/design-system
 `tools/open-design/skills/burkmak-repo-bundle/SKILL.md`. Pick
 **burkmak-repo-bundle** from the **Skill** dropdown.
 
-The skill steers output to: **DTCG token JSON** (`color/typography/spacing/
-radius/shadow/motion/opacity`) + **live-previewable HTML screens** styled only
-with burkmak CSS variables (so Open Design's preview keeps working). It does
-*not* emit TSX directly — the HTML→TSX conversion happens at reconcile (§5),
-which is mechanical. See the placed `SKILL.md` for the full output rules.
+The skill steers output to, **per screen, a Vue SFC + a viewable HTML copy**
+(Open Design can't render `.vue`/`.tsx`, so the `.html` is what its preview
+shows), plus the **DTCG token JSON** and a canonical-named `tokens.preview.css`.
+Both `.vue` and `.html` use the **template's canonical CSS variable names**
+(`--brand-accent`, `--surface-page`, `--text-fg`, …), so the `.vue` is near
+drop-in for `@app/ui` and the `.html` renders against the real palette. See the
+placed `SKILL.md` for the full output rules.
+
+> The skill was changed after the first auth run (which produced React `.tsx`).
+> **Start a fresh run / re-select the skill** so the updated rules load, then
+> re-run the auth prompts to get `.vue` + `.html`.
 
 ## 4. Per-screen prompts (paste one at a time)
 
@@ -60,55 +66,61 @@ exactly (Fraunces display, Literata reading, Hanken Grotesk UI; clay accent;
 warm paper light / warm-ink dark). Every color light+dark.
 ```
 
+Each screen prompt yields **`<screen>.vue` + `<screen>.html`** (both light + dark).
+
 **MVP screens (S0–S1) — do these first**
 ```
-welcome.tsx — first-run hero: burkmak value prop (save · read · sync to Kobo ·
-export to Obsidian), one primary "Get started" CTA, calm editorial layout,
-Fraunces display headline. Light + dark.
+welcome (welcome.vue + welcome.html) — first-run hero: burkmak value prop
+(save · read · sync to Kobo · export to Obsidian), one primary "Get started"
+CTA, calm editorial layout, Fraunces display headline.
 ```
 ```
-sign-in.tsx and sign-up.tsx — minimal centered auth cards, AppInput/AppField/
-AppButton, error + loading states. Light + dark.
+sign-in and sign-up (.vue + .html each) — minimal centered auth cards,
+AppInput/AppField/AppButton, error + loading states.
 ```
 ```
-library.tsx — the core list. AppFilterBar (Unread/Read/Archived/★ segmented +
-tag filter + search). List of AppItemCard (favicon, title, site+time meta,
-2-line excerpt, tag chips, AppStatusBadge, hover actions). Show ALL states:
-skeleton loading, empty, populated, and one card mid-fetch in the "pending"
-state. Light + dark.
+library (library.vue + library.html) — the core list. AppFilterBar
+(Unread/Read/Archived/★ segmented + tag filter + search). List of AppItemCard
+(favicon, title, site+time meta, 2-line excerpt, tag chips, AppStatusBadge,
+hover actions). Show ALL states: skeleton loading, empty, populated, and one
+card mid-fetch in the "pending" state.
 ```
 ```
-add-link.tsx — paste-a-URL quick add, both as an inline bar and a modal/sheet;
-show validating + just-saved(pending) states. Light + dark.
+add-link (add-link.vue + add-link.html) — paste-a-URL quick add, both as an
+inline bar and a modal/sheet; show validating + just-saved(pending) states.
 ```
 ```
-item-detail.tsx — single item: metadata, tags (add/remove), read-state +
-favorite controls, and a prominent "Fetch full article" action with its
-pending/extracting/ready/failed states. Light + dark.
+item-detail (item-detail.vue + item-detail.html) — single item: metadata, tags
+(add/remove), read-state + favorite controls, and a prominent "Fetch full
+article" action with its pending/extracting/ready/failed states.
 ```
 
 **Near-term screens (S2+) — for coherence, optional now**
 ```
-reader.tsx, highlights.tsx, tags.tsx, settings.tsx, settings-kobo.tsx,
-settings-obsidian.tsx — per the burkmak DESIGN.md component list. Light + dark.
+reader, highlights, tags, settings, settings-kobo, settings-obsidian
+(.vue + .html each) — per the burkmak DESIGN.md component list.
 ```
 
 ## 5. Reconcile into the repo
 
-After Open Design writes files (or HTML artifacts in `.od/artifacts/…` if the
-skill didn't fully take), bring them home:
+Open Design writes into `.od/projects/ds-burkmak-2/` (and a system copy under
+`.od/design-systems/burkmak-2/`). Bring the output home:
 
-1. `tokens/*.json` → `specs/design/tokens/` (overwrite, keep filenames).
-2. `mockups/*.tsx` → `specs/design/mockups/`.
-3. README → append to `specs/design/mockups/README.md`.
-4. `pnpm install` (first time) then `pnpm design:build`; verify in
+1. `tokens.dtcg.json` → split into the 7 `specs/design/tokens/*.json` files
+   (color/typography/spacing/radius/shadow/motion/opacity; fold z-index into
+   motion). Keep the existing filenames.
+2. `*.html` + `tokens.preview.css` → `specs/design/mockups/` (these are the
+   viewable copies).
+3. `*.vue` → references for building `packages/ui` (`@app/ui`) components in P1.
+4. README → append to `specs/design/mockups/README.md`.
+5. `pnpm install` (first time) then `pnpm design:build`; verify in
    `pnpm storybook`.
-5. Commit tokens + generated artefacts together.
+6. Commit tokens + generated artefacts together.
 
-> If Open Design emits HTML instead of the token-JSON + TSX contract, hand the
-> output back to me — I'll convert it into the exact `tokens/*.json` +
-> `mockups/*.tsx` the pipeline expects. The DESIGN.md palette is the source of
-> truth, so reconciliation is mechanical.
+> Open Design generates in its own namespace/format. Hand the output to me and
+> I'll reconcile: split the tokens into the 7 template files, normalise the
+> mockups onto the canonical variable names, and run the build. The DESIGN.md
+> palette is the source of truth, so reconciliation is mechanical.
 
 **Note on fonts:** the DESIGN.md adds `serif`/`display` families (Literata,
 Fraunces) and a `readerBody` role beyond the template's `sans`/`mono`. Before
