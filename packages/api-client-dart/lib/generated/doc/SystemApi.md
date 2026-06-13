@@ -17,7 +17,7 @@ Method | HTTP request | Description
 
 Service health probe
 
-Reports combined health status of the service and its runtime dependencies (database, cache, realtime bus). 
+Reports health status of the service and its database dependency. 
 
 ### Example
 ```dart

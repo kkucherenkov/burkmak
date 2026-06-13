@@ -18,7 +18,7 @@ class SystemApi {
   const SystemApi(this._dio, this._serializers);
 
   /// Service health probe
-  /// Reports combined health status of the service and its runtime dependencies (database, cache, realtime bus). 
+  /// Reports health status of the service and its database dependency. 
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation

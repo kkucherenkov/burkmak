@@ -13,8 +13,7 @@ export interface paths {
     };
     /**
      * Service health probe
-     * @description Reports combined health status of the service and its runtime
-     *     dependencies (database, cache, realtime bus).
+     * @description Reports health status of the service and its database dependency.
      */
     get: operations['getHealth'];
     put?: never;
@@ -25,22 +24,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/v1/realtime/token': {
+  '/api/v1/events': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    get?: never;
-    put?: never;
     /**
-     * Issue a short-lived Centrifugo connection token
-     * @description Mints a short-lived HMAC-signed JWT that the client can use to connect
-     *     to Centrifugo. Requires an active Better Auth session (cookie on web,
-     *     bearer token on mobile).
+     * Server-Sent Events stream of the caller's item and job updates
+     * @description Long-lived `text/event-stream` connection. Each message is a JSON
+     *     payload `{ "type": ..., "data": ... }` describing an item or job change
+     *     for the authenticated user. A periodic `ping` event acts as a heartbeat.
+     *     Requires an active Better Auth session.
      */
-    post: operations['issueRealtimeToken'];
+    get: operations['streamEvents'];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -61,8 +61,6 @@ export interface components {
       uptimeSeconds: number;
       dependencies: {
         db: components['schemas']['DependencyStatus'];
-        redis: components['schemas']['DependencyStatus'];
-        centrifugo: components['schemas']['DependencyStatus'];
       };
     };
     /** @description RFC 9457 problem details */
@@ -78,15 +76,6 @@ export interface components {
       detail?: string | null;
       instance?: string | null;
       code?: string | null;
-    };
-    RealtimeToken: {
-      /** @description Short-lived HMAC-signed JWT for Centrifugo */
-      token: string | null;
-      /**
-       * Format: date-time
-       * @description ISO-8601 instant when the token expires
-       */
-      expiresAt: string | null;
     };
   };
   responses: never;
@@ -126,7 +115,7 @@ export interface operations {
       };
     };
   };
-  issueRealtimeToken: {
+  streamEvents: {
     parameters: {
       query?: never;
       header?: never;
@@ -135,13 +124,13 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Token issued */
+      /** @description An open event stream. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RealtimeToken'];
+          'text/event-stream': string;
         };
       };
       /** @description No active session */

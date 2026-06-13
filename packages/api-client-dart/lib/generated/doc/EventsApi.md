@@ -1,4 +1,4 @@
-# app_api_client.api.RealtimeApi
+# app_api_client.api.EventsApi
 
 ## Load the API package
 ```dart
@@ -9,15 +9,15 @@ All URIs are relative to *http://localhost:3000*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**issueRealtimeToken**](RealtimeApi.md#issuerealtimetoken) | **POST** /api/v1/realtime/token | Issue a short-lived Centrifugo connection token
+[**streamEvents**](EventsApi.md#streamevents) | **GET** /api/v1/events | Server-Sent Events stream of the caller&#39;s item and job updates
 
 
-# **issueRealtimeToken**
-> RealtimeToken issueRealtimeToken()
+# **streamEvents**
+> String streamEvents()
 
-Issue a short-lived Centrifugo connection token
+Server-Sent Events stream of the caller's item and job updates
 
-Mints a short-lived HMAC-signed JWT that the client can use to connect to Centrifugo. Requires an active Better Auth session (cookie on web, bearer token on mobile). 
+Long-lived `text/event-stream` connection. Each message is a JSON payload `{ \"type\": ..., \"data\": ... }` describing an item or job change for the authenticated user. A periodic `ping` event acts as a heartbeat. Requires an active Better Auth session. 
 
 ### Example
 ```dart
@@ -27,13 +27,13 @@ import 'package:app_api_client/api.dart';
 // uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 //defaultApiClient.getAuthentication<ApiKeyAuth>('cookieAuth').apiKeyPrefix = 'Bearer';
 
-final api = AppApiClient().getRealtimeApi();
+final api = AppApiClient().getEventsApi();
 
 try {
-    final response = api.issueRealtimeToken();
+    final response = api.streamEvents();
     print(response);
 } on DioException catch (e) {
-    print('Exception when calling RealtimeApi->issueRealtimeToken: $e\n');
+    print('Exception when calling EventsApi->streamEvents: $e\n');
 }
 ```
 
@@ -42,7 +42,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**RealtimeToken**](RealtimeToken.md)
+**String**
 
 ### Authorization
 
@@ -51,7 +51,7 @@ This endpoint does not need any parameter.
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json, application/problem+json
+ - **Accept**: text/event-stream, application/problem+json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

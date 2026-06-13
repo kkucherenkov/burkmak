@@ -18,8 +18,6 @@ export type HealthStatus = {
     uptimeSeconds: number;
     dependencies: {
         db: DependencyStatus;
-        redis: DependencyStatus;
-        centrifugo: DependencyStatus;
     };
 };
 
@@ -33,17 +31,6 @@ export type Problem = {
     detail?: string | null;
     instance?: string | null;
     code?: string | null;
-};
-
-export type RealtimeToken = {
-    /**
-     * Short-lived HMAC-signed JWT for Centrifugo
-     */
-    token: string | null;
-    /**
-     * ISO-8601 instant when the token expires
-     */
-    expiresAt: string | null;
 };
 
 export type GetHealthData = {
@@ -71,27 +58,27 @@ export type GetHealthResponses = {
 
 export type GetHealthResponse = GetHealthResponses[keyof GetHealthResponses];
 
-export type IssueRealtimeTokenData = {
+export type StreamEventsData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/v1/realtime/token';
+    url: '/api/v1/events';
 };
 
-export type IssueRealtimeTokenErrors = {
+export type StreamEventsErrors = {
     /**
      * No active session
      */
     401: Problem;
 };
 
-export type IssueRealtimeTokenError = IssueRealtimeTokenErrors[keyof IssueRealtimeTokenErrors];
+export type StreamEventsError = StreamEventsErrors[keyof StreamEventsErrors];
 
-export type IssueRealtimeTokenResponses = {
+export type StreamEventsResponses = {
     /**
-     * Token issued
+     * An open event stream.
      */
-    200: RealtimeToken;
+    200: string;
 };
 
-export type IssueRealtimeTokenResponse = IssueRealtimeTokenResponses[keyof IssueRealtimeTokenResponses];
+export type StreamEventsResponse = StreamEventsResponses[keyof StreamEventsResponses];

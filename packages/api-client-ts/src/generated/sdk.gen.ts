@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetHealthData, GetHealthErrors, GetHealthResponses, IssueRealtimeTokenData, IssueRealtimeTokenErrors, IssueRealtimeTokenResponses } from './types.gen';
+import type { GetHealthData, GetHealthErrors, GetHealthResponses, StreamEventsData, StreamEventsErrors, StreamEventsResponse, StreamEventsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -21,26 +21,26 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 /**
  * Service health probe
  *
- * Reports combined health status of the service and its runtime
- * dependencies (database, cache, realtime bus).
+ * Reports health status of the service and its database dependency.
  *
  */
 export const getHealth = <ThrowOnError extends boolean = false>(options?: Options<GetHealthData, ThrowOnError>) => (options?.client ?? client).get<GetHealthResponses, GetHealthErrors, ThrowOnError>({ url: '/api/v1/health', ...options });
 
 /**
- * Issue a short-lived Centrifugo connection token
+ * Server-Sent Events stream of the caller's item and job updates
  *
- * Mints a short-lived HMAC-signed JWT that the client can use to connect
- * to Centrifugo. Requires an active Better Auth session (cookie on web,
- * bearer token on mobile).
+ * Long-lived `text/event-stream` connection. Each message is a JSON
+ * payload `{ "type": ..., "data": ... }` describing an item or job change
+ * for the authenticated user. A periodic `ping` event acts as a heartbeat.
+ * Requires an active Better Auth session.
  *
  */
-export const issueRealtimeToken = <ThrowOnError extends boolean = false>(options?: Options<IssueRealtimeTokenData, ThrowOnError>) => (options?.client ?? client).post<IssueRealtimeTokenResponses, IssueRealtimeTokenErrors, ThrowOnError>({
+export const streamEvents = <ThrowOnError extends boolean = false>(options?: Options<StreamEventsData, ThrowOnError, StreamEventsResponse>) => (options?.client ?? client).sse.get<StreamEventsResponses, StreamEventsErrors, ThrowOnError>({
     security: [{
             in: 'cookie',
             name: 'better-auth.session_token',
             type: 'apiKey'
         }, { scheme: 'bearer', type: 'http' }],
-    url: '/api/v1/realtime/token',
+    url: '/api/v1/events',
     ...options
 });

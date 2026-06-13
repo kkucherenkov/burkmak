@@ -57,13 +57,13 @@ Please follow the [installation procedure](#installation--usage) and then run th
 import 'package:app_api_client/app_api_client.dart';
 
 
-final api = AppApiClient().getRealtimeApi();
+final api = AppApiClient().getEventsApi();
 
 try {
-    final response = await api.issueRealtimeToken();
+    final response = await api.streamEvents();
     print(response);
 } on DioException catch (e) {
-    print("Exception when calling RealtimeApi->issueRealtimeToken: $e\n");
+    print("Exception when calling EventsApi->streamEvents: $e\n");
 }
 
 ```
@@ -74,7 +74,7 @@ All URIs are relative to *http://localhost:3000*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-[*RealtimeApi*](doc/RealtimeApi.md) | [**issueRealtimeToken**](doc/RealtimeApi.md#issuerealtimetoken) | **POST** /api/v1/realtime/token | Issue a short-lived Centrifugo connection token
+[*EventsApi*](doc/EventsApi.md) | [**streamEvents**](doc/EventsApi.md#streamevents) | **GET** /api/v1/events | Server-Sent Events stream of the caller&#39;s item and job updates
 [*SystemApi*](doc/SystemApi.md) | [**getHealth**](doc/SystemApi.md#gethealth) | **GET** /api/v1/health | Service health probe
 
 
@@ -84,7 +84,6 @@ Class | Method | HTTP request | Description
  - [HealthStatus](doc/HealthStatus.md)
  - [HealthStatusDependencies](doc/HealthStatusDependencies.md)
  - [Problem](doc/Problem.md)
- - [RealtimeToken](doc/RealtimeToken.md)
 
 
 ## Documentation For Authorization

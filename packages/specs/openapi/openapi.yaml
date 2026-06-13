@@ -23,8 +23,8 @@ servers:
 tags:
   - name: system
     description: Health and liveness endpoints
-  - name: realtime
-    description: Centrifugo connection tokens
+  - name: events
+    description: Server-Sent Events stream
 
 paths:
   /api/v1/health:
@@ -32,8 +32,7 @@ paths:
       operationId: getHealth
       summary: Service health probe
       description: |
-        Reports combined health status of the service and its runtime
-        dependencies (database, cache, realtime bus).
+        Reports health status of the service and its database dependency.
       tags: [system]
       responses:
         "200":
@@ -50,8 +49,6 @@ paths:
                     uptimeSeconds: 42
                     dependencies:
                       db: ok
-                      redis: ok
-                      centrifugo: ok
         "503":
           description: One or more dependencies are degraded or down
           content:
@@ -61,38 +58,36 @@ paths:
               examples:
                 degraded:
                   value:
-                    status: degraded
+                    status: down
                     version: 0.1.0
                     uptimeSeconds: 42
                     dependencies:
-                      db: ok
-                      redis: degraded
-                      centrifugo: ok
+                      db: down
 
-  /api/v1/realtime/token:
-    post:
-      operationId: issueRealtimeToken
-      summary: Issue a short-lived Centrifugo connection token
+  /api/v1/events:
+    get:
+      operationId: streamEvents
+      summary: Server-Sent Events stream of the caller's item and job updates
       description: |
-        Mints a short-lived HMAC-signed JWT that the client can use to connect
-        to Centrifugo. Requires an active Better Auth session (cookie on web,
-        bearer token on mobile).
-      tags: [realtime]
+        Long-lived `text/event-stream` connection. Each message is a JSON
+        payload `{ "type": ..., "data": ... }` describing an item or job change
+        for the authenticated user. A periodic `ping` event acts as a heartbeat.
+        Requires an active Better Auth session.
+      tags: [events]
       security:
         - cookieAuth: []
         - bearerAuth: []
       responses:
         "200":
-          description: Token issued
+          description: An open event stream.
           content:
-            application/json:
+            text/event-stream:
               schema:
-                $ref: "#/components/schemas/RealtimeToken"
+                type: string
               examples:
-                ok:
-                  value:
-                    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-                    expiresAt: "2026-04-18T12:05:00Z"
+                update:
+                  value: |
+                    data: {"type":"item.updated","data":{"id":"itm_1"}}
         "401":
           description: No active session
           content:
@@ -130,13 +125,9 @@ components:
           description: Seconds since the backend process started
         dependencies:
           type: object
-          required: [db, redis, centrifugo]
+          required: [db]
           properties:
             db:
-              $ref: "#/components/schemas/DependencyStatus"
-            redis:
-              $ref: "#/components/schemas/DependencyStatus"
-            centrifugo:
               $ref: "#/components/schemas/DependencyStatus"
 
     Problem:
@@ -159,15 +150,3 @@ components:
           type: ["string", "null"]
         code:
           type: ["string", "null"]
-
-    RealtimeToken:
-      type: object
-      required: [token, expiresAt]
-      properties:
-        token:
-          type: ["string", "null"]
-          description: Short-lived HMAC-signed JWT for Centrifugo
-        expiresAt:
-          type: ["string", "null"]
-          format: date-time
-          description: ISO-8601 instant when the token expires

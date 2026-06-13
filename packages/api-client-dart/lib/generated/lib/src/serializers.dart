@@ -18,7 +18,6 @@ import 'package:app_api_client/src/model/dependency_status.dart';
 import 'package:app_api_client/src/model/health_status.dart';
 import 'package:app_api_client/src/model/health_status_dependencies.dart';
 import 'package:app_api_client/src/model/problem.dart';
-import 'package:app_api_client/src/model/realtime_token.dart';
 
 part 'serializers.g.dart';
 
@@ -27,7 +26,6 @@ part 'serializers.g.dart';
   HealthStatus,
   HealthStatusDependencies,
   Problem,
-  RealtimeToken,
 ])
 Serializers serializers = (_$serializers.toBuilder()
       ..add(const OneOfSerializer())

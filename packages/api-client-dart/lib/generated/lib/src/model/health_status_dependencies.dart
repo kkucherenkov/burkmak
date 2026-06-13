@@ -13,21 +13,11 @@ part 'health_status_dependencies.g.dart';
 ///
 /// Properties:
 /// * [db] 
-/// * [redis] 
-/// * [centrifugo] 
 @BuiltValue()
 abstract class HealthStatusDependencies implements Built<HealthStatusDependencies, HealthStatusDependenciesBuilder> {
   @BuiltValueField(wireName: r'db')
   DependencyStatus? get db;
   // enum dbEnum {  ok,  degraded,  down,  };
-
-  @BuiltValueField(wireName: r'redis')
-  DependencyStatus? get redis;
-  // enum redisEnum {  ok,  degraded,  down,  };
-
-  @BuiltValueField(wireName: r'centrifugo')
-  DependencyStatus? get centrifugo;
-  // enum centrifugoEnum {  ok,  degraded,  down,  };
 
   HealthStatusDependencies._();
 
@@ -55,16 +45,6 @@ class _$HealthStatusDependenciesSerializer implements PrimitiveSerializer<Health
     yield r'db';
     yield object.db == null ? null : serializers.serialize(
       object.db,
-      specifiedType: const FullType.nullable(DependencyStatus),
-    );
-    yield r'redis';
-    yield object.redis == null ? null : serializers.serialize(
-      object.redis,
-      specifiedType: const FullType.nullable(DependencyStatus),
-    );
-    yield r'centrifugo';
-    yield object.centrifugo == null ? null : serializers.serialize(
-      object.centrifugo,
       specifiedType: const FullType.nullable(DependencyStatus),
     );
   }
@@ -97,22 +77,6 @@ class _$HealthStatusDependenciesSerializer implements PrimitiveSerializer<Health
           ) as DependencyStatus?;
           if (valueDes == null) continue;
           result.db = valueDes;
-          break;
-        case r'redis':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType.nullable(DependencyStatus),
-          ) as DependencyStatus?;
-          if (valueDes == null) continue;
-          result.redis = valueDes;
-          break;
-        case r'centrifugo':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType.nullable(DependencyStatus),
-          ) as DependencyStatus?;
-          if (valueDes == null) continue;
-          result.centrifugo = valueDes;
           break;
         default:
           unhandled.add(key);

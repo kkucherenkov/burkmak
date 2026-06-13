@@ -7,18 +7,17 @@ import 'dart:async';
 import 'package:built_value/serializer.dart';
 import 'package:dio/dio.dart';
 
-import 'package:app_api_client/src/model/realtime_token.dart';
 
-class RealtimeApi {
+class EventsApi {
 
   final Dio _dio;
 
   final Serializers _serializers;
 
-  const RealtimeApi(this._dio, this._serializers);
+  const EventsApi(this._dio, this._serializers);
 
-  /// Issue a short-lived Centrifugo connection token
-  /// Mints a short-lived HMAC-signed JWT that the client can use to connect to Centrifugo. Requires an active Better Auth session (cookie on web, bearer token on mobile). 
+  /// Server-Sent Events stream of the caller&#39;s item and job updates
+  /// Long-lived &#x60;text/event-stream&#x60; connection. Each message is a JSON payload &#x60;{ \&quot;type\&quot;: ..., \&quot;data\&quot;: ... }&#x60; describing an item or job change for the authenticated user. A periodic &#x60;ping&#x60; event acts as a heartbeat. Requires an active Better Auth session. 
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -28,9 +27,9 @@ class RealtimeApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [RealtimeToken] as data
+  /// Returns a [Future] containing a [Response] with a [String] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<RealtimeToken>> issueRealtimeToken({ 
+  Future<Response<String>> streamEvents({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -38,9 +37,9 @@ class RealtimeApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/realtime/token';
+    final _path = r'/api/v1/events';
     final _options = Options(
-      method: r'POST',
+      method: r'GET',
       headers: <String, dynamic>{
         ...?headers,
       },
@@ -70,14 +69,11 @@ class RealtimeApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    RealtimeToken? _responseData;
+    String? _responseData;
 
     try {
       final rawResponse = _response.data;
-      _responseData = rawResponse == null ? null : _serializers.deserialize(
-        rawResponse,
-        specifiedType: const FullType(RealtimeToken),
-      ) as RealtimeToken;
+      _responseData = rawResponse == null ? null : rawResponse as String;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -89,7 +85,7 @@ class RealtimeApi {
       );
     }
 
-    return Response<RealtimeToken>(
+    return Response<String>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
