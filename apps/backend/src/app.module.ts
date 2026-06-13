@@ -18,7 +18,6 @@ import { NotificationsModule } from './common/notifications/notifications.module
 import { ConfigModule } from './common/config/config.module';
 import { ObservabilityModule } from './common/observability/observability.module';
 import { PrismaModule } from './common/prisma/prisma.module';
-import { RedisModule } from './common/redis/redis.module';
 import { SmsModule } from './common/sms/sms.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { HealthModule } from './modules/health/health.module';
@@ -50,7 +49,6 @@ const devOnlyModules: ImportableModule[] = [];
     ObservabilityModule,
     DataLoaderModule,
     PrismaModule,
-    RedisModule,
     SmsModule,
     NotificationsModule,
     IntegrationsModule,

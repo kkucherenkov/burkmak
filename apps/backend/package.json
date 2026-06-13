@@ -46,7 +46,6 @@
     "express-openapi-validator": "^5.4.0",
     "firebase-admin": "^13.4.0",
     "helmet": "^8.0.0",
-    "ioredis": "^5.4.1",
     "nanoid": "^5.0.9",
     "nestjs-i18n": "^10.7.0",
     "reflect-metadata": "^0.2.2",
