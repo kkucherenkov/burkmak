@@ -66,8 +66,8 @@ export class AuthService implements OnModuleInit {
   }
 
   /**
-   * The Better Auth instance itself. Exposed so other modules (realtime) can
-   * call `api.getSession(...)` and domain code can use typed helpers.
+   * The Better Auth instance itself. Exposed so other modules (e.g. the SSE
+   * events stream) can call `api.getSession(...)` and domain code can use typed helpers.
    */
   get auth(): BetterAuthInstance {
     return this.instance;
