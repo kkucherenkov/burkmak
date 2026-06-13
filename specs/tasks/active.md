@@ -15,8 +15,8 @@
   - [x] Task 1: AppStatusBadge
   - [x] Task 2: AppTagChip
   - [x] Task 3: AppSkeleton
-  - [ ] Task 4: AppEmptyState
-  - [ ] Task 5: AppItemCard
+  - [x] Task 4: AppEmptyState
+  - [x] Task 5: AppItemCard
   - [ ] Task 6: AppFilterBar
   - [ ] Task 7: barrel exports
   - [ ] Task 8: full green + Storybook a11y
