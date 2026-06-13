@@ -1,13 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-export interface CentrifugoConfig {
-  readonly apiUrl: string;
-  readonly apiKey: string;
-  readonly tokenHmacSecret: string;
-  readonly tokenTtlSeconds: number;
-}
-
 export interface BetterAuthConfig {
   readonly secret: string;
   /** Public base URL (scheme + host + port). Used by Better Auth to sign cookies and build callback URLs. */
@@ -110,15 +103,6 @@ export class AppConfig {
       email: 'mock',
       push: 'mock',
       storage: 'mock',
-    };
-  }
-
-  get centrifugo(): CentrifugoConfig {
-    return {
-      apiUrl: this.requireString('CENTRIFUGO_API_URL'),
-      apiKey: this.requireString('CENTRIFUGO_API_KEY'),
-      tokenHmacSecret: this.requireString('CENTRIFUGO_TOKEN_HMAC_SECRET'),
-      tokenTtlSeconds: this.numberOrDefault('CENTRIFUGO_TOKEN_TTL_SECONDS', 300),
     };
   }
 

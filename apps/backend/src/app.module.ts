@@ -13,7 +13,6 @@ import {
 } from 'nestjs-i18n';
 
 import { AuthModule } from './common/auth/auth.module';
-import { CentrifugoModule } from './common/centrifugo/centrifugo.module';
 import { DataLoaderModule } from './common/dataloader/dataloader.module';
 import { NotificationsModule } from './common/notifications/notifications.module';
 import { ConfigModule } from './common/config/config.module';
@@ -23,7 +22,6 @@ import { RedisModule } from './common/redis/redis.module';
 import { SmsModule } from './common/sms/sms.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { HealthModule } from './modules/health/health.module';
-import { RealtimeModule } from './modules/realtime/realtime.module';
 
 type ImportableModule = DynamicModule | (new (...args: unknown[]) => unknown);
 
@@ -53,13 +51,11 @@ const devOnlyModules: ImportableModule[] = [];
     DataLoaderModule,
     PrismaModule,
     RedisModule,
-    CentrifugoModule,
     SmsModule,
     NotificationsModule,
     IntegrationsModule,
     AuthModule,
     HealthModule,
-    RealtimeModule,
     ...devOnlyModules,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

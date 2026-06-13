@@ -45,25 +45,6 @@ services:
       retries: 20
     networks: ["burkmak-net"]
 
-  centrifugo:
-    image: centrifugo/centrifugo:v6
-    restart: unless-stopped
-    command: ["centrifugo", "-c", "/centrifugo/config.json"]
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./centrifugo/config.json:/centrifugo/config.json:ro
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8000/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-    networks: ["burkmak-net"]
-
   otel-lgtm:
     image: grafana/otel-lgtm:0.8.1
     restart: unless-stopped
@@ -87,7 +68,6 @@ services:
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
-      centrifugo: { condition: service_healthy }
       otel-lgtm: { condition: service_started }
     environment:
       NODE_ENV: development
@@ -97,10 +77,6 @@ services:
       BETTER_AUTH_SECRET: dev-secret-change-me
       BETTER_AUTH_URL: http://localhost:3000
       BETTER_AUTH_BASE_PATH: /api/v1/auth
-      CENTRIFUGO_API_URL: http://centrifugo:8000/api
-      CENTRIFUGO_API_KEY: dev-api-key
-      CENTRIFUGO_TOKEN_HMAC_SECRET: dev-hmac-secret
-      CENTRIFUGO_TOKEN_TTL_SECONDS: "300"
       CORS_ORIGINS: http://localhost:3001
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-lgtm:4318
     working_dir: /workspace
