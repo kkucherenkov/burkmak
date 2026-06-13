@@ -1,47 +1,47 @@
 /*
  * burkmak — canonical token preview stylesheet (hand-authored).
  *
- * Mirrors the CSS custom properties that `pnpm design:build` generates from
- * specs/design/tokens/*.json, using the SAME variable names the emitter
- * produces (--brand-accent, --surface-page, --text-fg, --dur-base, …).
+ * Palette = B (clay #d66f4d, cooler paper, sage success). Taxonomy = A
+ * (the template's canonical variable names the design:build emitter produces:
+ * --brand-accent, --surface-page, --text-fg, --radius-*, --dur-*, …).
  *
- * Purpose: let the standalone HTML mockups in specs/design/mockups/*.html
- * render with the real burkmak palette BEFORE the build pipeline runs, and to
- * pin the canonical variable-name contract that .vue components must use.
- * Values are from specs/design/DESIGN.md. Shadows are preview approximations.
+ * Purpose: render the standalone HTML mockups in specs/design/mockups/*.html
+ * with the real burkmak palette BEFORE design:build runs, and pin the canonical
+ * variable-name contract that .vue components must use. Values mirror
+ * specs/design/tokens/*.json; shadows are preview approximations.
  */
 
 :root,
 [data-theme='light'] {
   /* brand (clay / terracotta) */
-  --brand-accent: #B5491F;
-  --brand-accent-hover: #9A3D18;
-  --brand-accent-active: #7E3213;
+  --brand-accent: #D66F4D;
+  --brand-accent-hover: #C25F3E;
+  --brand-accent-active: #A94E2C;
   --brand-accent-fg: #FFFFFF;
-  --brand-accent-subtle: #FBEDE6;
+  --brand-accent-subtle: #F6E3DA;
 
   /* surface (warm paper) */
-  --surface-page: #FAF7F1;
-  --surface-surface: #F3EEE4;
+  --surface-page: #FBFAF7;
+  --surface-surface: #F4F1EC;
   --surface-raised: #FFFFFF;
   --surface-overlay: #FFFFFF;
 
   /* border */
-  --border-default: #E7DFD1;
-  --border-strong: #D2C7B5;
-  --border-focus: #B5491F;
+  --border-default: #DDD8D0;
+  --border-strong: #CABFAE;
+  --border-focus: #D66F4D;
 
   /* text (warm ink) */
-  --text-fg: #221C15;
-  --text-secondary: #5C5247;
-  --text-tertiary: #8A7E70;
-  --text-disabled: #C8BEAD;
-  --text-inverse: #FAF7F1;
-  --text-link: #B5491F;
+  --text-fg: #1F1D1B;
+  --text-secondary: #706B65;
+  --text-tertiary: #9A938A;
+  --text-disabled: #C4BDB2;
+  --text-inverse: #FBFAF7;
+  --text-link: #D66F4D;
 
   /* status */
-  --status-success-fg: #3F7D3A;
-  --status-success-subtle: #EEF6EC;
+  --status-success-fg: #5D8F5A;
+  --status-success-subtle: #ECF3EA;
   --status-warning-fg: #B26B12;
   --status-warning-subtle: #FBF1E1;
   --status-error-fg: #B23A2E;
@@ -57,30 +57,30 @@
 
 [data-theme='dark'],
 .dark {
-  --brand-accent: #E9805A;
-  --brand-accent-hover: #F09A7B;
-  --brand-accent-active: #F4B19A;
+  --brand-accent: #E2845F;
+  --brand-accent-hover: #EC9772;
+  --brand-accent-active: #F2B79E;
   --brand-accent-fg: #2A1206;
   --brand-accent-subtle: #3A1C10;
 
-  --surface-page: #14110D;
-  --surface-surface: #1D1813;
-  --surface-raised: #261F18;
-  --surface-overlay: #1D1813;
+  --surface-page: #15130F;
+  --surface-surface: #211D17;
+  --surface-raised: #1D1A15;
+  --surface-overlay: #1D1A15;
 
-  --border-default: #2E261D;
-  --border-strong: #463B2E;
-  --border-focus: #E9805A;
+  --border-default: #322C23;
+  --border-strong: #463E30;
+  --border-focus: #E2845F;
 
-  --text-fg: #ECE4D8;
-  --text-secondary: #B3A795;
-  --text-tertiary: #837868;
-  --text-disabled: #4A4136;
-  --text-inverse: #14110D;
-  --text-link: #E9805A;
+  --text-fg: #ECE6DB;
+  --text-secondary: #A59C8F;
+  --text-tertiary: #837A6C;
+  --text-disabled: #4A4338;
+  --text-inverse: #15130F;
+  --text-link: #E2845F;
 
-  --status-success-fg: #86C97F;
-  --status-success-subtle: #1B2E19;
+  --status-success-fg: #7FAE79;
+  --status-success-subtle: #1C2A1A;
   --status-warning-fg: #E7B45A;
   --status-warning-subtle: #33240C;
   --status-error-fg: #EC8478;
@@ -93,7 +93,7 @@
   --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.52);
 }
 
-/* theme-invariant scales (same in light + dark) */
+/* theme-invariant scales (A taxonomy — same in light + dark) */
 :root {
   /* font families */
   --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
@@ -147,12 +147,16 @@
   --space-20: 80px;
   --space-24: 96px;
 
-  /* radius (DESIGN.md scale) */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
-  --radius-full: 9999px;
+  /* radius (A / template taxonomy) */
+  --radius-none: 0px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-pill: 9999px;
 
   /* motion */
   --dur-fast: 120ms;
