@@ -11,19 +11,19 @@
 - Codegen impact: yes (TS + Dart clients regenerate).
 - Branch: feat/s0-s1-foundation (worktree)
 - Sub-steps:
-  - [ ] S0: brand rename + SQLite/WAL swap
-  - [ ] S0: strip Centrifugo / Redis / Sentry+OTel / AsyncAPI
-  - [ ] S0: health db-only
-  - [ ] S0: jobs spine (Job model, JobsService, JobWorker, JobsModule)
-  - [ ] S0: SSE spine (EventsService, EventsController, EventsModule)
-  - [ ] S0: OpenAPI GET /events + codegen
-  - [ ] S0: slim CI/compose + boot green
-  - [ ] S1: Item/Tag/ItemTag models + migration
-  - [ ] S1: OpenAPI items + tags + codegen
-  - [ ] S1: items domain (ports/errors, metadata parser+fetcher, repo)
-  - [ ] S1: items application (commands/queries) + DTOs/controller
-  - [ ] S1: fetch_metadata handler + ItemsModule wiring
-  - [ ] S1: tags module
-  - [ ] S1: multi-user isolation e2e + full check
-- Status: in-progress
+  - [x] S0: brand rename + SQLite/WAL swap
+  - [x] S0: strip Centrifugo / Redis / Sentry+OTel / AsyncAPI
+  - [x] S0: health db-only
+  - [x] S0: jobs spine (Job model, JobsService, JobWorker, JobsModule)
+  - [x] S0: SSE spine (EventsService, EventsController, EventsModule)
+  - [x] S0: OpenAPI GET /events + codegen (boot verified: health 200 db-only, events 401)
+  - [x] S0: slim CI/compose + boot green
+  - [x] S1: Item/Tag/ItemTag models + migration
+  - [x] S1: OpenAPI items + tags + codegen
+  - [x] S1: items domain (ports/errors, metadata parser+fetcher, repo)
+  - [x] S1: items application (commands/queries) + DTOs/controller
+  - [x] S1: fetch_metadata handler + ItemsModule wiring
+  - [x] S1: tags module
+  - [x] S1: multi-user isolation integration test + full check (50 tests green)
+- Status: in-review (awaiting PR)
 - Blockers: —
