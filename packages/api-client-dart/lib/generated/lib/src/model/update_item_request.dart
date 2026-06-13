@@ -9,7 +9,7 @@ import 'package:built_value/serializer.dart';
 
 part 'update_item_request.g.dart';
 
-/// UpdateItemRequest
+/// At least one of `readState` or `favorite` must be provided.
 ///
 /// Properties:
 /// * [readState] 

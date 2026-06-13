@@ -924,6 +924,8 @@ components:
 
     UpdateItemRequest:
       type: object
+      minProperties: 1
+      description: At least one of `readState` or `favorite` must be provided.
       properties:
         readState:
           $ref: "#/components/schemas/ReadState"

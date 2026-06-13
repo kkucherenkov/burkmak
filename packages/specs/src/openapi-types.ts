@@ -310,6 +310,7 @@ export interface components {
       /** @description Optional tag slugs to attach immediately */
       tags?: string[];
     };
+    /** @description At least one of `readState` or `favorite` must be provided. */
     UpdateItemRequest: {
       readState?: components['schemas']['ReadState'];
       /** @description Set or clear the favourite flag */

@@ -138,6 +138,9 @@ export type SaveItemRequest = {
     tags?: Array<string>;
 };
 
+/**
+ * At least one of `readState` or `favorite` must be provided.
+ */
 export type UpdateItemRequest = {
     readState?: ReadState;
     /**
