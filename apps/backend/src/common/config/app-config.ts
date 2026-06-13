@@ -86,6 +86,13 @@ export class AppConfig {
     return { configured, accountSid, authToken, fromNumber };
   }
 
+  get jobs(): { pollIntervalMs: number; backoffBaseMs: number } {
+    return {
+      pollIntervalMs: this.numberOrDefault('JOBS_POLL_INTERVAL_MS', 1000),
+      backoffBaseMs: this.numberOrDefault('JOBS_BACKOFF_BASE_MS', 2000),
+    };
+  }
+
   /** Integration provider selection. All default to 'mock' — no env vars needed. */
   get providers(): ProvidersConfig {
     return {
