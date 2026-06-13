@@ -4,41 +4,17 @@ networks:
   "burkmak-net":
     driver: bridge
 
-volumes:
-  pgdata:
-
 services:
-  postgres:
-    image: postgres:18.1-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: "burkmak"
-      POSTGRES_USER: "burkmak"
-      POSTGRES_PASSWORD: "burkmak"
-      PGDATA: /var/lib/postgresql/18/docker
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql
-      - ./postgres/init.sql:/docker-entrypoint-initdb.d/10-init.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U burkmak -d burkmak"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-    networks: ["burkmak-net"]
-
   backend:
     build:
       context: ..
       dockerfile: apps/backend/Dockerfile.dev
     restart: unless-stopped
-    depends_on:
-      postgres: { condition: service_healthy }
     environment:
       NODE_ENV: development
       PORT: "3000"
-      DATABASE_URL: "postgresql://burkmak:burkmak@postgres:5432/burkmak"
+      # SQLite file lives on the mounted repo volume (apps/backend/burkmak.db).
+      DATABASE_URL: "file:./burkmak.db"
       BETTER_AUTH_SECRET: dev-secret-change-me
       BETTER_AUTH_URL: http://localhost:3000
       BETTER_AUTH_BASE_PATH: /api/v1/auth

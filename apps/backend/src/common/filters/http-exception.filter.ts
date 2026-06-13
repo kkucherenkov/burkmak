@@ -21,6 +21,27 @@ interface ProblemDocument {
   errors?: unknown;
 }
 
+/**
+ * Errors thrown by `express-openapi-validator` (and similar Express middleware)
+ * are plain Errors carrying a numeric `status` (e.g. 400 for a bad request body,
+ * 404 for an undocumented route) plus an `errors` array — they are neither
+ * `HttpException` nor `DomainError`. Map them to their real status instead of a
+ * blanket 500.
+ */
+interface StatusBearingError {
+  status: number;
+  message?: unknown;
+  errors?: unknown;
+}
+
+function isStatusBearingError(err: unknown): err is StatusBearingError {
+  if (typeof err !== 'object' || err === null || !('status' in err)) {
+    return false;
+  }
+  const status = (err as { status: unknown }).status;
+  return typeof status === 'number' && status >= 400 && status <= 599;
+}
+
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
@@ -75,6 +96,23 @@ export class HttpExceptionFilter implements ExceptionFilter {
       }
       if (Array.isArray(obj['message'])) {
         problem.errors = obj['message'];
+      }
+      return problem;
+    }
+
+    if (isStatusBearingError(exception)) {
+      const status = exception.status;
+      const problem: ProblemDocument = {
+        type: 'about:blank',
+        title: this.titleFor(status),
+        status,
+        instance,
+      };
+      if (typeof exception.message === 'string' && exception.message.length > 0) {
+        problem.detail = exception.message;
+      }
+      if (Array.isArray(exception.errors)) {
+        problem.errors = exception.errors;
       }
       return problem;
     }
