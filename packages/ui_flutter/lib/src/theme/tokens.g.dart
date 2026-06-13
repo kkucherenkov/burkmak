@@ -7,61 +7,61 @@
 import 'package:flutter/widgets.dart';
 
 abstract final class AppColorsLight {
-  static const Color brandAccent = Color(0xFF3B82F6);
-  static const Color brandAccentHover = Color(0xFF2563EB);
-  static const Color brandAccentActive = Color(0xFF1D4ED8);
+  static const Color brandAccent = Color(0xFFD66F4D);
+  static const Color brandAccentHover = Color(0xFFC25F3E);
+  static const Color brandAccentActive = Color(0xFFA94E2C);
   static const Color brandAccentFg = Color(0xFFFFFFFF);
-  static const Color brandAccentSubtle = Color(0xFFEFF6FF);
-  static const Color surfacePage = Color(0xFFFFFFFF);
-  static const Color surfaceSurface = Color(0xFFF8FAFC);
+  static const Color brandAccentSubtle = Color(0xFFF6E3DA);
+  static const Color surfacePage = Color(0xFFFBFAF7);
+  static const Color surfaceSurface = Color(0xFFF4F1EC);
   static const Color surfaceRaised = Color(0xFFFFFFFF);
   static const Color surfaceOverlay = Color(0xFFFFFFFF);
-  static const Color borderDefault = Color(0xFFE2E8F0);
-  static const Color borderStrong = Color(0xFFCBD5E1);
-  static const Color borderFocus = Color(0xFF3B82F6);
-  static const Color textFg = Color(0xFF0F172A);
-  static const Color textSecondary = Color(0xFF475569);
-  static const Color textTertiary = Color(0xFF94A3B8);
-  static const Color textDisabled = Color(0xFFCBD5E1);
-  static const Color textInverse = Color(0xFFFFFFFF);
-  static const Color textLink = Color(0xFF3B82F6);
-  static const Color statusSuccessFg = Color(0xFF16A34A);
-  static const Color statusSuccessSubtle = Color(0xFFF0FDF4);
-  static const Color statusWarningFg = Color(0xFFD97706);
-  static const Color statusWarningSubtle = Color(0xFFFFFBEB);
-  static const Color statusErrorFg = Color(0xFFDC2626);
-  static const Color statusErrorSubtle = Color(0xFFFEF2F2);
-  static const Color statusInfoFg = Color(0xFF0EA5E9);
-  static const Color statusInfoSubtle = Color(0xFFF0F9FF);
+  static const Color borderDefault = Color(0xFFDDD8D0);
+  static const Color borderStrong = Color(0xFFCABFAE);
+  static const Color borderFocus = Color(0xFFD66F4D);
+  static const Color textFg = Color(0xFF1F1D1B);
+  static const Color textSecondary = Color(0xFF706B65);
+  static const Color textTertiary = Color(0xFF9A938A);
+  static const Color textDisabled = Color(0xFFC4BDB2);
+  static const Color textInverse = Color(0xFFFBFAF7);
+  static const Color textLink = Color(0xFFD66F4D);
+  static const Color statusSuccessFg = Color(0xFF5D8F5A);
+  static const Color statusSuccessSubtle = Color(0xFFECF3EA);
+  static const Color statusWarningFg = Color(0xFFB26B12);
+  static const Color statusWarningSubtle = Color(0xFFFBF1E1);
+  static const Color statusErrorFg = Color(0xFFB23A2E);
+  static const Color statusErrorSubtle = Color(0xFFF8E9E6);
+  static const Color statusInfoFg = Color(0xFF2E6F8E);
+  static const Color statusInfoSubtle = Color(0xFFE9F2F6);
 }
 
 abstract final class AppColorsDark {
-  static const Color brandAccent = Color(0xFF60A5FA);
-  static const Color brandAccentHover = Color(0xFF93C5FD);
-  static const Color brandAccentActive = Color(0xFFBFDBFE);
-  static const Color brandAccentFg = Color(0xFF1E3A5F);
-  static const Color brandAccentSubtle = Color(0xFF1E3A5F);
-  static const Color surfacePage = Color(0xFF0F172A);
-  static const Color surfaceSurface = Color(0xFF1E293B);
-  static const Color surfaceRaised = Color(0xFF334155);
-  static const Color surfaceOverlay = Color(0xFF1E293B);
-  static const Color borderDefault = Color(0xFF334155);
-  static const Color borderStrong = Color(0xFF475569);
-  static const Color borderFocus = Color(0xFF60A5FA);
-  static const Color textFg = Color(0xFFF1F5F9);
-  static const Color textSecondary = Color(0xFF94A3B8);
-  static const Color textTertiary = Color(0xFF64748B);
-  static const Color textDisabled = Color(0xFF334155);
-  static const Color textInverse = Color(0xFF0F172A);
-  static const Color textLink = Color(0xFF60A5FA);
-  static const Color statusSuccessFg = Color(0xFF4ADE80);
-  static const Color statusSuccessSubtle = Color(0xFF14532D);
-  static const Color statusWarningFg = Color(0xFFFCD34D);
-  static const Color statusWarningSubtle = Color(0xFF451A03);
-  static const Color statusErrorFg = Color(0xFFF87171);
-  static const Color statusErrorSubtle = Color(0xFF450A0A);
-  static const Color statusInfoFg = Color(0xFF38BDF8);
-  static const Color statusInfoSubtle = Color(0xFF082F49);
+  static const Color brandAccent = Color(0xFFE2845F);
+  static const Color brandAccentHover = Color(0xFFEC9772);
+  static const Color brandAccentActive = Color(0xFFF2B79E);
+  static const Color brandAccentFg = Color(0xFF2A1206);
+  static const Color brandAccentSubtle = Color(0xFF3A1C10);
+  static const Color surfacePage = Color(0xFF15130F);
+  static const Color surfaceSurface = Color(0xFF211D17);
+  static const Color surfaceRaised = Color(0xFF1D1A15);
+  static const Color surfaceOverlay = Color(0xFF1D1A15);
+  static const Color borderDefault = Color(0xFF322C23);
+  static const Color borderStrong = Color(0xFF463E30);
+  static const Color borderFocus = Color(0xFFE2845F);
+  static const Color textFg = Color(0xFFECE6DB);
+  static const Color textSecondary = Color(0xFFA59C8F);
+  static const Color textTertiary = Color(0xFF837A6C);
+  static const Color textDisabled = Color(0xFF4A4338);
+  static const Color textInverse = Color(0xFF15130F);
+  static const Color textLink = Color(0xFFE2845F);
+  static const Color statusSuccessFg = Color(0xFF7FAE79);
+  static const Color statusSuccessSubtle = Color(0xFF1C2A1A);
+  static const Color statusWarningFg = Color(0xFFE7B45A);
+  static const Color statusWarningSubtle = Color(0xFF33240C);
+  static const Color statusErrorFg = Color(0xFFEC8478);
+  static const Color statusErrorSubtle = Color(0xFF36140F);
+  static const Color statusInfoFg = Color(0xFF6FB6D6);
+  static const Color statusInfoSubtle = Color(0xFF0E2733);
 }
 
 abstract final class AppVerticalColors {
@@ -130,7 +130,9 @@ abstract final class AppFontWeight {
 }
 
 abstract final class AppFontFamily {
-  static const String sans = "Inter";
+  static const String sans = "Hanken Grotesk";
+  static const String display = "Fraunces";
+  static const String reading = "Literata";
   static const String mono = "JetBrains Mono";
 }
 
