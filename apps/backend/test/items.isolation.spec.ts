@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
 import { existsSync, rmSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -8,8 +9,9 @@ import { PrismaService } from '../src/common/prisma/prisma.service';
 import { ItemRepo } from '../src/modules/items/infra/item.repo';
 import { TagRepo } from '../src/modules/tags/infra/tag.repo';
 
-const BACKEND_DIR = path.join(__dirname, '..');
-const DB_FILE = path.join(__dirname, 'tmp-isolation.db');
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const BACKEND_DIR = path.join(HERE, '..');
+const DB_FILE = path.join(HERE, 'tmp-isolation.db');
 const DB_URL = `file:${DB_FILE}`;
 
 function cleanup(): void {

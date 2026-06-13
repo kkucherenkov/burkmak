@@ -13,7 +13,7 @@
     "test:coverage": "vitest run --coverage --coverage.reporter=text",
     "test:watch": "vitest",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.build.json && tsc --noEmit -p tsconfig.test.json",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
