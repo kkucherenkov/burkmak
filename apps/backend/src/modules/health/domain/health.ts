@@ -8,8 +8,6 @@ export interface HealthSnapshot {
   uptimeSeconds: number;
   dependencies: {
     db: DependencyStatus;
-    redis: DependencyStatus;
-    centrifugo: DependencyStatus;
   };
 }
 
@@ -18,8 +16,6 @@ export interface DependencyChecker {
 }
 
 export const DB_CHECKER = Symbol('DB_CHECKER');
-export const REDIS_CHECKER = Symbol('REDIS_CHECKER');
-export const CENTRIFUGO_CHECKER = Symbol('CENTRIFUGO_CHECKER');
 
 export function rollUp(statuses: readonly DependencyStatus[]): OverallStatus {
   if (statuses.includes('down')) return 'down';
