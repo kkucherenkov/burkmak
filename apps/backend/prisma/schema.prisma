@@ -92,3 +92,47 @@ model Job {
   @@index([status, runAfter])
   @@map("job")
 }
+
+model Item {
+  id           String    @id @default(cuid())
+  userId       String
+  url          String
+  canonicalUrl String?
+  title        String?
+  siteName     String?
+  excerpt      String?
+  leadImageUrl String?
+  faviconUrl   String?
+  status       String    @default("pending") // pending | ready | failed
+  readState    String    @default("unread")  // unread | read | archived
+  favorite     Boolean   @default(false)
+  savedAt      DateTime  @default(now())
+  readAt       DateTime?
+  updatedAt    DateTime  @updatedAt
+  tags         ItemTag[]
+
+  @@index([userId, readState])
+  @@index([userId, savedAt])
+  @@map("item")
+}
+
+model Tag {
+  id     String    @id @default(cuid())
+  userId String
+  name   String
+  slug   String
+  items  ItemTag[]
+
+  @@unique([userId, slug])
+  @@map("tag")
+}
+
+model ItemTag {
+  itemId String
+  tagId  String
+  item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([itemId, tagId])
+  @@map("item_tag")
+}
