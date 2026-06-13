@@ -20,6 +20,7 @@ import { JobsModule } from './common/jobs/jobs.module';
 import { ObservabilityModule } from './common/observability/observability.module';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { SmsModule } from './common/sms/sms.module';
+import { EventsModule } from './modules/events/events.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { HealthModule } from './modules/health/health.module';
 
@@ -55,6 +56,7 @@ const devOnlyModules: ImportableModule[] = [];
     NotificationsModule,
     IntegrationsModule,
     AuthModule,
+    EventsModule,
     HealthModule,
     ...devOnlyModules,
   ],
