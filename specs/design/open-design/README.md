@@ -8,12 +8,12 @@ format. After generation, reconcile into the repo (see last section).
 
 ## 1. Install & run Open Design
 
+> **Already set up** at `~/projects/petProjects/tools/open-design`
+> (cloned, `pnpm install` done on **node 24 via nvm**). To launch:
+
 ```sh
-# clone Open Design somewhere OUTSIDE this repo
-git clone https://github.com/nexu-io/open-design.git
-cd open-design
-corepack enable
-pnpm install
+cd ~/projects/petProjects/tools/open-design
+nvm use 24                    # repo requires node 24 (.node-version)
 pnpm tools-dev run web        # web UI in the foreground
 # (or: pnpm tools-dev          # background daemon + desktop shell)
 ```
@@ -22,59 +22,30 @@ On first load it auto-detects installed CLIs and picks **Claude Code**. Verify
 in **Settings → Execution mode → Local CLI**. If none detected, ensure
 `claude` is on your PATH.
 
-## 2. Register the burkmak design system
+## 2. Register the burkmak design system — done
 
-Copy this repo's brand file into Open Design's systems folder:
+`specs/design/DESIGN.md` is already copied to
+`tools/open-design/design-systems/burkmak/DESIGN.md` (a valid legacy
+`DESIGN.md`-only system). Pick **burkmak** from the **Design system** dropdown.
+(Open Design's built-in **"Warm Editorial"** is a close fallback.)
+
+If you edit `specs/design/DESIGN.md`, re-copy it:
 
 ```sh
-mkdir -p <open-design>/design-systems/burkmak
-cp <burkmak>/specs/design/DESIGN.md <open-design>/design-systems/burkmak/DESIGN.md
+cp specs/design/DESIGN.md ~/projects/petProjects/tools/open-design/design-systems/burkmak/DESIGN.md
 ```
-
-Then pick **burkmak** from the **Design system** dropdown. (Open Design's
-built-in **"Warm Editorial"** is a close fallback if you want to start there.)
 
 ## 3. Install the output-contract skill
 
-Open Design skills live in `<open-design>/skills/<name>/SKILL.md` and define the
-**output rules**. Create `skills/burkmak-repo-bundle/SKILL.md` with:
+**Already installed** at
+`tools/open-design/skills/burkmak-repo-bundle/SKILL.md`. Pick
+**burkmak-repo-bundle** from the **Skill** dropdown.
 
-````md
-# Skill: burkmak-repo-bundle
-
-Produce design artefacts that drop into a spec-first monorepo with NO manual
-reformatting. Always output BOTH kinds below as real files.
-
-## 1. Design tokens — W3C DTCG JSON
-Write/extend these files (overwrite, keep filenames):
-- color.json, typography.json, spacing.json, radius.json, shadow.json,
-  motion.json, opacity.json
-Token shape: { "$value": "...", "$type": "color"|"dimension"|"duration"|... }.
-Themeable tokens wrap values: { "light": {...}, "dark": {...} } — EVERY color
-has both light and dark. No hex outside token JSON. No Tailwind names.
-Match the category layout already in this repo's tokens (brand/surface/border/
-text/status; font.family/weight/size/tracking/leading + role; space; radius
-sm/md/lg/xl/full; shadow elevation light+dark; motion duration/easing + zIndex;
-opacity). Use the palette/typography in the burkmak DESIGN.md verbatim.
-
-## 2. Mockups — self-contained TSX, one file per screen
-- kebab-case route name: library.tsx, sign-in.tsx, …
-- React only, no imports besides React.
-- Style ONLY via CSS variables from the tokens:
-  color→var(--brand-accent)/var(--text-fg)/var(--surface-page); spacing→var(--space-4);
-  radius→var(--radius-md); shadow→var(--shadow-md); motion→var(--duration-base).
-  NO hex, NO px literals, NO Tailwind, NO inline style={{}} with raw values.
-- BEM class names prefixed app-<name>: .app-item-card, .app-item-card__title.
-- Include every state: default/hover/focus-visible/active/disabled/
-  loading(skeleton)/empty/error PLUS item states pending/extracting/ready/failed.
-- Render both light and dark (two files or a [data-theme='dark'] variant).
-
-## Output location
-Write tokens to specs/design/tokens/ and mockups to specs/design/mockups/ in the
-target repo. Also emit a short README.md (screens, decisions, open questions).
-````
-
-Pick **burkmak-repo-bundle** from the **Skill** dropdown.
+The skill steers output to: **DTCG token JSON** (`color/typography/spacing/
+radius/shadow/motion/opacity`) + **live-previewable HTML screens** styled only
+with burkmak CSS variables (so Open Design's preview keeps working). It does
+*not* emit TSX directly — the HTML→TSX conversion happens at reconcile (§5),
+which is mechanical. See the placed `SKILL.md` for the full output rules.
 
 ## 4. Per-screen prompts (paste one at a time)
 
