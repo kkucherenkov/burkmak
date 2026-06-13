@@ -46,6 +46,24 @@ describe('JobWorker.runOnce', () => {
     expect(updates.at(-1)).toMatchObject({ status: 'failed' });
   });
 
+  it('requeues with a future runAfter (backoff) when attempts remain', async () => {
+    const { prisma, config, updates } = makeDeps({
+      id: 'j1',
+      type: 't',
+      attempts: 0,
+      maxAttempts: 3,
+    });
+    const worker = new JobWorker(prisma as never, config as never);
+    worker.register({ type: 't', handle: vi.fn().mockRejectedValue(new Error('boom')) });
+    const before = Date.now();
+    await worker.runOnce();
+    const last = updates.at(-1) as { status: string; error: string; runAfter: Date };
+    expect(last).toMatchObject({ status: 'queued', error: 'boom' });
+    // backoffBaseMs * 2**(1-1) = 1000ms in the future, not failed.
+    expect(last.runAfter).toBeInstanceOf(Date);
+    expect(last.runAfter.getTime()).toBeGreaterThanOrEqual(before + config.jobs.backoffBaseMs);
+  });
+
   it('does nothing when no job is claimable', async () => {
     const { prisma, config } = makeDeps(null);
     const worker = new JobWorker(prisma as never, config as never);
