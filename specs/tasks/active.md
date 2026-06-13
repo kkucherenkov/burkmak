@@ -11,9 +11,9 @@
 - Codegen impact: no
 - Design impact: yes (new @app/ui components)
 - Sub-steps:
-  - [ ] Task 0: tokens emitted + baseline green
+  - [x] Task 0: tokens emitted + baseline green
   - [x] Task 1: AppStatusBadge
-  - [ ] Task 2: AppTagChip
+  - [x] Task 2: AppTagChip
   - [ ] Task 3: AppSkeleton
   - [ ] Task 4: AppEmptyState
   - [ ] Task 5: AppItemCard
