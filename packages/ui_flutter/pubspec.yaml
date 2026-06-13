@@ -1,0 +1,23 @@
+name: app_ui
+description: "Brand UI primitives and compositions for the Flutter app, colocated with a Widgetbook sandbox."
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=3.41.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  widgetbook: ^3.14.3
+  golden_toolkit: ^0.15.0
+
+flutter:
+  uses-material-design: true
+  # No assets in this package yet — components render through the host app's theme.

@@ -1,0 +1,213 @@
+<script lang="ts">
+  /** A single choice rendered inside the dropdown. */
+  export interface AppSelectOption {
+    id: string;
+    label: string;
+    disabled?: boolean;
+  }
+
+  // Opt out of the default root-level $attrs merge so id / aria-* attrs from a
+  // parent (e.g. AppField's slot props) land on the inner <select> — that's
+  // where the assistive tech reads them.
+  export default { inheritAttrs: false };
+</script>
+
+<script setup lang="ts">
+  import { computed, useAttrs } from 'vue';
+
+  type Size = 'sm' | 'md' | 'lg';
+
+  const props = withDefaults(
+    defineProps<{
+      /** Id of the currently selected option. `null` means "no selection" (placeholder shown). */
+      modelValue: string | null;
+      /** Options to render. IDs must be unique. */
+      options: readonly AppSelectOption[];
+      /** Shown when `modelValue` is null. Translated by the consumer. */
+      placeholder?: string;
+      /** Size scale — drives padding + text-size tokens. */
+      size?: Size;
+      /** When true, the trigger is non-interactive and reads as disabled to assistive tech. */
+      disabled?: boolean;
+    }>(),
+    { placeholder: undefined, size: 'md', disabled: false },
+  );
+
+  const emit = defineEmits<{
+    'update:modelValue': [value: string];
+  }>();
+
+  // `$attrs` goes onto the inner <select> so id / aria-describedby / aria-invalid
+  // / aria-required forwarded by AppField's slot props land on the actual
+  // interactive element.
+  const attrs = useAttrs();
+
+  const rootClasses = computed(() => [
+    'app-select',
+    `app-select--${props.size}`,
+    { 'app-select--disabled': props.disabled },
+  ]);
+
+  // A stable sentinel for the "no selection" <option> — keeps happy-dom from
+  // printing "__APP_SELECT_PLACEHOLDER__" anywhere it leaks, while letting the
+  // change handler recognise the non-real value and ignore it.
+  const PLACEHOLDER_VALUE = '';
+
+  function onChange(event: Event): void {
+    if (props.disabled) return;
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) return;
+    const next = target.value;
+    if (next === PLACEHOLDER_VALUE) return;
+    if (next === props.modelValue) return;
+    emit('update:modelValue', next);
+  }
+
+  // Normalise `modelValue: null` to the placeholder sentinel so the underlying
+  // native <select> reflects the "no selection" state. A selected id always
+  // wins — even if it doesn't match a currently-known option id (the browser
+  // renders the trigger empty, consumer can reconcile upstream).
+  const boundValue = computed<string>(() => props.modelValue ?? PLACEHOLDER_VALUE);
+</script>
+
+<template>
+  <div :class="rootClasses">
+    <select
+      v-bind="attrs"
+      class="app-select__control"
+      :value="boundValue"
+      :disabled="disabled"
+      :aria-disabled="disabled ? 'true' : undefined"
+      @change="onChange"
+    >
+      <!-- Placeholder sits as a disabled, hidden option so it shows on the
+           trigger until the user makes a real choice. -->
+      <option v-if="placeholder !== undefined" :value="PLACEHOLDER_VALUE" disabled hidden>
+        {{ placeholder }}
+      </option>
+      <option
+        v-for="option in options"
+        :key="option.id"
+        :value="option.id"
+        :disabled="option.disabled"
+      >
+        {{ option.label }}
+      </option>
+    </select>
+    <!-- Decorative caret — real chevron token would live in tokens.generated.
+         Uses currentColor so it tracks the text colour, stays out of the a11y
+         tree via aria-hidden. -->
+    <span class="app-select__chevron" aria-hidden="true">
+      <svg viewBox="0 0 12 12" width="12" height="12" fill="none">
+        <path
+          d="M3 4.5l3 3 3-3"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </span>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+  .app-select {
+    position: relative;
+    display: inline-flex;
+    width: 100%;
+
+    &__control {
+      flex: 1 1 auto;
+      width: 100%;
+      padding-block: var(--space-3);
+      padding-inline: var(--space-4);
+      padding-inline-end: var(--space-12);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--surface-surface);
+      color: var(--text-fg);
+      font-family: var(--font-sans);
+      font-size: var(--text-md);
+      font-weight: var(--fw-regular);
+      line-height: var(--leading-normal);
+      appearance: none;
+      cursor: pointer;
+      transition:
+        border-color var(--dur-fast) var(--ease-default),
+        box-shadow var(--dur-fast) var(--ease-default);
+
+      &:hover:not(:disabled) {
+        border-color: var(--border-strong);
+      }
+
+      &:focus-visible {
+        outline: none;
+        border-color: var(--brand-accent);
+        box-shadow: var(--shadow-focus);
+      }
+
+      &[aria-invalid='true'] {
+        border-color: var(--status-danger);
+      }
+
+      &:disabled {
+        color: var(--text-fg-disabled);
+        cursor: not-allowed;
+        background: var(--surface-bg-subtle);
+      }
+    }
+
+    &__chevron {
+      position: absolute;
+      top: 50%;
+      inset-inline-end: var(--space-4);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-fg-muted);
+      pointer-events: none;
+      transform: translateY(-50%);
+    }
+
+    /* ----- sizes ----- */
+    &--sm {
+      .app-select__control {
+        padding-block: var(--space-2);
+        padding-inline: var(--space-3);
+        padding-inline-end: var(--space-10);
+        font-size: var(--text-sm);
+      }
+
+      .app-select__chevron {
+        inset-inline-end: var(--space-3);
+      }
+    }
+
+    &--md {
+      .app-select__control {
+        padding-block: var(--space-3);
+        padding-inline: var(--space-4);
+        padding-inline-end: var(--space-12);
+        font-size: var(--text-md);
+      }
+    }
+
+    &--lg {
+      .app-select__control {
+        padding-block: var(--space-4);
+        padding-inline: var(--space-6);
+        padding-inline-end: var(--space-14);
+        font-size: var(--text-lg);
+      }
+
+      .app-select__chevron {
+        inset-inline-end: var(--space-6);
+      }
+    }
+
+    &--disabled {
+      cursor: not-allowed;
+    }
+  }
+</style>

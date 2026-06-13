@@ -1,0 +1,19 @@
+extends:
+  - recommended
+
+rules:
+  operation-operationId: error
+  operation-summary: error
+  operation-description: warn
+  operation-4xx-response: off
+  no-path-trailing-slash: error
+  no-ambiguous-paths: error
+  no-enum-type-mismatch: error
+  no-unresolved-refs: error
+  no-unused-components: warn
+  no-server-example.com: off
+  info-license: off
+  security-defined: off
+  path-params-defined: error
+  tag-description: warn
+  tags-alphabetical: off

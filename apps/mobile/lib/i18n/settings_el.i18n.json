@@ -1,0 +1,20 @@
+{
+  "title": "Ρυθμίσεις",
+  "accountSection": "Λογαριασμός",
+  "signOut": "Αποσύνδεση",
+  "signOutConfirm": "Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε;",
+  "signOutCancel": "Ακύρωση",
+  "signOutConfirmButton": "Αποσύνδεση",
+  "appSection": "Εφαρμογή",
+  "languageLabel": "Γλώσσα",
+  "themeLabel": "Θέμα",
+  "themeSystem": "Σύστημα",
+  "themeLight": "Φωτεινό",
+  "themeDark": "Σκοτεινό",
+  "notificationsSection": "Ειδοποιήσεις",
+  "pushEnabled": "Push ειδοποιήσεις",
+  "aboutSection": "Σχετικά",
+  "version": "Έκδοση",
+  "privacyPolicy": "Πολιτική απορρήτου",
+  "termsOfService": "Όροι χρήσης"
+}

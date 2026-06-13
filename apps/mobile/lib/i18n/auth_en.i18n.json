@@ -1,0 +1,60 @@
+{
+  "welcome": {
+    "headline": "Book anything, anytime",
+    "subtitle": "Find and book appointments with top-rated professionals.",
+    "continueWithPhone": "Continue with phone",
+    "legalFootnote": "By continuing, you agree to our Terms and Privacy Policy."
+  },
+  "phone": {
+    "title": "Enter your number",
+    "subtitle": "We'll text you a 6-digit code.",
+    "phoneLabel": "Phone number",
+    "phoneHint": "+357 99 123 456",
+    "nameLabel": "Your name",
+    "nameHint": "Shown to providers when you book.",
+    "submit": "Continue",
+    "errorInvalid": "Please enter a valid phone number."
+  },
+  "otp": {
+    "title": "Enter verification code",
+    "subtitleWithPhone": "We sent a 6-digit code to {phone}.",
+    "otpLabel": "6-digit code",
+    "otpHint": "123 456",
+    "submit": "Verify and continue",
+    "resend": "Send a new code",
+    "changePhone": "Use a different number",
+    "devBannerTitle": "Dev mode",
+    "devBannerBody": "OTP is sent server-side — check backend logs for the code.",
+    "errorInvalid": "Enter the 6 digits from your code.",
+    "errorMismatch": "That code doesn't match — please try again.",
+    "errorExpired": "This code has expired. Request a new one.",
+    "errorMissing": "No pending code for this number. Request a new one.",
+    "errorGeneric": "Verification failed: {error}"
+  },
+  "signIn": {
+    "title": "Welcome back",
+    "emailLabel": "Email",
+    "emailHint": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordHint": "Your password",
+    "submit": "Sign in",
+    "noAccount": "No account?",
+    "signUpLink": "Sign up",
+    "errorInvalidCredentials": "Invalid email or password.",
+    "errorGeneric": "Sign-in failed: {error}"
+  },
+  "signUp": {
+    "title": "Create account",
+    "nameLabel": "Full name",
+    "nameHint": "Jane Smith",
+    "emailLabel": "Email",
+    "emailHint": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordHint": "Min 8 characters",
+    "submit": "Create account",
+    "hasAccount": "Already have an account?",
+    "signInLink": "Sign in",
+    "errorEmailTaken": "This email is already registered.",
+    "errorGeneric": "Sign-up failed: {error}"
+  }
+}

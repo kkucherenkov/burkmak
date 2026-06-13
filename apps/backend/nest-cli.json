@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "tsConfigPath": "tsconfig.build.json",
+    "assets": [
+      {
+        "include": "../../../packages/specs/dist/openapi.json",
+        "outDir": "dist/specs",
+        "watchAssets": true
+      },
+      {
+        "include": "i18n/**/*.json",
+        "outDir": "dist",
+        "watchAssets": true
+      }
+    ]
+  }
+}

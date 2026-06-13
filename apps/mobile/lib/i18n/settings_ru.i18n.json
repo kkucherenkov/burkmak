@@ -1,0 +1,20 @@
+{
+  "title": "Настройки",
+  "accountSection": "Аккаунт",
+  "signOut": "Выйти",
+  "signOutConfirm": "Вы уверены, что хотите выйти?",
+  "signOutCancel": "Отмена",
+  "signOutConfirmButton": "Выйти",
+  "appSection": "Приложение",
+  "languageLabel": "Язык",
+  "themeLabel": "Тема",
+  "themeSystem": "Системная",
+  "themeLight": "Светлая",
+  "themeDark": "Тёмная",
+  "notificationsSection": "Уведомления",
+  "pushEnabled": "Push-уведомления",
+  "aboutSection": "О приложении",
+  "version": "Версия",
+  "privacyPolicy": "Политика конфиденциальности",
+  "termsOfService": "Условия использования"
+}

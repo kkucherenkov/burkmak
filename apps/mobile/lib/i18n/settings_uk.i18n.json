@@ -1,0 +1,20 @@
+{
+  "title": "Налаштування",
+  "accountSection": "Акаунт",
+  "signOut": "Вийти",
+  "signOutConfirm": "Ви впевнені, що хочете вийти?",
+  "signOutCancel": "Скасувати",
+  "signOutConfirmButton": "Вийти",
+  "appSection": "Додаток",
+  "languageLabel": "Мова",
+  "themeLabel": "Тема",
+  "themeSystem": "Системна",
+  "themeLight": "Світла",
+  "themeDark": "Темна",
+  "notificationsSection": "Сповіщення",
+  "pushEnabled": "Push-сповіщення",
+  "aboutSection": "Про додаток",
+  "version": "Версія",
+  "privacyPolicy": "Політика конфіденційності",
+  "termsOfService": "Умови використання"
+}

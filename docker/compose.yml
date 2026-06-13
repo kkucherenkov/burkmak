@@ -1,0 +1,141 @@
+name: "{{APP_SLUG}}"
+
+networks:
+  "{{APP_SLUG}}-net":
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:
+  otel_lgtm_data:
+
+services:
+  postgres:
+    image: postgres:18.1-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "{{APP_SLUG}}"
+      POSTGRES_USER: "{{APP_SLUG}}"
+      POSTGRES_PASSWORD: "{{APP_SLUG}}"
+      PGDATA: /var/lib/postgresql/18/docker
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/10-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U {{APP_SLUG}} -d {{APP_SLUG}}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: ["{{APP_SLUG}}-net"]
+
+  redis:
+    image: redis:8.6-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: ["{{APP_SLUG}}-net"]
+
+  centrifugo:
+    image: centrifugo/centrifugo:v6
+    restart: unless-stopped
+    command: ["centrifugo", "-c", "/centrifugo/config.json"]
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./centrifugo/config.json:/centrifugo/config.json:ro
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: ["{{APP_SLUG}}-net"]
+
+  otel-lgtm:
+    image: grafana/otel-lgtm:0.8.1
+    restart: unless-stopped
+    ports:
+      - "3200:3000" # Grafana UI
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+    volumes:
+      - otel_lgtm_data:/data
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks: ["{{APP_SLUG}}-net"]
+
+  backend:
+    build:
+      context: ..
+      dockerfile: apps/backend/Dockerfile.dev
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      centrifugo: { condition: service_healthy }
+      otel-lgtm: { condition: service_started }
+    environment:
+      NODE_ENV: development
+      PORT: "3000"
+      DATABASE_URL: "postgresql://{{APP_SLUG}}:{{APP_SLUG}}@postgres:5432/{{APP_SLUG}}"
+      REDIS_URL: redis://redis:6379/0
+      BETTER_AUTH_SECRET: dev-secret-change-me
+      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_BASE_PATH: /api/v1/auth
+      CENTRIFUGO_API_URL: http://centrifugo:8000/api
+      CENTRIFUGO_API_KEY: dev-api-key
+      CENTRIFUGO_TOKEN_HMAC_SECRET: dev-hmac-secret
+      CENTRIFUGO_TOKEN_TTL_SECONDS: "300"
+      CORS_ORIGINS: http://localhost:3001
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-lgtm:4318
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+      - /workspace/node_modules
+      - /workspace/apps/backend/node_modules
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -qO- --server-response http://127.0.0.1:3000/api/v1/health 2>&1 | grep -E 'HTTP/1\.[01] (200|503)'
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    networks: ["{{APP_SLUG}}-net"]
+
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile.dev
+    restart: unless-stopped
+    depends_on:
+      backend: { condition: service_started }
+    environment:
+      NODE_ENV: development
+      NUXT_PUBLIC_API_BASE_URL: http://localhost:3000/api/v1
+      NUXT_PUBLIC_AUTH_BASE_URL: http://localhost:3000
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+      - /workspace/node_modules
+      - /workspace/apps/web/node_modules
+    ports:
+      - "3001:3001"
+    networks: ["{{APP_SLUG}}-net"]

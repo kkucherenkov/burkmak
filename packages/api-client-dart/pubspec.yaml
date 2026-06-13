@@ -1,0 +1,20 @@
+name: app_api_client
+description: >
+  Generated Dart client for the App API. DO NOT EDIT BY HAND —
+  regenerate via `pnpm spec:codegen`.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.8.0
+
+dependencies:
+  dio: ^5.7.0
+  built_collection: ^5.1.1
+  built_value: ^8.9.2
+  json_annotation: ^4.9.0
+  meta: ^1.16.0
+
+dev_dependencies:
+  build_runner: ^2.4.13
+  built_value_generator: ^8.9.2

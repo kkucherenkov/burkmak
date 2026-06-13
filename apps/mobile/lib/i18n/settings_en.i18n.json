@@ -1,0 +1,20 @@
+{
+  "title": "Settings",
+  "accountSection": "Account",
+  "signOut": "Sign out",
+  "signOutConfirm": "Are you sure you want to sign out?",
+  "signOutCancel": "Cancel",
+  "signOutConfirmButton": "Sign out",
+  "appSection": "App",
+  "languageLabel": "Language",
+  "themeLabel": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "notificationsSection": "Notifications",
+  "pushEnabled": "Push notifications",
+  "aboutSection": "About",
+  "version": "Version",
+  "privacyPolicy": "Privacy policy",
+  "termsOfService": "Terms of service"
+}

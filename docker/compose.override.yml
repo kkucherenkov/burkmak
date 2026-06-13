@@ -1,0 +1,9 @@
+# Dev-only overrides. docker compose automatically merges this file with compose.yml.
+services:
+  postgres:
+    environment:
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
+
+  centrifugo:
+    environment:
+      CENTRIFUGO_LOG_LEVEL: debug

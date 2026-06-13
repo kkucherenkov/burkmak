@@ -1,0 +1,17 @@
+{
+  "name": "@app/tsconfig",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Shared TypeScript config presets",
+  "files": [
+    "*.json"
+  ],
+  "exports": {
+    "./base.json": "./base.json",
+    "./nest.json": "./nest.json",
+    "./nuxt.json": "./nuxt.json",
+    "./node.json": "./node.json",
+    "./vue-lib.json": "./vue-lib.json"
+  }
+}

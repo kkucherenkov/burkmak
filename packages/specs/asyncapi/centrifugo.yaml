@@ -1,0 +1,70 @@
+asyncapi: 3.1.0
+info:
+  title: App Realtime API
+  version: 0.1.0
+  description: |
+    Real-time channels delivered via Centrifugo. Clients connect with a
+    short-lived JWT issued by the backend (`POST /api/v1/realtime/token`)
+    and subscribe to allowed channels.
+
+    ## JWT subscription scoping
+
+    The connection JWT carries a `channels` claim that restricts which
+    channels a token may subscribe to.
+
+    Tokens have a 5-minute TTL; clients must refresh before expiry using
+    `POST /api/v1/realtime/token`.
+defaultContentType: application/json
+servers:
+  centrifugo:
+    host: localhost:8000
+    pathname: /connection/websocket
+    protocol: ws
+    description: Local Centrifugo instance
+    security:
+      - $ref: "#/components/securitySchemes/connectionJwt"
+channels:
+  systemHealth:
+    address: system:health
+    messages:
+      healthUpdate:
+        $ref: "#/components/messages/HealthUpdate"
+    description: Broadcast of service health transitions (ok <-> degraded <-> down).
+
+operations:
+  receiveHealthUpdate:
+    action: receive
+    channel:
+      $ref: "#/channels/systemHealth"
+    summary: Listen for backend-pushed health status changes
+    messages:
+      - $ref: "#/channels/systemHealth/messages/healthUpdate"
+
+components:
+  messages:
+    HealthUpdate:
+      name: HealthUpdate
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/HealthUpdate"
+
+  schemas:
+    HealthUpdate:
+      type: object
+      required: [status, changedAt]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, down]
+        changedAt:
+          type: string
+          format: date-time
+        reason:
+          type: string
+
+  securitySchemes:
+    connectionJwt:
+      type: httpApiKey
+      in: query
+      name: cf_token
+      description: Short-lived JWT signed by backend with Centrifugo HMAC secret.

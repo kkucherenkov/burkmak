@@ -1,0 +1,25 @@
+{
+  "client": {
+    "allowed_origins": ["http://localhost:3001", "http://127.0.0.1:3001"],
+    "token": {
+      "hmac_secret_key": "dev-hmac-secret"
+    }
+  },
+  "http_api": {
+    "key": "dev-api-key"
+  },
+  "admin": {
+    "enabled": false
+  },
+  "health": {
+    "enabled": true
+  },
+  "channel": {
+    "namespaces": [
+      { "name": "system", "presence": true, "history_size": 10, "history_ttl": "60s" }
+    ]
+  },
+  "log": {
+    "level": "info"
+  }
+}

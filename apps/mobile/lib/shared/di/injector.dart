@@ -1,0 +1,52 @@
+import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
+
+import 'package:app_mobile/features/auth/data/auth_api.dart';
+import 'package:app_mobile/features/auth/domain/auth_repository.dart';
+import 'package:app_mobile/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:app_mobile/shared/auth/token_storage.dart';
+import 'package:app_mobile/shared/config/app_config.dart';
+import 'package:app_mobile/shared/network/api_client.dart';
+
+/// Global service locator. All runtime dependencies register here; widgets
+/// resolve blocs via `BlocProvider(create: (_) => getIt<FooBloc>())` and
+/// MUST NOT call `getIt<T>()` inside `build()`.
+final GetIt getIt = GetIt.instance;
+
+/// Wires the composition root. Call once, before `runApp`.
+///
+/// Ports (interfaces) are registered as lazy singletons — features consume the
+/// interface, not the implementation. Blocs/Cubits are factories — each
+/// `BlocProvider` gets a fresh instance.
+void configureDependencies() {
+  if (getIt.isRegistered<AppConfig>()) {
+    return;
+  }
+
+  // ── Infra singletons ────────────────────────────────────────────────────
+  getIt
+    ..registerLazySingleton<AppConfig>(AppConfig.fromEnv)
+    ..registerLazySingleton<TokenStorage>(SecureTokenStorage.new)
+    ..registerLazySingleton<Dio>(
+      () => buildDio(
+        config: getIt<AppConfig>(),
+        tokenStorage: getIt<TokenStorage>(),
+      ),
+    );
+
+  // ── Domain repository singletons ────────────────────────────────────────
+  getIt.registerLazySingleton<AuthRepository>(
+    () => AuthApiImpl(
+      dio: getIt<Dio>(),
+      tokenStorage: getIt<TokenStorage>(),
+    ),
+  );
+
+  // ── Cubit factories ─────────────────────────────────────────────────────
+  getIt.registerFactory<AuthCubit>(
+    () => AuthCubit(getIt<AuthRepository>()),
+  );
+}
+
+/// Test-only reset hook. Call in `tearDown` to drop singletons between cases.
+Future<void> resetInjector() => getIt.reset();

@@ -1,0 +1,94 @@
+# deps
+node_modules
+.pnp.*
+.yarn
+.pnpm-store
+
+# build
+dist
+.output
+.nuxt
+.nitro
+build
+out
+coverage
+.turbo
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# tooling
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+.vscode
+
+# claude code — per-developer / runtime artefacts (the shared config lives in
+# .claude/ and IS committed; only these machine-local files are ignored)
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+.claude/launch.json
+
+# dart libraries (apps DO commit pubspec.lock; libraries do not — Dart convention)
+packages/api-client-dart/pubspec.lock
+packages/ui_flutter/pubspec.lock
+
+# generated API clients are CHECKED IN (regenerated via `pnpm spec:codegen`,
+# never hand-edited — see CLAUDE.md). Reviewable as part of the spec PR.
+# Exception: the dart-dio generator's FILES manifest is non-idempotent
+# across runs, so we gitignore it to keep the codegen-drift CI guard reliable.
+packages/api-client-dart/lib/generated/.openapi-generator/FILES
+
+# specs bundle artifact (regenerated)
+packages/specs/dist
+
+# generated design tokens (regenerated via tokens pipeline). The Flutter
+# tokens.g.dart is CHECKED IN per CLAUDE.md; the web/ui CSS+TS mirrors are
+# regenerated on every build and stay ignored.
+apps/web/app/assets/css/tokens.generated.css
+apps/web/app/design-tokens.generated.ts
+packages/ui/src/tokens.generated.css
+packages/ui/src/design-tokens.generated.ts
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# prisma
+apps/backend/prisma/migrations/dev.db*
+
+# flutter / dart — apply across every dart package, not just apps/mobile
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/.metadata
+apps/mobile/lib/i18n/strings.g.dart
+apps/mobile/lib/i18n/strings_*.g.dart
+apps/mobile/build
+apps/mobile/ios/Pods
+apps/mobile/ios/Podfile.lock
+apps/mobile/android/.gradle
+apps/mobile/android/local.properties
+apps/mobile/ios/Flutter/Generated.xcconfig
+apps/mobile/ios/Flutter/flutter_export_environment.sh
+
+# storybook
+storybook-static
+packages/ui/auto-imports.d.ts
+packages/ui/components.d.ts
+
+# test artifacts
+playwright-report
+test-results
+
+# boilerplate-specific ignores
+specs/local-dev.md
+architecture.pptx

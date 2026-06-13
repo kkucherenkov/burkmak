@@ -1,0 +1,17 @@
+# slang — type-safe i18n for Flutter.
+# Translation files live per-namespace under lib/i18n/<namespace>_<locale>.i18n.json.
+# Generated strongly-typed accessors are written to lib/i18n/strings.g.dart (gitignored).
+# Rebuild: dart run slang
+base_locale: en
+fallback_strategy: base_locale
+input_directory: lib/i18n
+input_file_pattern: .i18n.json
+output_directory: lib/i18n
+output_file_name: strings.g.dart
+namespaces: true
+translate_var: t
+string_interpolation: braces
+enum_name: AppLocale
+class_name: Translations
+flutter_integration: true
+locale_handling: true

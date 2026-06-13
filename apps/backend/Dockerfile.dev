@@ -1,0 +1,22 @@
+FROM node:24-alpine
+
+RUN apk add --no-cache openssl libc6-compat && corepack enable
+
+WORKDIR /workspace
+
+ENV CI=1 \
+    NODE_ENV=development \
+    PNPM_HOME=/root/.local/share/pnpm \
+    PATH=/root/.local/share/pnpm:$PATH
+
+# The compose file mounts the full monorepo at /workspace; entrypoint below
+# installs deps and runs the backend in watch mode.
+EXPOSE 3000
+
+CMD ["sh", "-lc", "\
+  pnpm install --frozen-lockfile=false && \
+  pnpm --filter @app/specs bundle && \
+  pnpm --filter @app/backend prisma:generate && \
+  pnpm --filter @app/backend prisma:db:push && \
+  pnpm --filter @app/backend dev \
+"]

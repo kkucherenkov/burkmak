@@ -1,0 +1,16 @@
+**/node_modules
+**/dist
+**/build
+**/.output
+**/.nuxt
+**/.turbo
+**/coverage
+**/storybook-static
+packages/api-client-ts/src/generated
+packages/api-client-dart/lib/generated
+packages/specs/dist
+apps/mobile/.dart_tool
+apps/mobile/build
+apps/mobile/ios
+apps/mobile/android
+pnpm-lock.yaml

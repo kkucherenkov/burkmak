@@ -1,0 +1,33 @@
+{
+  "name": "@app/eslint-config",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Shared ESLint flat-config presets",
+  "type": "module",
+  "main": "./base.mjs",
+  "exports": {
+    "./base.mjs": "./base.mjs",
+    "./nest.mjs": "./nest.mjs",
+    "./nuxt.mjs": "./nuxt.mjs",
+    "./vue-lib.mjs": "./vue-lib.mjs"
+  },
+  "files": [
+    "*.mjs"
+  ],
+  "dependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-unicorn": "^64.0.0",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "eslint-plugin-vue": "^10.1.0",
+    "globals": "^17.5.0",
+    "typescript-eslint": "^8.24.0",
+    "vue-eslint-parser": "^10.1.0"
+  },
+  "peerDependencies": {
+    "eslint": "^9.19.0",
+    "typescript": ">=5.7.0"
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "$description": "Semantic color tokens. Replace with your brand palette.",
+  "color": {
+    "brand": {
+      "accent": {
+        "light": { "$value": "#3B82F6", "$type": "color" },
+        "dark":  { "$value": "#60A5FA", "$type": "color" }
+      },
+      "accentHover": {
+        "light": { "$value": "#2563EB", "$type": "color" },
+        "dark":  { "$value": "#93C5FD", "$type": "color" }
+      },
+      "accentActive": {
+        "light": { "$value": "#1D4ED8", "$type": "color" },
+        "dark":  { "$value": "#BFDBFE", "$type": "color" }
+      },
+      "accentFg": {
+        "light": { "$value": "#FFFFFF", "$type": "color" },
+        "dark":  { "$value": "#1E3A5F", "$type": "color" }
+      },
+      "accentSubtle": {
+        "light": { "$value": "#EFF6FF", "$type": "color" },
+        "dark":  { "$value": "#1E3A5F", "$type": "color" }
+      }
+    },
+    "surface": {
+      "page": {
+        "light": { "$value": "#FFFFFF", "$type": "color" },
+        "dark":  { "$value": "#0F172A", "$type": "color" }
+      },
+      "surface": {
+        "light": { "$value": "#F8FAFC", "$type": "color" },
+        "dark":  { "$value": "#1E293B", "$type": "color" }
+      },
+      "raised": {
+        "light": { "$value": "#FFFFFF", "$type": "color" },
+        "dark":  { "$value": "#334155", "$type": "color" }
+      },
+      "overlay": {
+        "light": { "$value": "#FFFFFF", "$type": "color" },
+        "dark":  { "$value": "#1E293B", "$type": "color" }
+      }
+    },
+    "border": {
+      "default": {
+        "light": { "$value": "#E2E8F0", "$type": "color" },
+        "dark":  { "$value": "#334155", "$type": "color" }
+      },
+      "strong": {
+        "light": { "$value": "#CBD5E1", "$type": "color" },
+        "dark":  { "$value": "#475569", "$type": "color" }
+      },
+      "focus": {
+        "light": { "$value": "#3B82F6", "$type": "color" },
+        "dark":  { "$value": "#60A5FA", "$type": "color" }
+      }
+    },
+    "text": {
+      "fg": {
+        "light": { "$value": "#0F172A", "$type": "color" },
+        "dark":  { "$value": "#F1F5F9", "$type": "color" }
+      },
+      "secondary": {
+        "light": { "$value": "#475569", "$type": "color" },
+        "dark":  { "$value": "#94A3B8", "$type": "color" }
+      },
+      "tertiary": {
+        "light": { "$value": "#94A3B8", "$type": "color" },
+        "dark":  { "$value": "#64748B", "$type": "color" }
+      },
+      "disabled": {
+        "light": { "$value": "#CBD5E1", "$type": "color" },
+        "dark":  { "$value": "#334155", "$type": "color" }
+      },
+      "inverse": {
+        "light": { "$value": "#FFFFFF", "$type": "color" },
+        "dark":  { "$value": "#0F172A", "$type": "color" }
+      },
+      "link": {
+        "light": { "$value": "#3B82F6", "$type": "color" },
+        "dark":  { "$value": "#60A5FA", "$type": "color" }
+      }
+    },
+    "status": {
+      "successFg": {
+        "light": { "$value": "#16A34A", "$type": "color" },
+        "dark":  { "$value": "#4ADE80", "$type": "color" }
+      },
+      "successSubtle": {
+        "light": { "$value": "#F0FDF4", "$type": "color" },
+        "dark":  { "$value": "#14532D", "$type": "color" }
+      },
+      "warningFg": {
+        "light": { "$value": "#D97706", "$type": "color" },
+        "dark":  { "$value": "#FCD34D", "$type": "color" }
+      },
+      "warningSubtle": {
+        "light": { "$value": "#FFFBEB", "$type": "color" },
+        "dark":  { "$value": "#451A03", "$type": "color" }
+      },
+      "errorFg": {
+        "light": { "$value": "#DC2626", "$type": "color" },
+        "dark":  { "$value": "#F87171", "$type": "color" }
+      },
+      "errorSubtle": {
+        "light": { "$value": "#FEF2F2", "$type": "color" },
+        "dark":  { "$value": "#450A0A", "$type": "color" }
+      },
+      "infoFg": {
+        "light": { "$value": "#0EA5E9", "$type": "color" },
+        "dark":  { "$value": "#38BDF8", "$type": "color" }
+      },
+      "infoSubtle": {
+        "light": { "$value": "#F0F9FF", "$type": "color" },
+        "dark":  { "$value": "#082F49", "$type": "color" }
+      }
+    },
+    "vertical": {}
+  }
+}

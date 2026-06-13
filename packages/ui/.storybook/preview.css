@@ -1,0 +1,5 @@
+/* Override the dark body background injected by @nuxt/ui/vue-plugin.
+   Use the surface token so the canvas matches the active theme. */
+body {
+  background-color: var(--surface-surface) !important;
+}

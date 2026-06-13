@@ -1,0 +1,21 @@
+{
+  "appTitle": "Appointments",
+  "loading": "Завантаження…",
+  "retry": "Повторити",
+  "localeEn": "Англійська",
+  "localeRu": "Російська",
+  "localeEl": "Грецька",
+  "localeUk": "Українська",
+  "shell": {
+    "navHome": "Головна",
+    "navBookings": "Записи",
+    "navChat": "Чат",
+    "navProfile": "Профіль",
+    "navSos": "SOS",
+    "navBusiness": "Бізнес",
+    "navAriaLabel": "Основна навігація",
+    "signIn": "Увійти",
+    "signOut": "Вийти",
+    "drawerOpen": "Відкрити навігацію"
+  }
+}
