@@ -16,6 +16,7 @@ import { AuthModule } from './common/auth/auth.module';
 import { DataLoaderModule } from './common/dataloader/dataloader.module';
 import { NotificationsModule } from './common/notifications/notifications.module';
 import { ConfigModule } from './common/config/config.module';
+import { JobsModule } from './common/jobs/jobs.module';
 import { ObservabilityModule } from './common/observability/observability.module';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { SmsModule } from './common/sms/sms.module';
@@ -49,6 +50,7 @@ const devOnlyModules: ImportableModule[] = [];
     ObservabilityModule,
     DataLoaderModule,
     PrismaModule,
+    JobsModule,
     SmsModule,
     NotificationsModule,
     IntegrationsModule,
