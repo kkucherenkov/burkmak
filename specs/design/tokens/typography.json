@@ -1,10 +1,18 @@
 {
-  "$description": "Typography tokens. Default font stack is Inter. Replace with your brand typeface.",
+  "$description": "Typography tokens. Brand faces per DESIGN.md — Fraunces (display), Literata (reading), Hanken Grotesk (sans/UI chrome), JetBrains Mono (code). Webfont assets are loaded by the apps; stacks fall back to generics until then.",
   "typography": {
     "font": {
       "family": {
         "sans": {
-          "$value": "'Inter', ui-sans-serif, system-ui, sans-serif",
+          "$value": "'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif",
+          "$type": "fontFamily"
+        },
+        "display": {
+          "$value": "'Fraunces', ui-serif, Georgia, 'Times New Roman', serif",
+          "$type": "fontFamily"
+        },
+        "reading": {
+          "$value": "'Literata', ui-serif, Georgia, serif",
           "$type": "fontFamily"
         },
         "mono": {
