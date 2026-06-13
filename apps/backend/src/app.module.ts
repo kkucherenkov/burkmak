@@ -23,6 +23,7 @@ import { SmsModule } from './common/sms/sms.module';
 import { EventsModule } from './modules/events/events.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { HealthModule } from './modules/health/health.module';
+import { ItemsModule } from './modules/items/items.module';
 
 type ImportableModule = DynamicModule | (new (...args: unknown[]) => unknown);
 
@@ -58,6 +59,7 @@ const devOnlyModules: ImportableModule[] = [];
     AuthModule,
     EventsModule,
     HealthModule,
+    ItemsModule,
     ...devOnlyModules,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
