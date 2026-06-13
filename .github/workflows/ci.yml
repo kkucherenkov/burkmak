@@ -81,7 +81,7 @@ jobs:
 
   # ── Spec validation ────────────────────────────────────────────────────────
   specs:
-    name: OpenAPI / AsyncAPI spec validation
+    name: OpenAPI spec validation
     runs-on: ubuntu-latest
 
     steps:

@@ -8,4 +8,3 @@
  */
 
 export * from './generated/index.js';
-export * from './realtime/channels.js';

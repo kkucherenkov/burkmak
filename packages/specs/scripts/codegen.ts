@@ -55,13 +55,4 @@ run('dart fix --apply', dartOut);
 console.warn('[codegen] post: prettier on openapi-types.ts (stable diff across versions)');
 run(`pnpm exec prettier --write "${openapiTypesOut}"`, packagesRoot);
 
-console.warn('[codegen] 4/4 asyncapi → @app/api-client-ts/realtime/channels.ts');
-run(`node --experimental-strip-types ${path.join(here, 'codegen-asyncapi.ts')}`);
-
-console.warn('[codegen] post: prettier on generated realtime channels');
-run(
-  `pnpm exec prettier --write "${path.join(packagesRoot, 'api-client-ts/src/realtime/channels.ts')}"`,
-  packagesRoot,
-);
-
 console.warn('\n✓ Codegen complete.');
