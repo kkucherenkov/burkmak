@@ -6,7 +6,6 @@ networks:
 
 volumes:
   pgdata:
-  otel_lgtm_data:
 
 services:
   postgres:
@@ -29,21 +28,6 @@ services:
       retries: 20
     networks: ["burkmak-net"]
 
-  otel-lgtm:
-    image: grafana/otel-lgtm:0.8.1
-    restart: unless-stopped
-    ports:
-      - "3200:3000" # Grafana UI
-      - "4317:4317" # OTLP gRPC
-      - "4318:4318" # OTLP HTTP
-    environment:
-      GF_AUTH_ANONYMOUS_ENABLED: "true"
-      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
-    volumes:
-      - otel_lgtm_data:/data
-      - ./grafana/provisioning:/etc/grafana/provisioning
-    networks: ["burkmak-net"]
-
   backend:
     build:
       context: ..
@@ -51,7 +35,6 @@ services:
     restart: unless-stopped
     depends_on:
       postgres: { condition: service_healthy }
-      otel-lgtm: { condition: service_started }
     environment:
       NODE_ENV: development
       PORT: "3000"
@@ -60,7 +43,6 @@ services:
       BETTER_AUTH_URL: http://localhost:3000
       BETTER_AUTH_BASE_PATH: /api/v1/auth
       CORS_ORIGINS: http://localhost:3001
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-lgtm:4318
     working_dir: /workspace
     volumes:
       - ..:/workspace

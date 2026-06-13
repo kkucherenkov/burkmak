@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import * as Sentry from '@sentry/node';
 
 import { DomainError } from '../errors/domain-error';
 
@@ -37,10 +36,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         `${request.method} ${problem.instance} — ${problem.title}`,
         exception instanceof Error ? exception.stack : undefined,
       );
-      // SentryInterceptor captures 5xx that flow through the interceptor chain;
-      // this call covers errors thrown directly inside filters or exception
-      // factories that bypass the interceptor chain entirely.
-      Sentry.captureException(exception);
     }
 
     response.status(problem.status).type('application/problem+json').send(problem);

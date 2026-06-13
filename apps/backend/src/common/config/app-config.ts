@@ -21,8 +21,6 @@ export interface AppRuntimeConfig {
   readonly nodeEnv: 'development' | 'production' | 'test';
   readonly corsOrigins: string[];
   readonly version: string;
-  readonly sentryDsn: string | null;
-  readonly otelEndpoint: string | null;
 }
 
 export interface FirebaseConfig {
@@ -49,8 +47,6 @@ export class AppConfig {
   constructor(private readonly config: ConfigService) {}
 
   get runtime(): AppRuntimeConfig {
-    const sentryDsn = this.config.get<string>('SENTRY_DSN') ?? '';
-    const otelEndpoint = this.config.get<string>('OTEL_EXPORTER_OTLP_ENDPOINT') ?? '';
     return {
       port: this.numberOrDefault('PORT', 3000),
       nodeEnv: this.stringOrDefault('NODE_ENV', 'development') as AppRuntimeConfig['nodeEnv'],
@@ -59,8 +55,6 @@ export class AppConfig {
         .map((s) => s.trim())
         .filter(Boolean),
       version: this.stringOrDefault('APP_VERSION', '0.0.0-dev'),
-      sentryDsn: sentryDsn.length > 0 ? sentryDsn : null,
-      otelEndpoint: otelEndpoint.length > 0 ? otelEndpoint : null,
     };
   }
 
