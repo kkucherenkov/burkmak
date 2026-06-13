@@ -47,6 +47,156 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/items': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List saved items with optional filtering
+     * @description Returns a cursor-paginated list of the authenticated user's saved items. Supports filtering by read state, tag, favourite flag, and full-text search.
+     */
+    get: operations['listItems'];
+    put?: never;
+    /**
+     * Save a new URL to the reading list
+     * @description Creates an item with status `pending`. A background job is dispatched to fetch metadata (title, excerpt, images). The item becomes `ready` or `failed` asynchronously.
+     */
+    post: operations['saveItem'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/items/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Item ID (cuid) */
+        id: string;
+      };
+      cookie?: never;
+    };
+    /**
+     * Fetch a single item by ID
+     * @description Returns the full item record for the given ID, scoped to the authenticated user.
+     */
+    get: operations['getItem'];
+    put?: never;
+    post?: never;
+    /**
+     * Permanently delete an item
+     * @description Permanently removes the item and all its tag associations. This operation cannot be undone.
+     */
+    delete: operations['deleteItem'];
+    options?: never;
+    head?: never;
+    /**
+     * Update read state or favourite flag on an item
+     * @description Partially updates an item. At least one of `readState` or `favorite` must be provided. Setting `readState` to `read` for the first time records `readAt`.
+     */
+    patch: operations['updateItem'];
+    trace?: never;
+  };
+  '/api/v1/items/{id}/tags': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Item ID (cuid) */
+        id: string;
+      };
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Add a tag to an item (creates the tag if it does not exist)
+     * @description Attaches a tag to the item by slug. If the tag does not yet exist for this user it is created automatically and a slug is derived from the provided name.
+     */
+    post: operations['addItemTag'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/items/{id}/tags/{tagSlug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Item ID (cuid) */
+        id: string;
+        /** @description Tag slug to remove */
+        tagSlug: string;
+      };
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Remove a tag from an item
+     * @description Detaches the specified tag from the item. The tag record itself is not deleted; use `DELETE /api/v1/tags/{id}` for that.
+     */
+    delete: operations['removeItemTag'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/tags': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List all tags for the authenticated user
+     * @description Returns every tag that belongs to the authenticated user, ordered by name, with a count of associated items.
+     */
+    get: operations['listTags'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/tags/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Tag ID (cuid) */
+        id: string;
+      };
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete a tag and remove it from all items
+     * @description Permanently deletes the tag and cascades removal from all items that carry it. This operation cannot be undone.
+     */
+    delete: operations['deleteTag'];
+    options?: never;
+    head?: never;
+    /**
+     * Rename a tag (updates name; slug is re-derived server-side)
+     * @description Updates the display name of a tag. The slug is automatically re-derived from the new name server-side.
+     */
+    patch: operations['renameTag'];
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -76,6 +226,102 @@ export interface components {
       detail?: string | null;
       instance?: string | null;
       code?: string | null;
+    };
+    /**
+     * @description Processing status of the item's metadata extraction job
+     * @enum {string}
+     */
+    ItemStatus: 'pending' | 'ready' | 'failed';
+    /**
+     * @description The user's read progress for an item
+     * @enum {string}
+     */
+    ReadState: 'unread' | 'read' | 'archived';
+    Item: {
+      /** @description Unique item ID (cuid) */
+      id: string;
+      /**
+       * Format: uri
+       * @description Original URL submitted by the user
+       */
+      url: string;
+      /**
+       * Format: uri
+       * @description Canonical URL resolved during metadata extraction
+       */
+      canonicalUrl?: string | null;
+      /** @description Page title */
+      title?: string | null;
+      /** @description Name of the publishing site */
+      siteName?: string | null;
+      /** @description Short plain-text excerpt */
+      excerpt?: string | null;
+      /**
+       * Format: uri
+       * @description Hero/lead image URL
+       */
+      leadImageUrl?: string | null;
+      /**
+       * Format: uri
+       * @description Site favicon URL
+       */
+      faviconUrl?: string | null;
+      status: components['schemas']['ItemStatus'];
+      readState: components['schemas']['ReadState'];
+      /** @description Whether the item is marked as a favourite */
+      favorite: boolean;
+      /**
+       * Format: date-time
+       * @description ISO-8601 timestamp when the item was saved
+       */
+      savedAt: string;
+      /**
+       * Format: date-time
+       * @description ISO-8601 timestamp when the item was first marked read
+       */
+      readAt?: string | null;
+      /** @description Slugs of tags attached to this item */
+      tags: string[];
+    };
+    ItemList: {
+      items: components['schemas']['Item'][];
+      /** @description Opaque cursor for the next page; null when no more pages */
+      nextCursor: string | null;
+    };
+    Tag: {
+      /** @description Unique tag ID (cuid) */
+      id: string;
+      /** @description Human-readable tag name (original casing) */
+      name: string;
+      /** @description URL-safe lowercase slug derived from name */
+      slug: string;
+      /** @description Number of items carrying this tag */
+      count: number;
+    };
+    TagList: {
+      tags: components['schemas']['Tag'][];
+    };
+    SaveItemRequest: {
+      /**
+       * Format: uri
+       * @description URL to save
+       */
+      url: string;
+      /** @description Optional tag slugs to attach immediately */
+      tags?: string[];
+    };
+    UpdateItemRequest: {
+      readState?: components['schemas']['ReadState'];
+      /** @description Set or clear the favourite flag */
+      favorite?: boolean;
+    };
+    AddTagRequest: {
+      /** @description Tag name or slug to add (created if absent) */
+      tag: string;
+    };
+    RenameTagRequest: {
+      /** @description New display name for the tag */
+      name: string;
     };
   };
   responses: never;
@@ -135,6 +381,439 @@ export interface operations {
       };
       /** @description No active session */
       401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+    };
+  };
+  listItems: {
+    parameters: {
+      query?: {
+        /** @description Filter by read state */
+        readState?: components['schemas']['ReadState'];
+        /** @description Filter by tag slug */
+        tag?: string;
+        /** @description Filter to favourites only */
+        favorite?: boolean;
+        /** @description Full-text search query */
+        q?: string;
+        /** @description Opaque cursor for the next page */
+        cursor?: string;
+        /** @description Number of items to return (1–100, default 20) */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Paginated list of items */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ItemList'];
+        };
+      };
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+    };
+  };
+  saveItem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SaveItemRequest'];
+      };
+    };
+    responses: {
+      /** @description Item created (metadata extraction is asynchronous; initial status is `pending`) */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Item'];
+        };
+      };
+      /** @description Request body invalid */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+    };
+  };
+  getItem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Item ID (cuid) */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description The requested item */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Item'];
+        };
+      };
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+      /** @description Item not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+    };
+  };
+  deleteItem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Item ID (cuid) */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Item deleted successfully */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+      /** @description Item not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+    };
+  };
+  updateItem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Item ID (cuid) */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateItemRequest'];
+      };
+    };
+    responses: {
+      /** @description Updated item */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Item'];
+        };
+      };
+      /** @description Request body invalid */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+      /** @description Item not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+    };
+  };
+  addItemTag: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Item ID (cuid) */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AddTagRequest'];
+      };
+    };
+    responses: {
+      /** @description Item with updated tag list */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Item'];
+        };
+      };
+      /** @description Request body invalid */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+      /** @description Item not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+    };
+  };
+  removeItemTag: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Item ID (cuid) */
+        id: string;
+        /** @description Tag slug to remove */
+        tagSlug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Tag removed from item */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+      /** @description Item not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+    };
+  };
+  listTags: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description All tags with item counts */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TagList'];
+        };
+      };
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+    };
+  };
+  deleteTag: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Tag ID (cuid) */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Tag deleted successfully */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+      /** @description Tag not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+    };
+  };
+  renameTag: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Tag ID (cuid) */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RenameTagRequest'];
+      };
+    };
+    responses: {
+      /** @description Tag renamed successfully */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Request body invalid */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['Problem'];
+        };
+      };
+      /** @description Tag not found */
+      404: {
         headers: {
           [name: string]: unknown;
         };

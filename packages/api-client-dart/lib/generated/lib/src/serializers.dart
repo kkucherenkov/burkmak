@@ -14,18 +14,38 @@ import 'package:built_value/iso_8601_date_time_serializer.dart';
 import 'package:app_api_client/src/date_serializer.dart';
 import 'package:app_api_client/src/model/date.dart';
 
+import 'package:app_api_client/src/model/add_tag_request.dart';
 import 'package:app_api_client/src/model/dependency_status.dart';
 import 'package:app_api_client/src/model/health_status.dart';
 import 'package:app_api_client/src/model/health_status_dependencies.dart';
+import 'package:app_api_client/src/model/item.dart';
+import 'package:app_api_client/src/model/item_list.dart';
+import 'package:app_api_client/src/model/item_status.dart';
 import 'package:app_api_client/src/model/problem.dart';
+import 'package:app_api_client/src/model/read_state.dart';
+import 'package:app_api_client/src/model/rename_tag_request.dart';
+import 'package:app_api_client/src/model/save_item_request.dart';
+import 'package:app_api_client/src/model/tag.dart';
+import 'package:app_api_client/src/model/tag_list.dart';
+import 'package:app_api_client/src/model/update_item_request.dart';
 
 part 'serializers.g.dart';
 
 @SerializersFor([
+  AddTagRequest,
   DependencyStatus,
   HealthStatus,
   HealthStatusDependencies,
+  Item,
+  ItemList,
+  ItemStatus,
   Problem,
+  ReadState,
+  RenameTagRequest,
+  SaveItemRequest,
+  Tag,
+  TagList,
+  UpdateItemRequest,
 ])
 Serializers serializers = (_$serializers.toBuilder()
       ..add(const OneOfSerializer())

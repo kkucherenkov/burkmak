@@ -33,6 +33,133 @@ export type Problem = {
     code?: string | null;
 };
 
+/**
+ * Processing status of the item's metadata extraction job
+ */
+export type ItemStatus = 'pending' | 'ready' | 'failed';
+
+/**
+ * The user's read progress for an item
+ */
+export type ReadState = 'unread' | 'read' | 'archived';
+
+export type Item = {
+    /**
+     * Unique item ID (cuid)
+     */
+    id: string;
+    /**
+     * Original URL submitted by the user
+     */
+    url: string;
+    /**
+     * Canonical URL resolved during metadata extraction
+     */
+    canonicalUrl?: string | null;
+    /**
+     * Page title
+     */
+    title?: string | null;
+    /**
+     * Name of the publishing site
+     */
+    siteName?: string | null;
+    /**
+     * Short plain-text excerpt
+     */
+    excerpt?: string | null;
+    /**
+     * Hero/lead image URL
+     */
+    leadImageUrl?: string | null;
+    /**
+     * Site favicon URL
+     */
+    faviconUrl?: string | null;
+    status: ItemStatus;
+    readState: ReadState;
+    /**
+     * Whether the item is marked as a favourite
+     */
+    favorite: boolean;
+    /**
+     * ISO-8601 timestamp when the item was saved
+     */
+    savedAt: string;
+    /**
+     * ISO-8601 timestamp when the item was first marked read
+     */
+    readAt?: string | null;
+    /**
+     * Slugs of tags attached to this item
+     */
+    tags: Array<string>;
+};
+
+export type ItemList = {
+    items: Array<Item>;
+    /**
+     * Opaque cursor for the next page; null when no more pages
+     */
+    nextCursor: string | null;
+};
+
+export type Tag = {
+    /**
+     * Unique tag ID (cuid)
+     */
+    id: string;
+    /**
+     * Human-readable tag name (original casing)
+     */
+    name: string;
+    /**
+     * URL-safe lowercase slug derived from name
+     */
+    slug: string;
+    /**
+     * Number of items carrying this tag
+     */
+    count: number;
+};
+
+export type TagList = {
+    tags: Array<Tag>;
+};
+
+export type SaveItemRequest = {
+    /**
+     * URL to save
+     */
+    url: string;
+    /**
+     * Optional tag slugs to attach immediately
+     */
+    tags?: Array<string>;
+};
+
+export type UpdateItemRequest = {
+    readState?: ReadState;
+    /**
+     * Set or clear the favourite flag
+     */
+    favorite?: boolean;
+};
+
+export type AddTagRequest = {
+    /**
+     * Tag name or slug to add (created if absent)
+     */
+    tag: string;
+};
+
+export type RenameTagRequest = {
+    /**
+     * New display name for the tag
+     */
+    name: string;
+};
+
 export type GetHealthData = {
     body?: never;
     path?: never;
@@ -82,3 +209,361 @@ export type StreamEventsResponses = {
 };
 
 export type StreamEventsResponse = StreamEventsResponses[keyof StreamEventsResponses];
+
+export type ListItemsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Filter by read state
+         */
+        readState?: ReadState;
+        /**
+         * Filter by tag slug
+         */
+        tag?: string;
+        /**
+         * Filter to favourites only
+         */
+        favorite?: boolean;
+        /**
+         * Full-text search query
+         */
+        q?: string;
+        /**
+         * Opaque cursor for the next page
+         */
+        cursor?: string;
+        /**
+         * Number of items to return (1–100, default 20)
+         */
+        limit?: number;
+    };
+    url: '/api/v1/items';
+};
+
+export type ListItemsErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+};
+
+export type ListItemsError = ListItemsErrors[keyof ListItemsErrors];
+
+export type ListItemsResponses = {
+    /**
+     * Paginated list of items
+     */
+    200: ItemList;
+};
+
+export type ListItemsResponse = ListItemsResponses[keyof ListItemsResponses];
+
+export type SaveItemData = {
+    body: SaveItemRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/items';
+};
+
+export type SaveItemErrors = {
+    /**
+     * Request body invalid
+     */
+    400: Problem;
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+};
+
+export type SaveItemError = SaveItemErrors[keyof SaveItemErrors];
+
+export type SaveItemResponses = {
+    /**
+     * Item created (metadata extraction is asynchronous; initial status is `pending`)
+     */
+    201: Item;
+};
+
+export type SaveItemResponse = SaveItemResponses[keyof SaveItemResponses];
+
+export type DeleteItemData = {
+    body?: never;
+    path: {
+        /**
+         * Item ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/items/{id}';
+};
+
+export type DeleteItemErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Item not found
+     */
+    404: Problem;
+};
+
+export type DeleteItemError = DeleteItemErrors[keyof DeleteItemErrors];
+
+export type DeleteItemResponses = {
+    /**
+     * Item deleted successfully
+     */
+    204: void;
+};
+
+export type DeleteItemResponse = DeleteItemResponses[keyof DeleteItemResponses];
+
+export type GetItemData = {
+    body?: never;
+    path: {
+        /**
+         * Item ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/items/{id}';
+};
+
+export type GetItemErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Item not found
+     */
+    404: Problem;
+};
+
+export type GetItemError = GetItemErrors[keyof GetItemErrors];
+
+export type GetItemResponses = {
+    /**
+     * The requested item
+     */
+    200: Item;
+};
+
+export type GetItemResponse = GetItemResponses[keyof GetItemResponses];
+
+export type UpdateItemData = {
+    body: UpdateItemRequest;
+    path: {
+        /**
+         * Item ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/items/{id}';
+};
+
+export type UpdateItemErrors = {
+    /**
+     * Request body invalid
+     */
+    400: Problem;
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Item not found
+     */
+    404: Problem;
+};
+
+export type UpdateItemError = UpdateItemErrors[keyof UpdateItemErrors];
+
+export type UpdateItemResponses = {
+    /**
+     * Updated item
+     */
+    200: Item;
+};
+
+export type UpdateItemResponse = UpdateItemResponses[keyof UpdateItemResponses];
+
+export type AddItemTagData = {
+    body: AddTagRequest;
+    path: {
+        /**
+         * Item ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/items/{id}/tags';
+};
+
+export type AddItemTagErrors = {
+    /**
+     * Request body invalid
+     */
+    400: Problem;
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Item not found
+     */
+    404: Problem;
+};
+
+export type AddItemTagError = AddItemTagErrors[keyof AddItemTagErrors];
+
+export type AddItemTagResponses = {
+    /**
+     * Item with updated tag list
+     */
+    200: Item;
+};
+
+export type AddItemTagResponse = AddItemTagResponses[keyof AddItemTagResponses];
+
+export type RemoveItemTagData = {
+    body?: never;
+    path: {
+        /**
+         * Item ID (cuid)
+         */
+        id: string;
+        /**
+         * Tag slug to remove
+         */
+        tagSlug: string;
+    };
+    query?: never;
+    url: '/api/v1/items/{id}/tags/{tagSlug}';
+};
+
+export type RemoveItemTagErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Item not found
+     */
+    404: Problem;
+};
+
+export type RemoveItemTagError = RemoveItemTagErrors[keyof RemoveItemTagErrors];
+
+export type RemoveItemTagResponses = {
+    /**
+     * Tag removed from item
+     */
+    204: void;
+};
+
+export type RemoveItemTagResponse = RemoveItemTagResponses[keyof RemoveItemTagResponses];
+
+export type ListTagsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/tags';
+};
+
+export type ListTagsErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+};
+
+export type ListTagsError = ListTagsErrors[keyof ListTagsErrors];
+
+export type ListTagsResponses = {
+    /**
+     * All tags with item counts
+     */
+    200: TagList;
+};
+
+export type ListTagsResponse = ListTagsResponses[keyof ListTagsResponses];
+
+export type DeleteTagData = {
+    body?: never;
+    path: {
+        /**
+         * Tag ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/tags/{id}';
+};
+
+export type DeleteTagErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Tag not found
+     */
+    404: Problem;
+};
+
+export type DeleteTagError = DeleteTagErrors[keyof DeleteTagErrors];
+
+export type DeleteTagResponses = {
+    /**
+     * Tag deleted successfully
+     */
+    204: void;
+};
+
+export type DeleteTagResponse = DeleteTagResponses[keyof DeleteTagResponses];
+
+export type RenameTagData = {
+    body: RenameTagRequest;
+    path: {
+        /**
+         * Tag ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/tags/{id}';
+};
+
+export type RenameTagErrors = {
+    /**
+     * Request body invalid
+     */
+    400: Problem;
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Tag not found
+     */
+    404: Problem;
+};
+
+export type RenameTagError = RenameTagErrors[keyof RenameTagErrors];
+
+export type RenameTagResponses = {
+    /**
+     * Tag renamed successfully
+     */
+    204: void;
+};
+
+export type RenameTagResponse = RenameTagResponses[keyof RenameTagResponses];

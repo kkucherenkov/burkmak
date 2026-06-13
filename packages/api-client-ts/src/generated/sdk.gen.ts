@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetHealthData, GetHealthErrors, GetHealthResponses, StreamEventsData, StreamEventsErrors, StreamEventsResponse, StreamEventsResponses } from './types.gen';
+import type { AddItemTagData, AddItemTagErrors, AddItemTagResponses, DeleteItemData, DeleteItemErrors, DeleteItemResponses, DeleteTagData, DeleteTagErrors, DeleteTagResponses, GetHealthData, GetHealthErrors, GetHealthResponses, GetItemData, GetItemErrors, GetItemResponses, ListItemsData, ListItemsErrors, ListItemsResponses, ListTagsData, ListTagsErrors, ListTagsResponses, RemoveItemTagData, RemoveItemTagErrors, RemoveItemTagResponses, RenameTagData, RenameTagErrors, RenameTagResponses, SaveItemData, SaveItemErrors, SaveItemResponses, StreamEventsData, StreamEventsErrors, StreamEventsResponse, StreamEventsResponses, UpdateItemData, UpdateItemErrors, UpdateItemResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -43,4 +43,170 @@ export const streamEvents = <ThrowOnError extends boolean = false>(options?: Opt
         }, { scheme: 'bearer', type: 'http' }],
     url: '/api/v1/events',
     ...options
+});
+
+/**
+ * List saved items with optional filtering
+ *
+ * Returns a cursor-paginated list of the authenticated user's saved items. Supports filtering by read state, tag, favourite flag, and full-text search.
+ */
+export const listItems = <ThrowOnError extends boolean = false>(options?: Options<ListItemsData, ThrowOnError>) => (options?.client ?? client).get<ListItemsResponses, ListItemsErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/items',
+    ...options
+});
+
+/**
+ * Save a new URL to the reading list
+ *
+ * Creates an item with status `pending`. A background job is dispatched to fetch metadata (title, excerpt, images). The item becomes `ready` or `failed` asynchronously.
+ */
+export const saveItem = <ThrowOnError extends boolean = false>(options: Options<SaveItemData, ThrowOnError>) => (options.client ?? client).post<SaveItemResponses, SaveItemErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/items',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Permanently delete an item
+ *
+ * Permanently removes the item and all its tag associations. This operation cannot be undone.
+ */
+export const deleteItem = <ThrowOnError extends boolean = false>(options: Options<DeleteItemData, ThrowOnError>) => (options.client ?? client).delete<DeleteItemResponses, DeleteItemErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/items/{id}',
+    ...options
+});
+
+/**
+ * Fetch a single item by ID
+ *
+ * Returns the full item record for the given ID, scoped to the authenticated user.
+ */
+export const getItem = <ThrowOnError extends boolean = false>(options: Options<GetItemData, ThrowOnError>) => (options.client ?? client).get<GetItemResponses, GetItemErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/items/{id}',
+    ...options
+});
+
+/**
+ * Update read state or favourite flag on an item
+ *
+ * Partially updates an item. At least one of `readState` or `favorite` must be provided. Setting `readState` to `read` for the first time records `readAt`.
+ */
+export const updateItem = <ThrowOnError extends boolean = false>(options: Options<UpdateItemData, ThrowOnError>) => (options.client ?? client).patch<UpdateItemResponses, UpdateItemErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/items/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Add a tag to an item (creates the tag if it does not exist)
+ *
+ * Attaches a tag to the item by slug. If the tag does not yet exist for this user it is created automatically and a slug is derived from the provided name.
+ */
+export const addItemTag = <ThrowOnError extends boolean = false>(options: Options<AddItemTagData, ThrowOnError>) => (options.client ?? client).post<AddItemTagResponses, AddItemTagErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/items/{id}/tags',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Remove a tag from an item
+ *
+ * Detaches the specified tag from the item. The tag record itself is not deleted; use `DELETE /api/v1/tags/{id}` for that.
+ */
+export const removeItemTag = <ThrowOnError extends boolean = false>(options: Options<RemoveItemTagData, ThrowOnError>) => (options.client ?? client).delete<RemoveItemTagResponses, RemoveItemTagErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/items/{id}/tags/{tagSlug}',
+    ...options
+});
+
+/**
+ * List all tags for the authenticated user
+ *
+ * Returns every tag that belongs to the authenticated user, ordered by name, with a count of associated items.
+ */
+export const listTags = <ThrowOnError extends boolean = false>(options?: Options<ListTagsData, ThrowOnError>) => (options?.client ?? client).get<ListTagsResponses, ListTagsErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/tags',
+    ...options
+});
+
+/**
+ * Delete a tag and remove it from all items
+ *
+ * Permanently deletes the tag and cascades removal from all items that carry it. This operation cannot be undone.
+ */
+export const deleteTag = <ThrowOnError extends boolean = false>(options: Options<DeleteTagData, ThrowOnError>) => (options.client ?? client).delete<DeleteTagResponses, DeleteTagErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/tags/{id}',
+    ...options
+});
+
+/**
+ * Rename a tag (updates name; slug is re-derived server-side)
+ *
+ * Updates the display name of a tag. The slug is automatically re-derived from the new name server-side.
+ */
+export const renameTag = <ThrowOnError extends boolean = false>(options: Options<RenameTagData, ThrowOnError>) => (options.client ?? client).patch<RenameTagResponses, RenameTagErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/tags/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });

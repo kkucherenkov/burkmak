@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: App API
-  version: 0.1.0
+  version: 0.2.0
   description: |
     Spec-first HTTP API. Paths include the versioned prefix (`/api/v1`) so
     generated clients can be used without additional base-URL rewriting.
@@ -25,6 +25,10 @@ tags:
     description: Health and liveness endpoints
   - name: events
     description: Server-Sent Events stream
+  - name: items
+    description: Saved reading-list items
+  - name: tags
+    description: User-defined item tags
 
 paths:
   /api/v1/health:
@@ -95,6 +99,657 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
 
+  /api/v1/items:
+    get:
+      operationId: listItems
+      summary: List saved items with optional filtering
+      description: Returns a cursor-paginated list of the authenticated user's saved items. Supports filtering by read state, tag, favourite flag, and full-text search.
+      tags: [items]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      parameters:
+        - name: readState
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/ReadState"
+          description: Filter by read state
+        - name: tag
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by tag slug
+        - name: favorite
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Filter to favourites only
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Full-text search query
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Opaque cursor for the next page
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Number of items to return (1–100, default 20)
+      responses:
+        "200":
+          description: Paginated list of items
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemList"
+              examples:
+                page1:
+                  value:
+                    items:
+                      - id: clxabc123
+                        url: https://example.com/article
+                        canonicalUrl: null
+                        title: "An interesting article"
+                        siteName: "Example"
+                        excerpt: "A short excerpt from the article."
+                        leadImageUrl: null
+                        faviconUrl: null
+                        status: ready
+                        readState: unread
+                        favorite: false
+                        savedAt: "2026-06-13T10:00:00Z"
+                        readAt: null
+                        tags: ["tech", "reading"]
+                    nextCursor: null
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+
+    post:
+      operationId: saveItem
+      summary: Save a new URL to the reading list
+      description: Creates an item with status `pending`. A background job is dispatched to fetch metadata (title, excerpt, images). The item becomes `ready` or `failed` asynchronously.
+      tags: [items]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveItemRequest"
+            examples:
+              basic:
+                value:
+                  url: https://example.com/article
+                  tags: ["tech"]
+      responses:
+        "201":
+          description: Item created (metadata extraction is asynchronous; initial status is `pending`)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+              examples:
+                created:
+                  value:
+                    id: clxabc123
+                    url: https://example.com/article
+                    canonicalUrl: null
+                    title: null
+                    siteName: null
+                    excerpt: null
+                    leadImageUrl: null
+                    faviconUrl: null
+                    status: pending
+                    readState: unread
+                    favorite: false
+                    savedAt: "2026-06-13T10:00:00Z"
+                    readAt: null
+                    tags: ["tech"]
+        "400":
+          description: Request body invalid
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                badBody:
+                  value:
+                    type: about:blank
+                    title: Bad Request
+                    status: 400
+                    detail: "url must be a valid URI"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+
+  /api/v1/items/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Item ID (cuid)
+
+    get:
+      operationId: getItem
+      summary: Fetch a single item by ID
+      description: Returns the full item record for the given ID, scoped to the authenticated user.
+      tags: [items]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The requested item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+              examples:
+                found:
+                  value:
+                    id: clxabc123
+                    url: https://example.com/article
+                    canonicalUrl: https://example.com/article
+                    title: "An interesting article"
+                    siteName: "Example"
+                    excerpt: "A short excerpt."
+                    leadImageUrl: https://example.com/img.jpg
+                    faviconUrl: https://example.com/favicon.ico
+                    status: ready
+                    readState: unread
+                    favorite: false
+                    savedAt: "2026-06-13T10:00:00Z"
+                    readAt: null
+                    tags: ["tech"]
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Item not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Item clxabc123 does not exist"
+                    code: item-not-found
+
+    patch:
+      operationId: updateItem
+      summary: Update read state or favourite flag on an item
+      description: Partially updates an item. At least one of `readState` or `favorite` must be provided. Setting `readState` to `read` for the first time records `readAt`.
+      tags: [items]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateItemRequest"
+            examples:
+              markRead:
+                value:
+                  readState: read
+              favourite:
+                value:
+                  favorite: true
+      responses:
+        "200":
+          description: Updated item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+              examples:
+                updated:
+                  value:
+                    id: clxabc123
+                    url: https://example.com/article
+                    canonicalUrl: https://example.com/article
+                    title: "An interesting article"
+                    siteName: "Example"
+                    excerpt: "A short excerpt."
+                    leadImageUrl: null
+                    faviconUrl: null
+                    status: ready
+                    readState: read
+                    favorite: false
+                    savedAt: "2026-06-13T10:00:00Z"
+                    readAt: "2026-06-13T11:00:00Z"
+                    tags: ["tech"]
+        "400":
+          description: Request body invalid
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                badBody:
+                  value:
+                    type: about:blank
+                    title: Bad Request
+                    status: 400
+                    detail: "readState must be one of: unread, read, archived"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Item not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Item clxabc123 does not exist"
+                    code: item-not-found
+
+    delete:
+      operationId: deleteItem
+      summary: Permanently delete an item
+      description: Permanently removes the item and all its tag associations. This operation cannot be undone.
+      tags: [items]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Item deleted successfully
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Item not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Item clxabc123 does not exist"
+                    code: item-not-found
+
+  /api/v1/items/{id}/tags:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Item ID (cuid)
+
+    post:
+      operationId: addItemTag
+      summary: Add a tag to an item (creates the tag if it does not exist)
+      description: Attaches a tag to the item by slug. If the tag does not yet exist for this user it is created automatically and a slug is derived from the provided name.
+      tags: [items]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddTagRequest"
+            examples:
+              add:
+                value:
+                  tag: tech
+      responses:
+        "200":
+          description: Item with updated tag list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+              examples:
+                tagged:
+                  value:
+                    id: clxabc123
+                    url: https://example.com/article
+                    canonicalUrl: null
+                    title: "An interesting article"
+                    siteName: "Example"
+                    excerpt: null
+                    leadImageUrl: null
+                    faviconUrl: null
+                    status: ready
+                    readState: unread
+                    favorite: false
+                    savedAt: "2026-06-13T10:00:00Z"
+                    readAt: null
+                    tags: ["tech", "reading"]
+        "400":
+          description: Request body invalid
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                badBody:
+                  value:
+                    type: about:blank
+                    title: Bad Request
+                    status: 400
+                    detail: "tag must be between 1 and 40 characters"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Item not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Item clxabc123 does not exist"
+                    code: item-not-found
+
+  /api/v1/items/{id}/tags/{tagSlug}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Item ID (cuid)
+      - name: tagSlug
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Tag slug to remove
+
+    delete:
+      operationId: removeItemTag
+      summary: Remove a tag from an item
+      description: Detaches the specified tag from the item. The tag record itself is not deleted; use `DELETE /api/v1/tags/{id}` for that.
+      tags: [items]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Tag removed from item
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Item not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Item clxabc123 does not exist"
+                    code: item-not-found
+
+  /api/v1/tags:
+    get:
+      operationId: listTags
+      summary: List all tags for the authenticated user
+      description: Returns every tag that belongs to the authenticated user, ordered by name, with a count of associated items.
+      tags: [tags]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "200":
+          description: All tags with item counts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TagList"
+              examples:
+                list:
+                  value:
+                    tags:
+                      - id: clxtag001
+                        name: Tech
+                        slug: tech
+                        count: 12
+                      - id: clxtag002
+                        name: Reading
+                        slug: reading
+                        count: 5
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+
+  /api/v1/tags/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Tag ID (cuid)
+
+    patch:
+      operationId: renameTag
+      summary: Rename a tag (updates name; slug is re-derived server-side)
+      description: Updates the display name of a tag. The slug is automatically re-derived from the new name server-side.
+      tags: [tags]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenameTagRequest"
+            examples:
+              rename:
+                value:
+                  name: Technology
+      responses:
+        "204":
+          description: Tag renamed successfully
+        "400":
+          description: Request body invalid
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                badBody:
+                  value:
+                    type: about:blank
+                    title: Bad Request
+                    status: 400
+                    detail: "name must be between 1 and 40 characters"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Tag not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Tag clxtag001 does not exist"
+                    code: tag-not-found
+
+    delete:
+      operationId: deleteTag
+      summary: Delete a tag and remove it from all items
+      description: Permanently deletes the tag and cascades removal from all items that carry it. This operation cannot be undone.
+      tags: [tags]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Tag deleted successfully
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Tag not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Tag clxtag001 does not exist"
+                    code: tag-not-found
+
 components:
   securitySchemes:
     cookieAuth:
@@ -150,3 +805,148 @@ components:
           type: ["string", "null"]
         code:
           type: ["string", "null"]
+
+    ItemStatus:
+      type: string
+      enum: [pending, ready, failed]
+      description: Processing status of the item's metadata extraction job
+
+    ReadState:
+      type: string
+      enum: [unread, read, archived]
+      description: The user's read progress for an item
+
+    Item:
+      type: object
+      required: [id, url, status, readState, favorite, savedAt, tags]
+      properties:
+        id:
+          type: string
+          description: Unique item ID (cuid)
+        url:
+          type: string
+          format: uri
+          description: Original URL submitted by the user
+        canonicalUrl:
+          type: ["string", "null"]
+          format: uri
+          description: Canonical URL resolved during metadata extraction
+        title:
+          type: ["string", "null"]
+          description: Page title
+        siteName:
+          type: ["string", "null"]
+          description: Name of the publishing site
+        excerpt:
+          type: ["string", "null"]
+          description: Short plain-text excerpt
+        leadImageUrl:
+          type: ["string", "null"]
+          format: uri
+          description: Hero/lead image URL
+        faviconUrl:
+          type: ["string", "null"]
+          format: uri
+          description: Site favicon URL
+        status:
+          $ref: "#/components/schemas/ItemStatus"
+        readState:
+          $ref: "#/components/schemas/ReadState"
+        favorite:
+          type: boolean
+          description: Whether the item is marked as a favourite
+        savedAt:
+          type: string
+          format: date-time
+          description: ISO-8601 timestamp when the item was saved
+        readAt:
+          type: ["string", "null"]
+          format: date-time
+          description: ISO-8601 timestamp when the item was first marked read
+        tags:
+          type: array
+          items:
+            type: string
+          description: Slugs of tags attached to this item
+
+    ItemList:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Item"
+        nextCursor:
+          type: ["string", "null"]
+          description: Opaque cursor for the next page; null when no more pages
+
+    Tag:
+      type: object
+      required: [id, name, slug, count]
+      properties:
+        id:
+          type: string
+          description: Unique tag ID (cuid)
+        name:
+          type: string
+          description: Human-readable tag name (original casing)
+        slug:
+          type: string
+          description: URL-safe lowercase slug derived from name
+        count:
+          type: integer
+          minimum: 0
+          description: Number of items carrying this tag
+
+    TagList:
+      type: object
+      required: [tags]
+      properties:
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+
+    SaveItemRequest:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+          format: uri
+          description: URL to save
+        tags:
+          type: array
+          items:
+            type: string
+          description: Optional tag slugs to attach immediately
+
+    UpdateItemRequest:
+      type: object
+      properties:
+        readState:
+          $ref: "#/components/schemas/ReadState"
+        favorite:
+          type: boolean
+          description: Set or clear the favourite flag
+
+    AddTagRequest:
+      type: object
+      required: [tag]
+      properties:
+        tag:
+          type: string
+          minLength: 1
+          maxLength: 40
+          description: Tag name or slug to add (created if absent)
+
+    RenameTagRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 40
+          description: New display name for the tag
