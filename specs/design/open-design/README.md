@@ -59,6 +59,7 @@ Each run: Skill = `burkmak-repo-bundle`, Design system = `burkmak`, then send.
 Do the **tokens** first, then screens.
 
 **Tokens**
+
 ```
 Emit the full token set (color/typography/spacing/radius/shadow/motion/opacity)
 as DTCG JSON per the skill, using the burkmak DESIGN.md palette and typography
@@ -69,15 +70,18 @@ warm paper light / warm-ink dark). Every color light+dark.
 Each screen prompt yields **`<screen>.vue` + `<screen>.html`** (both light + dark).
 
 **MVP screens (S0–S1) — do these first**
+
 ```
 welcome (welcome.vue + welcome.html) — first-run hero: burkmak value prop
 (save · read · sync to Kobo · export to Obsidian), one primary "Get started"
 CTA, calm editorial layout, Fraunces display headline.
 ```
+
 ```
 sign-in and sign-up (.vue + .html each) — minimal centered auth cards,
 AppInput/AppField/AppButton, error + loading states.
 ```
+
 ```
 library (library.vue + library.html) — the core list. AppFilterBar
 (Unread/Read/Archived/★ segmented + tag filter + search). List of AppItemCard
@@ -85,10 +89,12 @@ library (library.vue + library.html) — the core list. AppFilterBar
 hover actions). Show ALL states: skeleton loading, empty, populated, and one
 card mid-fetch in the "pending" state.
 ```
+
 ```
 add-link (add-link.vue + add-link.html) — paste-a-URL quick add, both as an
 inline bar and a modal/sheet; show validating + just-saved(pending) states.
 ```
+
 ```
 item-detail (item-detail.vue + item-detail.html) — single item: metadata, tags
 (add/remove), read-state + favorite controls, and a prominent "Fetch full
@@ -96,6 +102,7 @@ article" action with its pending/extracting/ready/failed states.
 ```
 
 **Near-term screens (S2+) — for coherence, optional now**
+
 ```
 reader, highlights, tags, settings, settings-kobo, settings-obsidian
 (.vue + .html each) — per the burkmak DESIGN.md component list.

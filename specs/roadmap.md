@@ -6,13 +6,13 @@ phase**. Each phase is one spec → plan → build cycle.
 
 Dependency shape: **S0 → S1 → S2**, then **S3 / S4 / S5** in parallel.
 
-| Phase | Subsystem            | Ships                                                                                  | Spec |
-| ----- | -------------------- | ------------------------------------------------------------------------------------- | ---- |
-| P1    | S0 + S1              | Foundation (SQLite, stripped stack, jobs+SSE spine) **and** core library (save/organise) | [features/2026-06-13-foundation-and-core.md](./features/2026-06-13-foundation-and-core.md) |
-| P2    | S2                   | On-demand article extraction, reader view, FTS5 body search, highlights & notes        | _tbd_ |
-| P3    | S3                   | Mobile share-sheet capture, browser bookmarklet                                        | _tbd_ |
-| P4    | S4                   | EPUB/KEPUB generation, native Kobo sync emulation, device pairing, read-state sync-back | _tbd_ |
-| P5    | S5                   | Obsidian export API + Obsidian plugin                                                   | _tbd_ |
+| Phase | Subsystem | Ships                                                                                    | Spec                                                                                       |
+| ----- | --------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| P1    | S0 + S1   | Foundation (SQLite, stripped stack, jobs+SSE spine) **and** core library (save/organise) | [features/2026-06-13-foundation-and-core.md](./features/2026-06-13-foundation-and-core.md) |
+| P2    | S2        | On-demand article extraction, reader view, FTS5 body search, highlights & notes          | _tbd_                                                                                      |
+| P3    | S3        | Mobile share-sheet capture, browser bookmarklet                                          | _tbd_                                                                                      |
+| P4    | S4        | EPUB/KEPUB generation, native Kobo sync emulation, device pairing, read-state sync-back  | _tbd_                                                                                      |
+| P5    | S5        | Obsidian export API + Obsidian plugin                                                    | _tbd_                                                                                      |
 
 Notes:
 

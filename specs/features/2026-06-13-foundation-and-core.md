@@ -30,6 +30,7 @@ Obsidian (S5); import.
 ## Part A — S0 Foundation
 
 ### A1. Rename & template setup
+
 - Run `scripts/setup.sh` (or equivalent) substituting:
   - `{{APP_NAME}}` → `burkmak`
   - `{{APP_SLUG}}` → `burkmak`
@@ -39,6 +40,7 @@ Obsidian (S5); import.
   workflow/guardrail docs).
 
 ### A2. Postgres → SQLite
+
 - Prisma `datasource` → `sqlite`; `DATABASE_URL="file:./burkmak.db"` (configurable
   via `AppConfig`, never `process.env` directly).
 - Enable **WAL** mode at startup (worker + API both write).
@@ -47,6 +49,7 @@ Obsidian (S5); import.
 - Generate the initial migration.
 
 ### A3. Strip dropped services
+
 - Remove from `docker/compose.yml`: `postgres`, `redis`, `centrifugo`,
   `otel-lgtm`. Keep only `backend` (+ `web` if used) on SQLite volume.
 - Remove Centrifugo config dir, realtime-token endpoint, and Centrifugo client
@@ -61,6 +64,7 @@ Obsidian (S5); import.
   realtime codegen drift check, drop services no longer present.
 
 ### A4. Jobs spine (DB-backed worker)
+
 - `Job` table (see §Data model).
 - `JobsService.enqueue(type, payload, userId, itemId?)`.
 - `JobWorker`: a NestJS background processor that claims `queued` jobs
@@ -70,6 +74,7 @@ Obsidian (S5); import.
 - Handler registry keyed by job `type`; S1 registers `fetch_metadata`.
 
 ### A5. SSE spine
+
 - `GET /api/v1/events` — `text/event-stream`, auth required (Better Auth
   session). Streams **only the authenticated user's** events.
 - In-process event bus (NestJS `EventEmitter`) → per-connection SSE writer
@@ -145,19 +150,19 @@ model Job {
 All under `/api/v1`, all require an authenticated session, all scoped to the
 caller. Errors use the shared `Problem` (RFC 9457) schema.
 
-| Method | Path                          | Purpose                                              |
-| ------ | ----------------------------- | ---------------------------------------------------- |
-| POST   | `/items`                      | Save URL → create `Item(pending)`, enqueue metadata  |
-| GET    | `/items`                      | List with `readState`, `tag`, `favorite`, `q`, cursor pagination |
-| GET    | `/items/{id}`                 | Get one                                              |
-| PATCH  | `/items/{id}`                 | Update `readState` and/or `favorite`                 |
-| DELETE | `/items/{id}`                 | Delete                                               |
-| POST   | `/items/{id}/tags`            | Attach a tag (create-on-first-use) `{ tag }`         |
-| DELETE | `/items/{id}/tags/{tagSlug}`  | Detach a tag                                         |
-| GET    | `/tags`                       | List user's tags with item counts                   |
-| PATCH  | `/tags/{id}`                  | Rename `{ name }`                                    |
-| DELETE | `/tags/{id}`                  | Delete tag (detaches from items)                     |
-| GET    | `/events`                     | SSE stream (`text/event-stream`)                     |
+| Method | Path                         | Purpose                                                          |
+| ------ | ---------------------------- | ---------------------------------------------------------------- |
+| POST   | `/items`                     | Save URL → create `Item(pending)`, enqueue metadata              |
+| GET    | `/items`                     | List with `readState`, `tag`, `favorite`, `q`, cursor pagination |
+| GET    | `/items/{id}`                | Get one                                                          |
+| PATCH  | `/items/{id}`                | Update `readState` and/or `favorite`                             |
+| DELETE | `/items/{id}`                | Delete                                                           |
+| POST   | `/items/{id}/tags`           | Attach a tag (create-on-first-use) `{ tag }`                     |
+| DELETE | `/items/{id}/tags/{tagSlug}` | Detach a tag                                                     |
+| GET    | `/tags`                      | List user's tags with item counts                                |
+| PATCH  | `/tags/{id}`                 | Rename `{ name }`                                                |
+| DELETE | `/tags/{id}`                 | Delete tag (detaches from items)                                 |
+| GET    | `/events`                    | SSE stream (`text/event-stream`)                                 |
 
 Schemas: `Item`, `ItemList` (paginated), `Tag`, `SaveItemRequest`,
 `UpdateItemRequest`, `AddTagRequest`. Operation IDs camelCase
@@ -167,6 +172,7 @@ Schemas: `Item`, `ItemList` (paginated), `Tag`, `SaveItemRequest`,
 `q` in S1 matches **title + url** only (article-body FTS arrives in S2).
 
 ### B3. Backend (NestJS + CQRS)
+
 - **Commands**: `SaveItem`, `UpdateItem`, `DeleteItem`, `AddItemTag`,
   `RemoveItemTag`, `RenameTag`, `DeleteTag`.
 - **Queries**: `ListItems`, `GetItem`, `ListTags`.
@@ -181,6 +187,7 @@ Schemas: `Item`, `ItemList` (paginated), `Tag`, `SaveItemRequest`,
 - Every command/query enforces `userId` ownership.
 
 ### B4. Web (Nuxt)
+
 - Pages: `library` (index, the list), `items/[id]` (detail), `settings`
   (theme/language — minimal). Auth pages reuse the template's Better Auth flow.
 - New `@app/ui` components (each with Storybook story + colocated spec; built
@@ -191,6 +198,7 @@ Schemas: `Item`, `ItemList` (paginated), `Tag`, `SaveItemRequest`,
 - All HTTP via the generated `@app/api-client-ts`. All strings via i18n.
 
 ### B5. Mobile (Flutter)
+
 - Features (feature-first `domain/data/presentation`): `library` (list +
   filters), `item_detail`, `add_link`. Auth reuses the template's vertical.
 - `flutter_bloc` cubits for items/tags; SSE consumed as a Dio/`http` byte
@@ -204,12 +212,12 @@ Schemas: `Item`, `ItemList` (paginated), `Tag`, `SaveItemRequest`,
 
 `GET /api/v1/events` emits (envelope `{ type, data }`):
 
-| `type`         | `data`                          | When                          |
-| -------------- | ------------------------------- | ----------------------------- |
-| `item.created` | `{ item }`                      | a save is accepted            |
+| `type`         | `data`                          | When                           |
+| -------------- | ------------------------------- | ------------------------------ |
+| `item.created` | `{ item }`                      | a save is accepted             |
 | `item.updated` | `{ item }`                      | metadata filled / state change |
-| `item.deleted` | `{ id }`                        | item deleted                  |
-| `job.updated`  | `{ id, type, status, itemId? }` | job status transitions        |
+| `item.deleted` | `{ id }`                        | item deleted                   |
+| `job.updated`  | `{ id, type, status, itemId? }` | job status transitions         |
 
 Only the authenticated user's events are delivered.
 

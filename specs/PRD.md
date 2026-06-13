@@ -81,16 +81,16 @@ Primary jobs-to-be-done:
 
 Built on the template monorepo, **simplified**:
 
-| Layer        | Choice                                                            | Notes / deviation from template |
-| ------------ | ---------------------------------------------------------------- | ------------------------------- |
-| Backend      | NestJS 11 + CQRS + Better Auth + Prisma 7                        | as template                     |
-| Database     | **SQLite** (with **FTS5** for full-text search)                  | template default was Postgres   |
-| Web          | Nuxt 4 SPA + Nuxt UI v4 + `@app/ui` + `@nuxtjs/i18n`             | as template                     |
-| Mobile       | Flutter 3.41 + flutter_bloc + get_it + Dio                       | as template                     |
-| Realtime     | **SSE** (`@Sse()` in NestJS)                                     | template used Centrifugo        |
-| Background   | **DB-backed in-process worker** (`Job` table + NestJS processor) | template used Redis             |
-| Contracts    | **OpenAPI 3.1 only**                                             | AsyncAPI half removed           |
-| Observability| none for now                                                     | Grafana/OTel removed            |
+| Layer         | Choice                                                           | Notes / deviation from template |
+| ------------- | ---------------------------------------------------------------- | ------------------------------- |
+| Backend       | NestJS 11 + CQRS + Better Auth + Prisma 7                        | as template                     |
+| Database      | **SQLite** (with **FTS5** for full-text search)                  | template default was Postgres   |
+| Web           | Nuxt 4 SPA + Nuxt UI v4 + `@app/ui` + `@nuxtjs/i18n`             | as template                     |
+| Mobile        | Flutter 3.41 + flutter_bloc + get_it + Dio                       | as template                     |
+| Realtime      | **SSE** (`@Sse()` in NestJS)                                     | template used Centrifugo        |
+| Background    | **DB-backed in-process worker** (`Job` table + NestJS processor) | template used Redis             |
+| Contracts     | **OpenAPI 3.1 only**                                             | AsyncAPI half removed           |
+| Observability | none for now                                                     | Grafana/OTel removed            |
 
 ### The spine: jobs + SSE (built once, reused everywhere)
 
@@ -142,20 +142,21 @@ flowchart LR
 burkmak is **six loosely-coupled subsystems**, each shipped via its own
 spec → plan → build cycle. See [roadmap.md](./roadmap.md) for the phase order.
 
-| #  | Subsystem            | Scope                                                                                              | Depends on |
-| -- | -------------------- | ------------------------------------------------------------------------------------------------- | ---------- |
-| S0 | Foundation           | Rename → burkmak, Postgres→SQLite, strip Centrifugo/Redis/Grafana + AsyncAPI, build jobs+SSE spine | —          |
-| S1 | Core library         | Items CRUD, async metadata fetch, tags, read/unread/archive/favorite, list+filter, web+mobile UI   | S0         |
-| S2 | Extraction & reading | On-demand full-article extraction, reader view, FTS5 body search, highlights & notes                | S1         |
-| S3 | Capture surfaces     | Mobile share-sheet target, browser bookmarklet                                                      | S1         |
-| S4 | Kobo Sync            | EPUB/KEPUB generation, native Kobo sync-API emulation, device pairing, read-state sync-back         | S2         |
-| S5 | Obsidian export      | Backend export API + Obsidian plugin (highlights/notes/citations → vault markdown)                  | S2         |
+| #   | Subsystem            | Scope                                                                                              | Depends on |
+| --- | -------------------- | -------------------------------------------------------------------------------------------------- | ---------- |
+| S0  | Foundation           | Rename → burkmak, Postgres→SQLite, strip Centrifugo/Redis/Grafana + AsyncAPI, build jobs+SSE spine | —          |
+| S1  | Core library         | Items CRUD, async metadata fetch, tags, read/unread/archive/favorite, list+filter, web+mobile UI   | S0         |
+| S2  | Extraction & reading | On-demand full-article extraction, reader view, FTS5 body search, highlights & notes               | S1         |
+| S3  | Capture surfaces     | Mobile share-sheet target, browser bookmarklet                                                     | S1         |
+| S4  | Kobo Sync            | EPUB/KEPUB generation, native Kobo sync-API emulation, device pairing, read-state sync-back        | S2         |
+| S5  | Obsidian export      | Backend export API + Obsidian plugin (highlights/notes/citations → vault markdown)                 | S2         |
 
 Dependency shape: **S0 → S1 → S2**, then **S3 / S4 / S5** fan out in parallel.
 
 ## 7. Functional requirements by subsystem
 
 ### S0 — Foundation
+
 - App boots green with SQLite; health endpoint reports `db: ok`.
 - Centrifugo, Redis, Grafana/OTel, and the AsyncAPI spec + Dart/TS realtime
   codegen are removed; CI is green without them.
@@ -164,6 +165,7 @@ Dependency shape: **S0 → S1 → S2**, then **S3 / S4 / S5** fan out in paralle
 - Template placeholders (`{{APP_NAME}}` etc.) resolved to burkmak.
 
 ### S1 — Core library
+
 - `POST /items {url}` creates an item in `status: pending` and returns
   immediately; a `fetch_metadata` job populates title, site name, excerpt,
   lead image, favicon, then emits an SSE `item.updated` event.
@@ -176,6 +178,7 @@ Dependency shape: **S0 → S1 → S2**, then **S3 / S4 / S5** fan out in paralle
 - Web and mobile both render the library list, item detail, and add-link flow.
 
 ### S2 — Extraction & reading
+
 - `POST /items/{id}/extract` enqueues `extract_article`; status streams via SSE
   (`extracting` → `ready` / `failed`).
 - Extracted content stored as sanitized HTML + plain text + word count +
@@ -187,12 +190,14 @@ Dependency shape: **S0 → S1 → S2**, then **S3 / S4 / S5** fan out in paralle
   and color); list/edit/delete; highlights belong to an item and a user.
 
 ### S3 — Capture surfaces
+
 - Flutter app registers as a **share target**; sharing a URL from any app
   opens a quick-save that calls `POST /items`.
 - A **bookmarklet** (and tokenized save URL) saves the current page from a
   desktop browser in one click. (A packaged extension is a later enhancement.)
 
 ### S4 — Kobo Sync
+
 - Generate **EPUB/KEPUB** from an extracted article (or an "unread digest").
 - Emulate the **Kobo sync API** so a paired device pulls new articles over wifi
   and pushes read-state back into burkmak.
@@ -201,6 +206,7 @@ Dependency shape: **S0 → S1 → S2**, then **S3 / S4 / S5** fan out in paralle
 - Sync respects read-state filters (e.g. only `unread` go to the device).
 
 ### S5 — Obsidian export
+
 - Backend **export API** returns a user's highlights/notes/citations in a
   structured, markdown-ready form.
 - An **Obsidian plugin** writes one note per article (or appends to a daily
@@ -212,19 +218,19 @@ Dependency shape: **S0 → S1 → S2**, then **S3 / S4 / S5** fan out in paralle
 
 Introduced progressively — the phase that adds each entity is noted.
 
-- **User** — Better Auth (exists). *(S0)*
+- **User** — Better Auth (exists). _(S0)_
 - **Item** — `id, userId, url, canonicalUrl, title, siteName, excerpt,
-  leadImageUrl, faviconUrl, status(pending|ready|failed),
-  readState(unread|read|archived), favorite, savedAt, readAt`. *(S1)*
-- **Tag** — `id, userId, name, slug`; **ItemTag** join (m:n). *(S1)*
+leadImageUrl, faviconUrl, status(pending|ready|failed),
+readState(unread|read|archived), favorite, savedAt, readAt`. _(S1)_
+- **Tag** — `id, userId, name, slug`; **ItemTag** join (m:n). _(S1)_
 - **Job** — `id, userId, type, itemId?, status(queued|running|done|failed),
-  attempts, error, payload, createdAt, startedAt, finishedAt`. *(S0)*
+attempts, error, payload, createdAt, startedAt, finishedAt`. _(S0)_
 - **Article** — `itemId, contentHtml, contentText, wordCount,
-  readingTimeMin, extractedAt`. *(S2)*
+readingTimeMin, extractedAt`. _(S2)_
 - **Highlight** — `id, itemId, userId, range, quotedText, note?, color,
-  createdAt`. *(S2)*
-- **KoboDevice** — `id, userId, name, pairingToken, lastSyncAt`. *(S4)*
-- **ObsidianExportState** — per-user export config + last-export cursor. *(S5)*
+createdAt`. _(S2)_
+- **KoboDevice** — `id, userId, name, pairingToken, lastSyncAt`. _(S4)_
+- **ObsidianExportState** — per-user export config + last-export cursor. _(S5)_
 
 ## 9. Non-functional requirements
 

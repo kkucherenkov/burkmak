@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import { PrismaClient } from '@prisma/client';
 
 import { AppConfig } from '../config/app-config';
@@ -10,14 +10,17 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
   constructor(config: AppConfig) {
     super({
-      adapter: new PrismaPg({ connectionString: config.databaseUrl }),
-      log: process.env['NODE_ENV'] === 'production' ? ['warn', 'error'] : ['warn', 'error'],
+      adapter: new PrismaBetterSqlite3({ url: config.databaseUrl }),
+      log: ['warn', 'error'],
     });
   }
 
   async onModuleInit(): Promise<void> {
     await this.$connect();
-    this.logger.log('Prisma connected');
+    // WAL: API + worker both write; WAL allows concurrent readers + one writer.
+    await this.$executeRawUnsafe('PRAGMA journal_mode=WAL;');
+    await this.$executeRawUnsafe('PRAGMA busy_timeout=5000;');
+    this.logger.log('Prisma connected (sqlite, WAL)');
   }
 
   async onModuleDestroy(): Promise<void> {

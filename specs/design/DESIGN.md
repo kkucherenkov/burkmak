@@ -26,12 +26,12 @@ typographic, and book-like.
 
 ## Typography
 
-| Role        | Family                | Use                                            |
-| ----------- | --------------------- | ---------------------------------------------- |
-| Display     | **Fraunces**          | welcome hero, big headlines (optical serif)    |
-| Reading     | **Literata**          | reader view article body (screen-tuned serif)  |
-| UI / sans   | **Hanken Grotesk**    | app chrome, labels, buttons, lists             |
-| Mono        | **JetBrains Mono**    | code, URLs, tokens                             |
+| Role      | Family             | Use                                           |
+| --------- | ------------------ | --------------------------------------------- |
+| Display   | **Fraunces**       | welcome hero, big headlines (optical serif)   |
+| Reading   | **Literata**       | reader view article body (screen-tuned serif) |
+| UI / sans | **Hanken Grotesk** | app chrome, labels, buttons, lists            |
+| Mono      | **JetBrains Mono** | code, URLs, tokens                            |
 
 All open-source (Google Fonts) — fits the self-hosted ethos. Never use
 Inter/Roboto/Arial/system-ui as the brand face. Long-form reading uses Literata
@@ -44,22 +44,22 @@ Every color has light + dark. Light = warm paper; dark = warm low-glare ink.
 
 ### Brand (clay / terracotta — the reading lamp)
 
-| Role (A)       | Light     | Dark      | Source     |
-| -------------- | --------- | --------- | ---------- |
-| accent         | `#D66F4D` | `#E2845F` | B          |
-| accentHover    | `#C25F3E` | `#EC9772` | B          |
-| accentActive   | `#A94E2C` | `#F2B79E` | derived    |
-| accentFg       | `#FFFFFF` | `#2A1206` | B (on)     |
-| accentSubtle   | `#F6E3DA` | `#3A1C10` | B (soft)   |
+| Role (A)     | Light     | Dark      | Source   |
+| ------------ | --------- | --------- | -------- |
+| accent       | `#D66F4D` | `#E2845F` | B        |
+| accentHover  | `#C25F3E` | `#EC9772` | B        |
+| accentActive | `#A94E2C` | `#F2B79E` | derived  |
+| accentFg     | `#FFFFFF` | `#2A1206` | B (on)   |
+| accentSubtle | `#F6E3DA` | `#3A1C10` | B (soft) |
 
 ### Surface (warm paper → warm ink)
 
-| Role (A) | Light     | Dark      | Source            |
-| -------- | --------- | --------- | ----------------- |
-| page     | `#FBFAF7` | `#15130F` | B background      |
-| surface  | `#F4F1EC` | `#211D17` | B surface-muted   |
-| raised   | `#FFFFFF` | `#1D1A15` | B surface         |
-| overlay  | `#FFFFFF` | `#1D1A15` | B surface         |
+| Role (A) | Light     | Dark      | Source          |
+| -------- | --------- | --------- | --------------- |
+| page     | `#FBFAF7` | `#15130F` | B background    |
+| surface  | `#F4F1EC` | `#211D17` | B surface-muted |
+| raised   | `#FFFFFF` | `#1D1A15` | B surface       |
+| overlay  | `#FFFFFF` | `#1D1A15` | B surface       |
 
 ### Border
 
@@ -71,23 +71,23 @@ Every color has light + dark. Light = warm paper; dark = warm low-glare ink.
 
 ### Text (warm ink)
 
-| Role (A)  | Light     | Dark      | Source         |
-| --------- | --------- | --------- | -------------- |
-| fg        | `#1F1D1B` | `#ECE6DB` | B foreground   |
-| secondary | `#706B65` | `#A59C8F` | B muted        |
-| tertiary  | `#9A938A` | `#837A6C` | derived        |
-| disabled  | `#C4BDB2` | `#4A4338` | derived        |
-| inverse   | `#FBFAF7` | `#15130F` | derived        |
-| link      | `#D66F4D` | `#E2845F` | B accent       |
+| Role (A)  | Light     | Dark      | Source       |
+| --------- | --------- | --------- | ------------ |
+| fg        | `#1F1D1B` | `#ECE6DB` | B foreground |
+| secondary | `#706B65` | `#A59C8F` | B muted      |
+| tertiary  | `#9A938A` | `#837A6C` | derived      |
+| disabled  | `#C4BDB2` | `#4A4338` | derived      |
+| inverse   | `#FBFAF7` | `#15130F` | derived      |
+| link      | `#D66F4D` | `#E2845F` | B accent     |
 
 ### Status (warm-tuned; `*Fg` from B, `*Subtle` derived)
 
-| Role (A)      | Light     | Dark      | Item state |
-| ------------- | --------- | --------- | ---------- |
-| successFg     | `#5D8F5A` | `#7FAE79` | ready      |
-| warningFg     | `#B26B12` | `#E7B45A` | extracting |
-| errorFg       | `#B23A2E` | `#EC8478` | failed     |
-| infoFg        | `#2E6F8E` | `#6FB6D6` | pending    |
+| Role (A)  | Light     | Dark      | Item state |
+| --------- | --------- | --------- | ---------- |
+| successFg | `#5D8F5A` | `#7FAE79` | ready      |
+| warningFg | `#B26B12` | `#E7B45A` | extracting |
+| errorFg   | `#B23A2E` | `#EC8478` | failed     |
+| infoFg    | `#2E6F8E` | `#6FB6D6` | pending    |
 
 Each `*Fg` has a paired `*Subtle` fill (see `tokens/color.json`).
 

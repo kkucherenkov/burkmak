@@ -72,6 +72,7 @@
       "@prisma/engines",
       "@sentry-internal/node-cpu-profiler",
       "@swc/core",
+      "better-sqlite3",
       "esbuild",
       "prisma",
       "protobufjs"

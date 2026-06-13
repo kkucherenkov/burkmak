@@ -4,115 +4,115 @@
     "brand": {
       "accent": {
         "light": { "$value": "#D66F4D", "$type": "color" },
-        "dark":  { "$value": "#E2845F", "$type": "color" }
+        "dark": { "$value": "#E2845F", "$type": "color" }
       },
       "accentHover": {
         "light": { "$value": "#C25F3E", "$type": "color" },
-        "dark":  { "$value": "#EC9772", "$type": "color" }
+        "dark": { "$value": "#EC9772", "$type": "color" }
       },
       "accentActive": {
         "light": { "$value": "#A94E2C", "$type": "color" },
-        "dark":  { "$value": "#F2B79E", "$type": "color" }
+        "dark": { "$value": "#F2B79E", "$type": "color" }
       },
       "accentFg": {
         "light": { "$value": "#FFFFFF", "$type": "color" },
-        "dark":  { "$value": "#2A1206", "$type": "color" }
+        "dark": { "$value": "#2A1206", "$type": "color" }
       },
       "accentSubtle": {
         "light": { "$value": "#F6E3DA", "$type": "color" },
-        "dark":  { "$value": "#3A1C10", "$type": "color" }
+        "dark": { "$value": "#3A1C10", "$type": "color" }
       }
     },
     "surface": {
       "page": {
         "light": { "$value": "#FBFAF7", "$type": "color" },
-        "dark":  { "$value": "#15130F", "$type": "color" }
+        "dark": { "$value": "#15130F", "$type": "color" }
       },
       "surface": {
         "light": { "$value": "#F4F1EC", "$type": "color" },
-        "dark":  { "$value": "#211D17", "$type": "color" }
+        "dark": { "$value": "#211D17", "$type": "color" }
       },
       "raised": {
         "light": { "$value": "#FFFFFF", "$type": "color" },
-        "dark":  { "$value": "#1D1A15", "$type": "color" }
+        "dark": { "$value": "#1D1A15", "$type": "color" }
       },
       "overlay": {
         "light": { "$value": "#FFFFFF", "$type": "color" },
-        "dark":  { "$value": "#1D1A15", "$type": "color" }
+        "dark": { "$value": "#1D1A15", "$type": "color" }
       }
     },
     "border": {
       "default": {
         "light": { "$value": "#DDD8D0", "$type": "color" },
-        "dark":  { "$value": "#322C23", "$type": "color" }
+        "dark": { "$value": "#322C23", "$type": "color" }
       },
       "strong": {
         "light": { "$value": "#CABFAE", "$type": "color" },
-        "dark":  { "$value": "#463E30", "$type": "color" }
+        "dark": { "$value": "#463E30", "$type": "color" }
       },
       "focus": {
         "light": { "$value": "#D66F4D", "$type": "color" },
-        "dark":  { "$value": "#E2845F", "$type": "color" }
+        "dark": { "$value": "#E2845F", "$type": "color" }
       }
     },
     "text": {
       "fg": {
         "light": { "$value": "#1F1D1B", "$type": "color" },
-        "dark":  { "$value": "#ECE6DB", "$type": "color" }
+        "dark": { "$value": "#ECE6DB", "$type": "color" }
       },
       "secondary": {
         "light": { "$value": "#706B65", "$type": "color" },
-        "dark":  { "$value": "#A59C8F", "$type": "color" }
+        "dark": { "$value": "#A59C8F", "$type": "color" }
       },
       "tertiary": {
         "light": { "$value": "#9A938A", "$type": "color" },
-        "dark":  { "$value": "#837A6C", "$type": "color" }
+        "dark": { "$value": "#837A6C", "$type": "color" }
       },
       "disabled": {
         "light": { "$value": "#C4BDB2", "$type": "color" },
-        "dark":  { "$value": "#4A4338", "$type": "color" }
+        "dark": { "$value": "#4A4338", "$type": "color" }
       },
       "inverse": {
         "light": { "$value": "#FBFAF7", "$type": "color" },
-        "dark":  { "$value": "#15130F", "$type": "color" }
+        "dark": { "$value": "#15130F", "$type": "color" }
       },
       "link": {
         "light": { "$value": "#D66F4D", "$type": "color" },
-        "dark":  { "$value": "#E2845F", "$type": "color" }
+        "dark": { "$value": "#E2845F", "$type": "color" }
       }
     },
     "status": {
       "successFg": {
         "light": { "$value": "#5D8F5A", "$type": "color" },
-        "dark":  { "$value": "#7FAE79", "$type": "color" }
+        "dark": { "$value": "#7FAE79", "$type": "color" }
       },
       "successSubtle": {
         "light": { "$value": "#ECF3EA", "$type": "color" },
-        "dark":  { "$value": "#1C2A1A", "$type": "color" }
+        "dark": { "$value": "#1C2A1A", "$type": "color" }
       },
       "warningFg": {
         "light": { "$value": "#B26B12", "$type": "color" },
-        "dark":  { "$value": "#E7B45A", "$type": "color" }
+        "dark": { "$value": "#E7B45A", "$type": "color" }
       },
       "warningSubtle": {
         "light": { "$value": "#FBF1E1", "$type": "color" },
-        "dark":  { "$value": "#33240C", "$type": "color" }
+        "dark": { "$value": "#33240C", "$type": "color" }
       },
       "errorFg": {
         "light": { "$value": "#B23A2E", "$type": "color" },
-        "dark":  { "$value": "#EC8478", "$type": "color" }
+        "dark": { "$value": "#EC8478", "$type": "color" }
       },
       "errorSubtle": {
         "light": { "$value": "#F8E9E6", "$type": "color" },
-        "dark":  { "$value": "#36140F", "$type": "color" }
+        "dark": { "$value": "#36140F", "$type": "color" }
       },
       "infoFg": {
         "light": { "$value": "#2E6F8E", "$type": "color" },
-        "dark":  { "$value": "#6FB6D6", "$type": "color" }
+        "dark": { "$value": "#6FB6D6", "$type": "color" }
       },
       "infoSubtle": {
         "light": { "$value": "#E9F2F6", "$type": "color" },
-        "dark":  { "$value": "#0E2733", "$type": "color" }
+        "dark": { "$value": "#0E2733", "$type": "color" }
       }
     },
     "vertical": {}

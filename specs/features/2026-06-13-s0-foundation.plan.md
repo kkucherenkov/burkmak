@@ -15,6 +15,7 @@
 ## File Structure
 
 **New files**
+
 - `apps/backend/src/common/jobs/jobs.module.ts` — wires worker + service.
 - `apps/backend/src/common/jobs/jobs.service.ts` — `enqueue()`.
 - `apps/backend/src/common/jobs/job-worker.ts` — polling worker + handler registry.
@@ -26,6 +27,7 @@
 - `apps/backend/src/modules/events/events.service.spec.ts`
 
 **Modified**
+
 - `apps/backend/prisma/schema.prisma` — datasource → sqlite; add `Job` model.
 - `apps/backend/src/common/prisma/prisma.service.ts` — better-sqlite3 adapter + WAL.
 - `apps/backend/src/common/config/app-config.ts` — drop redis/centrifugo getters; add `jobs` getter.
@@ -36,6 +38,7 @@
 - `docker/compose.yml`, `.github/workflows/ci.yml`, `.env.example`, root + backend `package.json`.
 
 **Deleted**
+
 - `apps/backend/src/common/centrifugo/`, `apps/backend/src/common/redis/`,
   `apps/backend/src/modules/realtime/`, `apps/backend/src/instrument.ts`,
   `apps/backend/src/telemetry.ts`, `apps/backend/src/common/observability/sentry.interceptor.ts`,
@@ -58,6 +61,7 @@ cd /home/kkucherenkov/projects/petProjects/burkmak
 bash scripts/setup.sh --name "burkmak" --slug "burkmak" \
   --description "Self-hosted read-it-later with Kobo sync and Obsidian export"
 ```
+
 If `setup.sh` is interactive, run it and answer: name `burkmak`, slug `burkmak`, description as above.
 
 - [ ] **Step 2: Verify no template placeholders remain**
@@ -74,6 +78,7 @@ git add -A && git commit -m "chore: brand template as burkmak"
 ### Task 2: Switch Prisma datasource + service to SQLite (WAL)
 
 **Files:**
+
 - Modify: `apps/backend/prisma/schema.prisma:9-11`
 - Modify: `apps/backend/src/common/prisma/prisma.service.ts`
 - Modify: `apps/backend/.env` / `.env.example`
@@ -140,6 +145,7 @@ In `apps/backend/.env` (create if absent) and `.env.example`:
 ```
 DATABASE_URL="file:./burkmak.db"
 ```
+
 Remove `REDIS_URL`, `CENTRIFUGO_*`, `SENTRY_DSN`, `OTEL_EXPORTER_OTLP_ENDPOINT` lines from both.
 
 - [ ] **Step 5: Generate the initial migration + client**
@@ -148,6 +154,7 @@ Remove `REDIS_URL`, `CENTRIFUGO_*`, `SENTRY_DSN`, `OTEL_EXPORTER_OTLP_ENDPOINT` 
 cd apps/backend
 pnpm prisma migrate dev --name init_sqlite
 ```
+
 Expected: a migration is created under `prisma/migrations/`, `burkmak.db` appears, command exits 0.
 
 - [ ] **Step 6: Commit**
@@ -163,6 +170,7 @@ git add -A && git commit -m "feat(db): switch Prisma to SQLite with WAL"
 ### Task 3: Remove Centrifugo + the realtime-token endpoint
 
 **Files:**
+
 - Delete: `apps/backend/src/common/centrifugo/`, `apps/backend/src/modules/realtime/`, `apps/backend/src/modules/health/infra/centrifugo.checker.ts`
 - Modify: `apps/backend/src/app.module.ts`, `apps/backend/src/common/config/app-config.ts`, `docker/compose.yml`, `apps/backend/package.json`
 
@@ -193,6 +201,7 @@ In `docker/compose.yml` delete the `centrifugo:` service block, the `centrifugo/
 ```bash
 cd apps/backend && pnpm remove jsonwebtoken @types/jsonwebtoken 2>/dev/null || true
 ```
+
 (Only if no longer referenced — run `grep -rn jsonwebtoken src` first; keep if Better Auth needs it.)
 
 - [ ] **Step 6: Typecheck + commit**
@@ -207,6 +216,7 @@ git add -A && git commit -m "refactor: remove Centrifugo and realtime-token endp
 ### Task 4: Remove Redis
 
 **Files:**
+
 - Delete: `apps/backend/src/common/redis/`, `apps/backend/src/modules/health/infra/redis.checker.ts`
 - Modify: `apps/backend/src/app.module.ts`, `apps/backend/src/common/config/app-config.ts`, `docker/compose.yml`
 
@@ -220,6 +230,7 @@ Expected: only the files we're about to delete + `app-config.ts` getter. If anyt
 ```bash
 cd apps/backend/src && rm -rf common/redis modules/health/infra/redis.checker.ts
 ```
+
 In `app.module.ts` remove `import { RedisModule } ...` and `RedisModule,` from `imports`.
 In `app-config.ts` remove the `get redisUrl()` getter.
 
@@ -238,6 +249,7 @@ git add -A && git commit -m "refactor: remove Redis (throttler uses in-memory st
 ### Task 5: Remove Sentry + OpenTelemetry
 
 **Files:**
+
 - Delete: `apps/backend/src/instrument.ts`, `apps/backend/src/telemetry.ts`, `apps/backend/src/common/observability/sentry.interceptor.ts`
 - Modify: `apps/backend/src/main.ts`, `apps/backend/src/common/observability/observability.module.ts`, `apps/backend/src/common/config/app-config.ts`, `docker/compose.yml`, `apps/backend/package.json`
 
@@ -250,9 +262,9 @@ Remove these imports:
 Remove the `initSentry();` and `initTelemetry();` calls (lines ~19-20), the `app.useGlobalInterceptors(new SentryInterceptor());` line, and simplify the SIGTERM handler to:
 
 ```ts
-  process.on('SIGTERM', () => {
-    void app.close();
-  });
+process.on('SIGTERM', () => {
+  void app.close();
+});
 ```
 
 - [ ] **Step 2: Delete the files + keep request-id**
@@ -260,6 +272,7 @@ Remove the `initSentry();` and `initTelemetry();` calls (lines ~19-20), the `app
 ```bash
 cd apps/backend/src && rm -f instrument.ts telemetry.ts common/observability/sentry.interceptor.ts
 ```
+
 Open `common/observability/observability.module.ts`; remove any provider/export referencing `SentryInterceptor` or OTel, keep `request-id.middleware`. If the module becomes empty of meaningful providers, keep it (it still wires the request-id middleware).
 
 - [ ] **Step 3: Drop sentryDsn/otelEndpoint from `app-config.ts`**
@@ -271,6 +284,7 @@ In `get runtime()` remove `sentryDsn` and `otelEndpoint` (the two `const` lines 
 ```bash
 cd apps/backend && pnpm remove @sentry/node @sentry/nestjs @opentelemetry/api @opentelemetry/sdk-node @opentelemetry/auto-instrumentations-node 2>/dev/null || true
 ```
+
 (Run `grep -rn "@sentry\|@opentelemetry" package.json` and remove exactly what's listed.)
 In `docker/compose.yml` delete the `otel-lgtm` (grafana) service.
 
@@ -285,6 +299,7 @@ git add -A && git commit -m "refactor: remove Sentry and OpenTelemetry"
 ### Task 6: Remove AsyncAPI from packages/specs
 
 **Files:**
+
 - Delete: `packages/specs/asyncapi/`, `packages/specs/scripts/codegen-asyncapi.ts`, generated `packages/api-client-ts/src/realtime/`
 - Modify: `packages/specs/package.json`, `packages/specs/scripts/codegen.ts`, `.github/workflows/ci.yml`
 
@@ -322,6 +337,7 @@ git add -A && git commit -m "refactor: drop AsyncAPI half of packages/specs (SSE
 ### Task 7: Reduce health to a single DB dependency
 
 **Files:**
+
 - Modify: `apps/backend/src/modules/health/domain/health.ts`, `apps/backend/src/modules/health/domain/health.spec.ts`, the health query handler, `apps/backend/src/modules/health/health.module.ts`
 
 - [ ] **Step 1: Update the failing spec first**
@@ -384,6 +400,7 @@ model Job {
 ```bash
 cd apps/backend && pnpm prisma migrate dev --name add_job
 ```
+
 Expected: migration created, exit 0.
 
 - [ ] **Step 3: Commit**
@@ -395,6 +412,7 @@ git add -A && git commit -m "feat(jobs): add Job model"
 ### Task 9: `JobHandler` interface + `JobsService.enqueue`
 
 **Files:**
+
 - Create: `apps/backend/src/common/jobs/job-handler.ts`, `jobs.service.ts`, `jobs.service.spec.ts`
 
 - [ ] **Step 1: Define the handler contract**
@@ -429,9 +447,19 @@ describe('JobsService', () => {
   it('enqueues a queued job with serialized payload', async () => {
     const prisma = prismaMock();
     const svc = new JobsService(prisma as never);
-    const job = await svc.enqueue('fetch_metadata', { itemId: 'i1', userId: 'u1', payload: { url: 'x' } });
+    const job = await svc.enqueue('fetch_metadata', {
+      itemId: 'i1',
+      userId: 'u1',
+      payload: { url: 'x' },
+    });
     expect(prisma.job.create).toHaveBeenCalledWith({
-      data: { type: 'fetch_metadata', userId: 'u1', itemId: 'i1', payload: JSON.stringify({ url: 'x' }), status: 'queued' },
+      data: {
+        type: 'fetch_metadata',
+        userId: 'u1',
+        itemId: 'i1',
+        payload: JSON.stringify({ url: 'x' }),
+        status: 'queued',
+      },
     });
     expect(job.id).toBe('j1');
   });
@@ -488,6 +516,7 @@ git add -A && git commit -m "feat(jobs): JobsService.enqueue"
 ### Task 10: `JobWorker` — claim, run, retry with backoff
 
 **Files:**
+
 - Create: `apps/backend/src/common/jobs/job-worker.ts`, `job-worker.spec.ts`
 - Modify: `apps/backend/src/common/config/app-config.ts` (add `jobs` getter)
 
@@ -518,7 +547,10 @@ function makeDeps(job: Record<string, unknown> | null) {
     $transaction: vi.fn(async (fn: (tx: unknown) => unknown) => fn(prisma)),
     job: {
       findFirst: vi.fn().mockResolvedValue(job),
-      update: vi.fn().mockImplementation(({ data }) => { updates.push(data); return { ...job, ...data }; }),
+      update: vi.fn().mockImplementation(({ data }) => {
+        updates.push(data);
+        return { ...job, ...data };
+      }),
     },
   };
   const config = { jobs: { pollIntervalMs: 1000, backoffBaseMs: 1000 } };
@@ -527,7 +559,12 @@ function makeDeps(job: Record<string, unknown> | null) {
 
 describe('JobWorker.runOnce', () => {
   it('marks a job done when its handler succeeds', async () => {
-    const { prisma, config, updates } = makeDeps({ id: 'j1', type: 't', attempts: 0, maxAttempts: 3 });
+    const { prisma, config, updates } = makeDeps({
+      id: 'j1',
+      type: 't',
+      attempts: 0,
+      maxAttempts: 3,
+    });
     const worker = new JobWorker(prisma as never, config as never);
     const handle = vi.fn().mockResolvedValue(undefined);
     worker.register({ type: 't', handle });
@@ -537,7 +574,12 @@ describe('JobWorker.runOnce', () => {
   });
 
   it('requeues with backoff on failure until maxAttempts, then fails', async () => {
-    const { prisma, config, updates } = makeDeps({ id: 'j1', type: 't', attempts: 2, maxAttempts: 3 });
+    const { prisma, config, updates } = makeDeps({
+      id: 'j1',
+      type: 't',
+      attempts: 2,
+      maxAttempts: 3,
+    });
     const worker = new JobWorker(prisma as never, config as never);
     worker.register({ type: 't', handle: vi.fn().mockRejectedValue(new Error('boom')) });
     await worker.runOnce();
@@ -618,7 +660,11 @@ export class JobWorker implements OnModuleInit, OnModuleDestroy {
     if (!handler) {
       await this.prisma.job.update({
         where: { id: job.id },
-        data: { status: 'failed', error: `no handler for type ${job.type}`, finishedAt: new Date() },
+        data: {
+          status: 'failed',
+          error: `no handler for type ${job.type}`,
+          finishedAt: new Date(),
+        },
       });
       return;
     }
@@ -686,6 +732,7 @@ git add -A && git commit -m "feat(jobs): polling JobWorker with retry/backoff + 
 ### Task 11: `JobsModule` + wire into the app
 
 **Files:**
+
 - Create: `apps/backend/src/common/jobs/jobs.module.ts`
 - Modify: `apps/backend/src/app.module.ts`
 
@@ -726,6 +773,7 @@ git add -A && git commit -m "feat(jobs): JobsModule (global)"
 ### Task 12: `EventsService` — per-user RxJS bus
 
 **Files:**
+
 - Create: `apps/backend/src/modules/events/events.service.ts`, `events.service.spec.ts`
 
 - [ ] **Step 1: Write the failing spec**
@@ -804,6 +852,7 @@ git add -A && git commit -m "feat(events): per-user EventsService bus"
 ### Task 13: `EventsController` (`@Sse`) + `EventsModule`
 
 **Files:**
+
 - Create: `apps/backend/src/modules/events/events.controller.ts`, `events.module.ts`
 - Modify: `apps/backend/src/app.module.ts`
 
@@ -886,25 +935,26 @@ Delete the `/realtime/token` path block and any now-unused realtime schemas/`ope
 Under `paths:` add (keep paths alphabetised within their group):
 
 ```yaml
-  /events:
-    get:
-      operationId: streamEvents
-      summary: Server-Sent Events stream of the caller's item/job updates.
-      tags: [events]
-      security:
-        - sessionCookie: []
-      responses:
-        '200':
-          description: An event stream.
-          content:
-            text/event-stream:
-              schema:
-                type: string
-              example: |
-                data: {"type":"item.updated","data":{"id":"itm_1","status":"ready"}}
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+/events:
+  get:
+    operationId: streamEvents
+    summary: Server-Sent Events stream of the caller's item/job updates.
+    tags: [events]
+    security:
+      - sessionCookie: []
+    responses:
+      '200':
+        description: An event stream.
+        content:
+          text/event-stream:
+            schema:
+              type: string
+            example: |
+              data: {"type":"item.updated","data":{"id":"itm_1","status":"ready"}}
+      '401':
+        $ref: '#/components/responses/Unauthorized'
 ```
+
 (If `sessionCookie`/`Unauthorized` differ in this spec, reuse the existing names from the auth paths.)
 
 - [ ] **Step 2b: Validate, bundle, codegen**
@@ -958,6 +1008,7 @@ docker compose -f docker/compose.yml up -d --build
 ```bash
 curl -s localhost:3000/api/v1/health
 ```
+
 Expected: `{"status":"ok","dependencies":{"db":"ok"}}`
 
 - [ ] **Step 3: Verify the SSE endpoint authenticates**
@@ -965,6 +1016,7 @@ Expected: `{"status":"ok","dependencies":{"db":"ok"}}`
 ```bash
 curl -s -i localhost:3000/api/v1/events | head -1
 ```
+
 Expected: `HTTP/1.1 401` (no session) — proves the guard is active. (A logged-in client receives `text/event-stream`.)
 
 - [ ] **Step 4: Final commit**
@@ -978,6 +1030,7 @@ git add -A && git commit -m "chore(s0): foundation boots green on the slim stack
 ## Self-Review
 
 **Spec coverage (against `specs/features/2026-06-13-foundation-and-core.md` Part A):**
+
 - A1 rename → Task 1 ✓ · A2 SQLite/WAL → Task 2 ✓ · A3 strip services → Tasks 3-6 ✓ ·
   A4 jobs worker → Tasks 8-11 ✓ · A5 SSE → Tasks 12-14 ✓ · health db-only → Task 7 ✓ ·
   CI/compose → Task 15 ✓ · boot green → Task 16 ✓.
