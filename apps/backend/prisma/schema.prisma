@@ -73,13 +73,22 @@ model Verification {
 }
 
 // ----- Domain -----
-// Add your domain models here. Example:
-//
-// model Post {
-//   id        String   @id @default(uuid())
-//   title     String
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//
-//   @@map("post")
-// }
+
+model Job {
+  id          String    @id @default(cuid())
+  userId      String
+  type        String
+  itemId      String?
+  status      String    @default("queued") // queued | running | done | failed
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(3)
+  runAfter    DateTime  @default(now())
+  error       String?
+  payload     String? // JSON-encoded
+  createdAt   DateTime  @default(now())
+  startedAt   DateTime?
+  finishedAt  DateTime?
+
+  @@index([status, runAfter])
+  @@map("job")
+}
