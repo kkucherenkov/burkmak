@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>burkmak — Sign in</title>
+
+  <!-- Canonical token contract (B palette · A taxonomy). All var(--*) resolve from here. -->
+  <link rel="stylesheet" href="../tokens.preview.css" />
+
+  <!-- Brand faces: Fraunces (display) · Literata (reading) · Hanken Grotesk (UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&family=Hanken+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ----------------------------------------------------------------------
+     * burkmak — Sign in component stylesheet (canonical-variable only).
+     * Mirrors sign-in.vue's scoped styles, unscoped for the standalone copy.
+     * Token VALUES live in tokens.preview.css; this file only references them.
+     * Sole raw px: 1px hairline borders, 3px focus-ring spreads, 2px spinner
+     * stroke, and 6px dots (no matching tokens in the contract).
+     * -------------------------------------------------------------------- */
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; }
+
+    /* ---- showcase scaffolding (NOT part of the product UI) ---- */
+    .page {
+      background: var(--surface-page);
+      color: var(--text-fg);
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      line-height: var(--leading-normal);
+      -webkit-font-smoothing: antialiased;
+    }
+    .page__head {
+      max-width: 60rem;
+      margin-inline: auto;
+      padding: clamp(var(--space-8), 5vw, var(--space-16)) clamp(var(--space-4), 5vw, var(--space-8)) var(--space-6);
+    }
+    .page__eyebrow {
+      margin: 0 0 var(--space-2);
+      font-size: var(--text-xs);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--brand-accent);
+    }
+    .page__title {
+      margin: 0 0 var(--space-2);
+      font-family: var(--font-display);
+      font-weight: var(--fw-semibold);
+      font-size: clamp(var(--text-3xl), 4vw, var(--text-5xl));
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+    }
+    .page__lede {
+      margin: 0;
+      max-width: 56ch;
+      font-family: var(--font-reading);
+      font-size: var(--text-lg);
+      line-height: var(--leading-relaxed);
+      color: var(--text-secondary);
+    }
+
+    .stage {
+      background: var(--surface-page);
+      color: var(--text-fg);
+      padding: clamp(var(--space-6), 4vw, var(--space-12)) clamp(var(--space-4), 5vw, var(--space-8)) clamp(var(--space-10), 6vw, var(--space-16));
+    }
+    .stage__label {
+      max-width: 60rem;
+      margin: 0 auto var(--space-6);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--text-sm);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .stage__label::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border-default);
+    }
+    .grid {
+      max-width: 60rem;
+      margin-inline: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+      gap: var(--space-8) var(--space-6);
+      align-items: start;
+    }
+    .specimen { display: grid; gap: var(--space-3); }
+    .specimen__caption {
+      margin: 0;
+      font-size: var(--text-xs);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    /* ============================ product UI ============================ */
+    /* ----------------------------------------------------------- AppCard */
+    .app-card {
+      width: 100%;
+      background: var(--surface-raised);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-md);
+      padding: clamp(var(--space-7), 5vw, var(--space-8));
+      font-family: var(--font-sans);
+      color: var(--text-fg);
+    }
+    .app-auth__top { margin-bottom: var(--space-6); }
+
+    /* ---------------------------------------------------------- AppBrand */
+    .app-brand {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-weight: var(--fw-semibold);
+      font-size: var(--text-lg); letter-spacing: var(--tracking-tight); color: var(--text-fg);
+    }
+    .app-brand__mark {
+      display: grid; place-items: center; width: var(--space-6); height: var(--space-6);
+      font-family: var(--font-display); font-size: var(--text-sm); font-weight: var(--fw-bold);
+      color: var(--brand-accent-fg); background: var(--brand-accent); border-radius: var(--radius-pill);
+    }
+
+    .app-auth__head { display: grid; gap: var(--space-2); margin-bottom: var(--space-7); }
+    .app-auth__title {
+      margin: 0; font-family: var(--font-display); font-weight: var(--fw-semibold);
+      font-size: clamp(var(--text-2xl), 4vw, var(--text-3xl));
+      line-height: var(--leading-tight); letter-spacing: var(--tracking-tight);
+      color: var(--text-fg); text-wrap: balance;
+    }
+    .app-auth__subtitle {
+      margin: 0; font-size: var(--text-md); line-height: var(--leading-normal); color: var(--text-secondary);
+    }
+
+    /* ----------------------------------------------------------- AppForm */
+    .app-form { display: grid; gap: var(--space-5); }
+    .app-field { display: grid; gap: var(--space-2); }
+    .app-field__label-row {
+      display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3);
+    }
+    .app-field__label { font-size: var(--text-sm); font-weight: var(--fw-semibold); color: var(--text-fg); }
+    .app-field__aside {
+      font-size: var(--text-sm); font-weight: var(--fw-medium); color: var(--text-link); text-decoration: none;
+    }
+    .app-field__aside:hover { text-decoration: underline; }
+    .app-field__error {
+      display: flex; align-items: center; gap: var(--space-2); margin: 0;
+      font-size: var(--text-sm); color: var(--status-error-fg);
+    }
+    .app-field__error-dot {
+      flex: none; width: 6px; height: 6px; border-radius: var(--radius-pill); background: currentColor;
+    }
+
+    /* ---------------------------------------------------------- AppInput */
+    .app-input-wrap { position: relative; display: flex; align-items: center; }
+    .app-input {
+      width: 100%; font: inherit; font-size: var(--text-md); color: var(--text-fg);
+      background: var(--surface-raised); border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4);
+      transition: border-color var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard);
+    }
+    .app-input::placeholder { color: var(--text-tertiary); }
+    .app-input--affix { padding-inline-end: var(--space-10); }
+    .app-input:focus-visible,
+    .app-input.is-focus {
+      outline: none; border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-accent) 32%, transparent);
+    }
+    .app-input:disabled { color: var(--text-disabled); background: var(--surface-surface); cursor: not-allowed; }
+    .app-input[aria-invalid="true"] { border-color: var(--status-error-fg); }
+    .app-input[aria-invalid="true"]:focus-visible,
+    .app-input[aria-invalid="true"].is-focus {
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--status-error-fg) 30%, transparent);
+    }
+
+    .app-input-affix {
+      position: absolute; inset-inline-end: var(--space-2); display: grid; place-items: center;
+      padding: var(--space-1); color: var(--text-tertiary); background: transparent;
+      border: 1px solid transparent; border-radius: var(--radius-sm); cursor: pointer;
+      transition: color var(--dur-fast) var(--ease-standard);
+    }
+    .app-input-affix:hover { color: var(--text-secondary); }
+    .app-input-affix:focus-visible {
+      outline: none; color: var(--text-fg);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-accent) 32%, transparent);
+    }
+    .app-input-affix:disabled { cursor: not-allowed; opacity: 0.5; }
+
+    /* --------------------------------------------------------- AppButton */
+    .app-button {
+      display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+      width: 100%; margin-top: var(--space-1); font: inherit; font-weight: var(--fw-semibold);
+      font-size: var(--text-md); color: var(--brand-accent-fg); background: var(--brand-accent);
+      border: 1px solid transparent; border-radius: var(--radius-lg);
+      padding: var(--space-3) var(--space-5); cursor: pointer;
+      transition: background var(--dur-base) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
+    }
+    .app-button:hover:not(:disabled) { background: var(--brand-accent-hover); }
+    .app-button:active:not(:disabled) { background: var(--brand-accent-active); transform: translateY(1px); }
+    .app-button:focus-visible {
+      outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-accent) 38%, transparent);
+    }
+    .app-button[aria-busy="true"] { cursor: progress; opacity: 0.88; }
+    .app-button:disabled:not([aria-busy="true"]) {
+      color: var(--text-disabled); background: var(--surface-surface); cursor: not-allowed;
+    }
+    .app-spinner {
+      flex: none; width: var(--space-4); height: var(--space-4);
+      border: 2px solid color-mix(in oklab, var(--brand-accent-fg) 40%, transparent);
+      border-top-color: var(--brand-accent-fg); border-radius: var(--radius-pill);
+      animation: app-spin 0.7s linear infinite;
+    }
+
+    /* ------------------------------------------------------ AppFormError */
+    .app-form-error {
+      display: flex; align-items: flex-start; gap: var(--space-2);
+      margin-bottom: var(--space-5); padding: var(--space-3) var(--space-4);
+      font-size: var(--text-sm); line-height: var(--leading-snug);
+      color: var(--status-error-fg); background: var(--status-error-subtle);
+      border: 1px solid color-mix(in oklab, var(--status-error-fg) 24%, transparent);
+      border-radius: var(--radius-lg);
+    }
+    .app-form-error__icon { flex: none; margin-top: 1px; }
+
+    /* ------------------------------------------------------ success path */
+    .app-auth__success {
+      display: flex; align-items: center; gap: var(--space-2); padding: var(--space-4);
+      font-size: var(--text-md); color: var(--status-success-fg);
+      background: var(--status-success-subtle);
+      border: 1px solid color-mix(in oklab, var(--status-success-fg) 28%, transparent);
+      border-radius: var(--radius-lg);
+    }
+
+    /* ----------------------------------------------------------- AppMeta */
+    .app-auth__meta {
+      margin: var(--space-6) 0 0; text-align: center; font-size: var(--text-md); color: var(--text-secondary);
+    }
+    .app-auth__meta a {
+      color: var(--text-link); font-weight: var(--fw-semibold); text-decoration: none; border-radius: var(--radius-sm);
+    }
+    .app-auth__meta a:hover { text-decoration: underline; }
+    .app-auth__meta a:focus-visible {
+      outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-accent) 32%, transparent);
+    }
+
+    @keyframes app-spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      .app-spinner { animation-duration: 1.4s; }
+      .app-button:active:not(:disabled) { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="page__head">
+      <p class="page__eyebrow">burkmak · @app/ui</p>
+      <h1 class="page__title">Sign in</h1>
+      <p class="page__lede">
+        The auth entry screen — a centered card on warm paper. One card is live: submit a
+        <code>demo@…</code> address to reach success; any other email is rejected so the form-level
+        error banner stays reviewable. The remaining cards pin each state for review, light and dark.
+      </p>
+    </header>
+
+    <!-- ============================ LIGHT ============================ -->
+    <section class="stage" data-theme="light">
+      <p class="stage__label">Light · warm paper</p>
+      <div class="grid">
+
+        <!-- Live / interactive -->
+        <div class="specimen">
+          <p class="specimen__caption">Interactive — try it</p>
+          <main class="app-card" id="live" aria-labelledby="live-title">
+            <header class="app-auth__top">
+              <span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span>burkmak</span></span>
+            </header>
+            <div class="app-auth__head">
+              <h2 id="live-title" class="app-auth__title">Welcome back</h2>
+              <p class="app-auth__subtitle">Sign in to pick up where you left off.</p>
+            </div>
+
+            <div class="app-form-error" data-role="banner" role="alert" hidden>
+              <svg class="app-form-error__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
+              <span data-role="banner-text"></span>
+            </div>
+            <div class="app-auth__success" data-role="success" role="status" hidden>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+              <span>You’re signed in — taking you to your library…</span>
+            </div>
+
+            <form class="app-form" data-role="form" novalidate>
+              <div class="app-field">
+                <label class="app-field__label" for="live-email">Email</label>
+                <input class="app-input" id="live-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" data-role="email" />
+                <p class="app-field__error" data-role="email-error" hidden></p>
+              </div>
+              <div class="app-field">
+                <div class="app-field__label-row">
+                  <label class="app-field__label" for="live-pass">Password</label>
+                  <a class="app-field__aside" href="#/reset">Forgot?</a>
+                </div>
+                <div class="app-input-wrap">
+                  <input class="app-input app-input--affix" id="live-pass" name="password" type="password" autocomplete="current-password" placeholder="••••••••" data-role="password" />
+                  <button type="button" class="app-input-affix" data-role="toggle" aria-pressed="false" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+                <p class="app-field__error" data-role="password-error" hidden></p>
+              </div>
+              <button class="app-button" type="submit" data-role="submit">
+                <span class="app-spinner" data-role="spinner" hidden></span>
+                <span data-role="submit-label">Sign in</span>
+              </button>
+            </form>
+            <p class="app-auth__meta">New to burkmak? <a href="#/sign-up">Create an account</a></p>
+          </main>
+        </div>
+
+        <!-- Default -->
+        <div class="specimen">
+          <p class="specimen__caption">Default</p>
+          <main class="app-card" aria-labelledby="d-title">
+            <header class="app-auth__top"><span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span>burkmak</span></span></header>
+            <div class="app-auth__head"><h2 id="d-title" class="app-auth__title">Welcome back</h2><p class="app-auth__subtitle">Sign in to pick up where you left off.</p></div>
+            <form class="app-form" novalidate onsubmit="return false">
+              <div class="app-field"><label class="app-field__label" for="d-email">Email</label><input class="app-input" id="d-email" type="email" placeholder="you@example.com" /></div>
+              <div class="app-field"><div class="app-field__label-row"><label class="app-field__label" for="d-pass">Password</label><a class="app-field__aside" href="#/reset">Forgot?</a></div><div class="app-input-wrap"><input class="app-input app-input--affix" id="d-pass" type="password" placeholder="••••••••" /><button type="button" class="app-input-affix" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+              <button class="app-button" type="submit"><span>Sign in</span></button>
+            </form>
+            <p class="app-auth__meta">New to burkmak? <a href="#/sign-up">Create an account</a></p>
+          </main>
+        </div>
+
+        <!-- Focus-visible -->
+        <div class="specimen">
+          <p class="specimen__caption">Input · focus-visible</p>
+          <main class="app-card" aria-labelledby="f-title">
+            <header class="app-auth__top"><span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span>burkmak</span></span></header>
+            <div class="app-auth__head"><h2 id="f-title" class="app-auth__title">Welcome back</h2><p class="app-auth__subtitle">Sign in to pick up where you left off.</p></div>
+            <form class="app-form" novalidate onsubmit="return false">
+              <div class="app-field"><label class="app-field__label" for="f-email">Email</label><input class="app-input is-focus" id="f-email" type="email" value="alex@" placeholder="you@example.com" /></div>
+              <div class="app-field"><div class="app-field__label-row"><label class="app-field__label" for="f-pass">Password</label><a class="app-field__aside" href="#/reset">Forgot?</a></div><div class="app-input-wrap"><input class="app-input app-input--affix" id="f-pass" type="password" placeholder="••••••••" /><button type="button" class="app-input-affix" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+              <button class="app-button" type="submit"><span>Sign in</span></button>
+            </form>
+            <p class="app-auth__meta">New to burkmak? <a href="#/sign-up">Create an account</a></p>
+          </main>
+        </div>
+
+        <!-- Validation error -->
+        <div class="specimen">
+          <p class="specimen__caption">Field validation error</p>
+          <main class="app-card" aria-labelledby="e-title">
+            <header class="app-auth__top"><span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span>burkmak</span></span></header>
+            <div class="app-auth__head"><h2 id="e-title" class="app-auth__title">Welcome back</h2><p class="app-auth__subtitle">Sign in to pick up where you left off.</p></div>
+            <form class="app-form" novalidate onsubmit="return false">
+              <div class="app-field">
+                <label class="app-field__label" for="e-email">Email</label>
+                <input class="app-input" id="e-email" type="email" value="alex.reads" aria-invalid="true" aria-describedby="e-email-err" />
+                <p class="app-field__error" id="e-email-err"><span class="app-field__error-dot" aria-hidden="true"></span>That doesn’t look like an email.</p>
+              </div>
+              <div class="app-field">
+                <div class="app-field__label-row"><label class="app-field__label" for="e-pass">Password</label><a class="app-field__aside" href="#/reset">Forgot?</a></div>
+                <div class="app-input-wrap"><input class="app-input app-input--affix" id="e-pass" type="password" placeholder="••••••••" aria-invalid="true" aria-describedby="e-pass-err" /><button type="button" class="app-input-affix" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+                <p class="app-field__error" id="e-pass-err"><span class="app-field__error-dot" aria-hidden="true"></span>Enter your password.</p>
+              </div>
+              <button class="app-button" type="submit"><span>Sign in</span></button>
+            </form>
+            <p class="app-auth__meta">New to burkmak? <a href="#/sign-up">Create an account</a></p>
+          </main>
+        </div>
+
+        <!-- Loading -->
+        <div class="specimen">
+          <p class="specimen__caption">Submit · loading</p>
+          <main class="app-card" aria-labelledby="l-title">
+            <header class="app-auth__top"><span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span>burkmak</span></span></header>
+            <div class="app-auth__head"><h2 id="l-title" class="app-auth__title">Welcome back</h2><p class="app-auth__subtitle">Sign in to pick up where you left off.</p></div>
+            <form class="app-form" novalidate onsubmit="return false">
+              <div class="app-field"><label class="app-field__label" for="l-email">Email</label><input class="app-input" id="l-email" type="email" value="demo@burkmak.app" disabled /></div>
+              <div class="app-field"><div class="app-field__label-row"><label class="app-field__label" for="l-pass">Password</label><a class="app-field__aside" href="#/reset">Forgot?</a></div><div class="app-input-wrap"><input class="app-input app-input--affix" id="l-pass" type="password" value="reader2026" disabled /><button type="button" class="app-input-affix" aria-label="Show password" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+              <button class="app-button" type="submit" aria-busy="true" disabled><span class="app-spinner" aria-hidden="true"></span><span>Signing in…</span></button>
+            </form>
+            <p class="app-auth__meta">New to burkmak? <a href="#/sign-up">Create an account</a></p>
+          </main>
+        </div>
+
+        <!-- Form-level error banner -->
+        <div class="specimen">
+          <p class="specimen__caption">Form-level error banner</p>
+          <main class="app-card" aria-labelledby="b-title">
+            <header class="app-auth__top"><span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span>burkmak</span></span></header>
+            <div class="app-auth__head"><h2 id="b-title" class="app-auth__title">Welcome back</h2><p class="app-auth__subtitle">Sign in to pick up where you left off.</p></div>
+            <div class="app-form-error" role="alert">
+              <svg class="app-form-error__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
+              <span>Email or password is incorrect.</span>
+            </div>
+            <form class="app-form" novalidate onsubmit="return false">
+              <div class="app-field"><label class="app-field__label" for="b-email">Email</label><input class="app-input" id="b-email" type="email" value="alex@example.com" /></div>
+              <div class="app-field"><div class="app-field__label-row"><label class="app-field__label" for="b-pass">Password</label><a class="app-field__aside" href="#/reset">Forgot?</a></div><div class="app-input-wrap"><input class="app-input app-input--affix" id="b-pass" type="password" value="wrongpass" /><button type="button" class="app-input-affix" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+              <button class="app-button" type="submit"><span>Sign in</span></button>
+            </form>
+            <p class="app-auth__meta">New to burkmak? <a href="#/sign-up">Create an account</a></p>
+          </main>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================ DARK ============================ -->
+    <section class="stage" data-theme="dark">
+      <p class="stage__label">Dark · warm low-glare ink</p>
+      <div class="grid">
+
+        <!-- Default -->
+        <div class="specimen">
+          <p class="specimen__caption">Default</p>
+          <main class="app-card" aria-labelledby="dd-title">
+            <header class="app-auth__top"><span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span>burkmak</span></span></header>
+            <div class="app-auth__head"><h2 id="dd-title" class="app-auth__title">Welcome back</h2><p class="app-auth__subtitle">Sign in to pick up where you left off.</p></div>
+            <form class="app-form" novalidate onsubmit="return false">
+              <div class="app-field"><label class="app-field__label" for="dd-email">Email</label><input class="app-input" id="dd-email" type="email" placeholder="you@example.com" /></div>
+              <div class="app-field"><div class="app-field__label-row"><label class="app-field__label" for="dd-pass">Password</label><a class="app-field__aside" href="#/reset">Forgot?</a></div><div class="app-input-wrap"><input class="app-input app-input--affix" id="dd-pass" type="password" placeholder="••••••••" /><button type="button" class="app-input-affix" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+              <button class="app-button" type="submit"><span>Sign in</span></button>
+            </form>
+            <p class="app-auth__meta">New to burkmak? <a href="#/sign-up">Create an account</a></p>
+          </main>
+        </div>
+
+        <!-- Focus-visible -->
+        <div class="specimen">
+          <p class="specimen__caption">Input · focus-visible</p>
+          <main class="app-card" aria-labelledby="df-title">
+            <header class="app-auth__top"><span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span>burkmak</span></span></header>
+            <div class="app-auth__head"><h2 id="df-title" class="app-auth__title">Welcome back</h2><p class="app-auth__subtitle">Sign in to pick up where you left off.</p></div>
+            <form class="app-form" novalidate onsubmit="return false">
+              <div class="app-field"><label class="app-field__label" for="df-email">Email</label><input class="app-input is-focus" id="df-email" type="email" value="alex@" placeholder="you@example.com" /></div>
+              <div class="app-field"><div class="app-field__label-row"><label class="app-field__label" for="df-pass">Password</label><a class="app-field__aside" href="#/reset">Forgot?</a></div><div class="app-input-wrap"><input class="app-input app-input--affix" id="df-pass" type="password" placeholder="••••••••" /><button type="button" class="app-input-affix" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+              <button class="app-button" type="submit"><span>Sign in</span></button>
+            </form>
+            <p class="app-auth__meta">New to burkmak? <a href="#/sign-up">Create an account</a></p>
+          </main>
+        </div>
+
+        <!-- Validation error -->
+        <div class="specimen">
+          <p class="specimen__caption">Field validation error</p>
+          <main class="app-card" aria-labelledby="de-title">
+            <header class="app-auth__top"><span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span>burkmak</span></span></header>
+            <div class="app-auth__head"><h2 id="de-title" class="app-auth__title">Welcome back</h2><p class="app-auth__subtitle">Sign in to pick up where you left off.</p></div>
+            <form class="app-form" novalidate onsubmit="return false">
+              <div class="app-field">
+                <label class="app-field__label" for="de-email">Email</label>
+                <input class="app-input" id="de-email" type="email" value="" aria-invalid="true" aria-describedby="de-email-err" placeholder="you@example.com" />
+                <p class="app-field__error" id="de-email-err"><span class="app-field__error-dot" aria-hidden="true"></span>Enter your email.</p>
+              </div>
+              <div class="app-field">
+                <div class="app-field__label-row"><label class="app-field__label" for="de-pass">Password</label><a class="app-field__aside" href="#/reset">Forgot?</a></div>
+                <div class="app-input-wrap"><input class="app-input app-input--affix" id="de-pass" type="password" value="x" aria-invalid="true" aria-describedby="de-pass-err" /><button type="button" class="app-input-affix" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+                <p class="app-field__error" id="de-pass-err"><span class="app-field__error-dot" aria-hidden="true"></span>Enter your password.</p>
+              </div>
+              <button class="app-button" type="submit"><span>Sign in</span></button>
+            </form>
+            <p class="app-auth__meta">New to burkmak? <a href="#/sign-up">Create an account</a></p>
+          </main>
+        </div>
+
+        <!-- Loading -->
+        <div class="specimen">
+          <p class="specimen__caption">Submit · loading</p>
+          <main class="app-card" aria-labelledby="dl-title">
+            <header class="app-auth__top"><span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span>burkmak</span></span></header>
+            <div class="app-auth__head"><h2 id="dl-title" class="app-auth__title">Welcome back</h2><p class="app-auth__subtitle">Sign in to pick up where you left off.</p></div>
+            <form class="app-form" novalidate onsubmit="return false">
+              <div class="app-field"><label class="app-field__label" for="dl-email">Email</label><input class="app-input" id="dl-email" type="email" value="demo@burkmak.app" disabled /></div>
+              <div class="app-field"><div class="app-field__label-row"><label class="app-field__label" for="dl-pass">Password</label><a class="app-field__aside" href="#/reset">Forgot?</a></div><div class="app-input-wrap"><input class="app-input app-input--affix" id="dl-pass" type="password" value="reader2026" disabled /><button type="button" class="app-input-affix" aria-label="Show password" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+              <button class="app-button" type="submit" aria-busy="true" disabled><span class="app-spinner" aria-hidden="true"></span><span>Signing in…</span></button>
+            </form>
+            <p class="app-auth__meta">New to burkmak? <a href="#/sign-up">Create an account</a></p>
+          </main>
+        </div>
+
+        <!-- Form-level error banner -->
+        <div class="specimen">
+          <p class="specimen__caption">Form-level error banner</p>
+          <main class="app-card" aria-labelledby="db-title">
+            <header class="app-auth__top"><span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span>burkmak</span></span></header>
+            <div class="app-auth__head"><h2 id="db-title" class="app-auth__title">Welcome back</h2><p class="app-auth__subtitle">Sign in to pick up where you left off.</p></div>
+            <div class="app-form-error" role="alert">
+              <svg class="app-form-error__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
+              <span>Email or password is incorrect.</span>
+            </div>
+            <form class="app-form" novalidate onsubmit="return false">
+              <div class="app-field"><label class="app-field__label" for="db-email">Email</label><input class="app-input" id="db-email" type="email" value="alex@example.com" /></div>
+              <div class="app-field"><div class="app-field__label-row"><label class="app-field__label" for="db-pass">Password</label><a class="app-field__aside" href="#/reset">Forgot?</a></div><div class="app-input-wrap"><input class="app-input app-input--affix" id="db-pass" type="password" value="wrongpass" /><button type="button" class="app-input-affix" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+              <button class="app-button" type="submit"><span>Sign in</span></button>
+            </form>
+            <p class="app-auth__meta">New to burkmak? <a href="#/sign-up">Create an account</a></p>
+          </main>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Live card only — mirrors sign-in.vue's validation/submit so focus, error,
+    // loading, banner, and success states are all reachable without a backend.
+    (function () {
+      var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      var card = document.getElementById('live');
+      if (!card) return;
+      var q = function (r) { return card.querySelector('[data-role="' + r + '"]'); };
+      var form = q('form'), email = q('email'), pass = q('password');
+      var emailErr = q('email-error'), passErr = q('password-error');
+      var banner = q('banner'), bannerText = q('banner-text'), success = q('success');
+      var submit = q('submit'), label = q('submit-label'), spinner = q('spinner'), toggle = q('toggle');
+
+      function setError(input, node, msg) {
+        if (msg) {
+          input.setAttribute('aria-invalid', 'true');
+          node.textContent = '';
+          var dot = document.createElement('span');
+          dot.className = 'app-field__error-dot';
+          dot.setAttribute('aria-hidden', 'true');
+          node.appendChild(dot);
+          node.appendChild(document.createTextNode(msg));
+          node.hidden = false;
+        } else {
+          input.removeAttribute('aria-invalid');
+          node.hidden = true;
+        }
+      }
+
+      toggle.addEventListener('click', function () {
+        var show = pass.type === 'password';
+        pass.type = show ? 'text' : 'password';
+        toggle.setAttribute('aria-pressed', String(show));
+        toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      });
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        banner.hidden = true;
+        var eVal = email.value.trim(), bad = false;
+        if (!eVal) { setError(email, emailErr, 'Enter your email.'); bad = true; }
+        else if (!EMAIL_RE.test(eVal)) { setError(email, emailErr, 'That doesn’t look like an email.'); bad = true; }
+        else setError(email, emailErr, '');
+        if (!pass.value) { setError(pass, passErr, 'Enter your password.'); bad = true; }
+        else setError(pass, passErr, '');
+        if (bad) return;
+
+        submit.setAttribute('aria-busy', 'true');
+        submit.disabled = true;
+        spinner.hidden = false;
+        label.textContent = 'Signing in…';
+
+        window.setTimeout(function () {
+          submit.removeAttribute('aria-busy');
+          submit.disabled = false;
+          spinner.hidden = true;
+          label.textContent = 'Sign in';
+          if (eVal.toLowerCase().indexOf('demo') === 0) {
+            form.hidden = true;
+            banner.hidden = true;
+            success.hidden = false;
+          } else {
+            bannerText.textContent = 'Email or password is incorrect.';
+            banner.hidden = false;
+          }
+        }, 1100);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>burkmak — Sign up</title>
+
+  <!-- brand Google Fonts: Fraunces (display) · Literata (reading) · Hanken Grotesk (UI) · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- canonical burkmak token contract (defines every var(--*) used below) -->
+  <link rel="stylesheet" href="../tokens.preview.css" />
+
+  <style>
+    /* ---- base ---- */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background: var(--surface-surface);
+      color: var(--text-fg);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---- spec gallery chrome (mockup file only — NOT part of the product) ---- */
+    .spec { display: grid; gap: var(--space-10); padding: var(--space-8); }
+    .spec__group { display: grid; gap: var(--space-4); }
+    .spec__label {
+      margin: 0;
+      font-size: var(--text-sm);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .spec__frame {
+      overflow: hidden;
+      border: thin solid var(--border-default);
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-md);
+    }
+    .spec__cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+      gap: var(--space-6);
+    }
+    .spec__card-label {
+      margin: 0 0 var(--space-3);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: var(--tracking-wide);
+      color: var(--text-tertiary);
+    }
+
+    /* =================================================================
+       Component styles — mirror sign-up.vue 1:1 (same BEM, same tokens).
+       Forced `.is-*` twin selectors freeze pseudo-states for this static
+       mockup; the .vue ships only the clean :focus-visible / :hover rules.
+       ================================================================= */
+    .app-auth {
+      display: grid;
+      place-items: center;
+      padding: var(--space-12) var(--space-6);
+      background: var(--surface-page);
+      color: var(--text-fg);
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      line-height: var(--leading-normal);
+      text-rendering: optimizeLegibility;
+    }
+
+    /* ---- AppCard ---- */
+    .app-card {
+      width: min(100%, 26rem);
+      background: var(--surface-raised);
+      border: thin solid var(--border-default);
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-md);
+      padding: clamp(var(--space-8), 6vw, var(--space-10));
+    }
+    .app-auth__top { margin-bottom: var(--space-6); }
+
+    /* ---- AppBrand ---- */
+    .app-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-display);
+      font-weight: var(--fw-semibold);
+      font-size: var(--text-lg);
+      letter-spacing: var(--tracking-tight);
+      color: var(--text-fg);
+    }
+    .app-brand__mark {
+      display: grid;
+      place-items: center;
+      width: var(--space-6);
+      height: var(--space-6);
+      font-family: var(--font-display);
+      font-size: var(--text-sm);
+      font-weight: var(--fw-bold);
+      color: var(--brand-accent-fg);
+      background: var(--brand-accent);
+      border-radius: var(--radius-pill);
+    }
+
+    .app-auth__head { display: grid; gap: var(--space-2); margin-bottom: var(--space-7); }
+    .app-auth__title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-weight: var(--fw-semibold);
+      font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+      color: var(--text-fg);
+      text-wrap: balance;
+    }
+    .app-auth__subtitle {
+      margin: 0;
+      font-size: var(--text-md);
+      line-height: var(--leading-normal);
+      color: var(--text-secondary);
+    }
+
+    /* ---- AppForm / AppField ---- */
+    .app-form { display: grid; gap: var(--space-5); }
+    .app-field { display: grid; gap: var(--space-2); }
+    .app-field__label {
+      font-size: var(--text-sm);
+      font-weight: var(--fw-semibold);
+      color: var(--text-fg);
+    }
+    .app-field__hint { margin: 0; font-size: var(--text-sm); color: var(--text-tertiary); }
+    .app-field__error {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin: 0;
+      font-size: var(--text-sm);
+      color: var(--status-error-fg);
+    }
+    .app-field__error-dot {
+      flex: none;
+      width: 6px;
+      height: 6px;
+      border-radius: var(--radius-pill);
+      background: currentColor;
+    }
+
+    /* ---- AppInput ---- */
+    .app-input-wrap { position: relative; display: flex; align-items: center; }
+    .app-input {
+      width: 100%;
+      font: inherit;
+      font-size: var(--text-md);
+      color: var(--text-fg);
+      background: var(--surface-raised);
+      border: thin solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-3) var(--space-4);
+      transition:
+        border-color var(--dur-base) var(--ease-standard),
+        box-shadow var(--dur-base) var(--ease-standard);
+    }
+    .app-input::placeholder { color: var(--text-tertiary); }
+    .app-input--affix { padding-inline-end: var(--space-10); }
+    .app-input:focus-visible,
+    .app-input.is-focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-accent) 32%, transparent);
+    }
+    .app-input:disabled {
+      color: var(--text-disabled);
+      background: var(--surface-surface);
+      cursor: not-allowed;
+    }
+    .app-input[aria-invalid='true'] { border-color: var(--status-error-fg); }
+    .app-input[aria-invalid='true']:focus-visible,
+    .app-input[aria-invalid='true'].is-focus {
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--status-error-fg) 30%, transparent);
+    }
+
+    .app-input-affix {
+      position: absolute;
+      inset-inline-end: var(--space-2);
+      display: grid;
+      place-items: center;
+      padding: var(--space-1);
+      color: var(--text-tertiary);
+      background: transparent;
+      border: thin solid transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: color var(--dur-fast) var(--ease-standard);
+    }
+    .app-input-affix:hover { color: var(--text-secondary); }
+    .app-input-affix:disabled { cursor: not-allowed; opacity: 0.5; }
+
+    /* ---- AppStrength (password meter) ---- */
+    .app-strength { display: grid; gap: var(--space-2); }
+    .app-strength__track { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-1); }
+    .app-strength__seg {
+      height: var(--space-1);
+      border-radius: var(--radius-pill);
+      background: var(--border-default);
+      transition: background var(--dur-base) var(--ease-standard);
+    }
+    .app-strength__seg.is-on { background: var(--text-tertiary); }
+    .app-strength__label {
+      margin: 0;
+      font-size: var(--text-xs);
+      font-weight: var(--fw-medium);
+      letter-spacing: var(--tracking-wide);
+      color: var(--text-tertiary);
+    }
+    .app-strength[data-tone='error'] .app-strength__seg.is-on { background: var(--status-error-fg); }
+    .app-strength[data-tone='error'] .app-strength__label { color: var(--status-error-fg); }
+    .app-strength[data-tone='warning'] .app-strength__seg.is-on { background: var(--status-warning-fg); }
+    .app-strength[data-tone='warning'] .app-strength__label { color: var(--status-warning-fg); }
+    .app-strength[data-tone='info'] .app-strength__seg.is-on { background: var(--status-info-fg); }
+    .app-strength[data-tone='info'] .app-strength__label { color: var(--status-info-fg); }
+    .app-strength[data-tone='success'] .app-strength__seg.is-on { background: var(--status-success-fg); }
+    .app-strength[data-tone='success'] .app-strength__label { color: var(--status-success-fg); }
+
+    /* ---- AppTerms ---- */
+    .app-auth__terms {
+      margin: 0;
+      font-size: var(--text-xs);
+      line-height: var(--leading-snug);
+      color: var(--text-tertiary);
+    }
+    .app-auth__terms a {
+      color: var(--text-link);
+      font-weight: var(--fw-medium);
+      text-decoration: none;
+    }
+    .app-auth__terms a:hover { text-decoration: underline; }
+
+    /* ---- AppButton ---- */
+    .app-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      width: 100%;
+      margin-top: var(--space-1);
+      font-family: var(--font-sans);
+      font-weight: var(--fw-semibold);
+      font-size: var(--text-md);
+      color: var(--brand-accent-fg);
+      background: var(--brand-accent);
+      border: thin solid transparent;
+      border-radius: var(--radius-lg);
+      padding: var(--space-3) var(--space-5);
+      cursor: pointer;
+      transition:
+        background var(--dur-base) var(--ease-standard),
+        transform var(--dur-fast) var(--ease-standard);
+    }
+    .app-button:hover:not(:disabled),
+    .app-button.is-hover { background: var(--brand-accent-hover); }
+    .app-button:active:not(:disabled),
+    .app-button.is-active { background: var(--brand-accent-active); transform: translateY(1px); }
+    .app-button:focus-visible,
+    .app-button.is-focus {
+      outline: none;
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-accent) 38%, transparent);
+    }
+    .app-button[aria-busy='true'] { cursor: progress; opacity: 0.88; }
+    .app-button:disabled:not([aria-busy='true']) {
+      color: var(--text-disabled);
+      background: var(--surface-surface);
+      cursor: not-allowed;
+    }
+
+    .app-spinner {
+      flex: none;
+      width: var(--space-4);
+      height: var(--space-4);
+      border: 2px solid color-mix(in oklab, var(--brand-accent-fg) 40%, transparent);
+      border-top-color: var(--brand-accent-fg);
+      border-radius: var(--radius-pill);
+      animation: app-spin 0.7s linear infinite;
+    }
+
+    /* ---- AppFormError ---- */
+    .app-form-error {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      margin-bottom: var(--space-5);
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--text-sm);
+      line-height: var(--leading-snug);
+      color: var(--status-error-fg);
+      background: var(--status-error-subtle);
+      border: thin solid color-mix(in oklab, var(--status-error-fg) 24%, transparent);
+      border-radius: var(--radius-lg);
+    }
+    .app-form-error__icon { flex: none; margin-top: 1px; }
+
+    /* ---- AppMeta ---- */
+    .app-auth__meta {
+      margin: var(--space-6) 0 0;
+      text-align: center;
+      font-size: var(--text-md);
+      color: var(--text-secondary);
+    }
+    .app-auth__meta a {
+      color: var(--text-link);
+      font-weight: var(--fw-semibold);
+      text-decoration: none;
+    }
+    .app-auth__meta a:hover { text-decoration: underline; }
+
+    @keyframes app-spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+
+<body>
+  <div class="spec">
+    <!-- ===== Sign up — LIGHT (default) ===== -->
+    <section class="spec__group">
+      <p class="spec__label">Sign up · Light · Default</p>
+      <div class="spec__frame">
+        <div class="app-auth" data-theme="light">
+          <main class="app-card" aria-labelledby="t1">
+            <header class="app-auth__top">
+              <span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span class="app-brand__word">burkmak</span></span>
+            </header>
+            <div class="app-auth__head">
+              <h1 id="t1" class="app-auth__title">Create your library</h1>
+              <p class="app-auth__subtitle">Save your first article in under a minute — it’s yours to keep.</p>
+            </div>
+            <form class="app-form" novalidate onsubmit="return false">
+              <div class="app-field">
+                <label class="app-field__label" for="n1">Name</label>
+                <input id="n1" class="app-input" type="text" autocomplete="name" placeholder="Ada Lovelace" />
+              </div>
+              <div class="app-field">
+                <label class="app-field__label" for="e1">Email</label>
+                <input id="e1" class="app-input" type="email" autocomplete="email" placeholder="you@example.com" />
+              </div>
+              <div class="app-field">
+                <label class="app-field__label" for="p1">Password</label>
+                <div class="app-input-wrap">
+                  <input id="p1" class="app-input app-input--affix" type="password" autocomplete="new-password" placeholder="At least 8 characters" />
+                  <button type="button" class="app-input-affix" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                  </button>
+                </div>
+                <p class="app-field__hint">8+ characters, with a number or symbol.</p>
+              </div>
+              <p class="app-auth__terms">By creating an account you agree to burkmak’s <a href="#/terms">Terms</a> and <a href="#/privacy">Privacy</a>.</p>
+              <button class="app-button" type="submit"><span>Create account</span></button>
+            </form>
+            <p class="app-auth__meta">Already have a library? <a href="#/sign-in">Sign in</a></p>
+          </main>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Sign up — DARK (default) ===== -->
+    <section class="spec__group">
+      <p class="spec__label">Sign up · Dark · Default</p>
+      <div class="spec__frame">
+        <div class="app-auth" data-theme="dark">
+          <main class="app-card" aria-labelledby="t2">
+            <header class="app-auth__top">
+              <span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span class="app-brand__word">burkmak</span></span>
+            </header>
+            <div class="app-auth__head">
+              <h1 id="t2" class="app-auth__title">Create your library</h1>
+              <p class="app-auth__subtitle">Save your first article in under a minute — it’s yours to keep.</p>
+            </div>
+            <form class="app-form" novalidate onsubmit="return false">
+              <div class="app-field">
+                <label class="app-field__label" for="n2">Name</label>
+                <input id="n2" class="app-input" type="text" autocomplete="name" placeholder="Ada Lovelace" />
+              </div>
+              <div class="app-field">
+                <label class="app-field__label" for="e2">Email</label>
+                <input id="e2" class="app-input" type="email" autocomplete="email" placeholder="you@example.com" />
+              </div>
+              <div class="app-field">
+                <label class="app-field__label" for="p2">Password</label>
+                <div class="app-input-wrap">
+                  <input id="p2" class="app-input app-input--affix" type="password" autocomplete="new-password" placeholder="At least 8 characters" />
+                  <button type="button" class="app-input-affix" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                  </button>
+                </div>
+                <p class="app-field__hint">8+ characters, with a number or symbol.</p>
+              </div>
+              <p class="app-auth__terms">By creating an account you agree to burkmak’s <a href="#/terms">Terms</a> and <a href="#/privacy">Privacy</a>.</p>
+              <button class="app-button" type="submit"><span>Create account</span></button>
+            </form>
+            <p class="app-auth__meta">Already have a library? <a href="#/sign-in">Sign in</a></p>
+          </main>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Interaction states (Light) ===== -->
+    <section class="spec__group">
+      <p class="spec__label">Sign up · States · Light</p>
+      <div class="spec__cards">
+
+        <!-- focus-visible: email field focused -->
+        <div>
+          <p class="spec__card-label">focus-visible</p>
+          <div class="spec__frame">
+            <div class="app-auth" data-theme="light">
+              <main class="app-card" aria-labelledby="t3">
+                <header class="app-auth__top">
+                  <span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span class="app-brand__word">burkmak</span></span>
+                </header>
+                <div class="app-auth__head">
+                  <h1 id="t3" class="app-auth__title">Create your library</h1>
+                  <p class="app-auth__subtitle">Save your first article in under a minute — it’s yours to keep.</p>
+                </div>
+                <form class="app-form" novalidate onsubmit="return false">
+                  <div class="app-field">
+                    <label class="app-field__label" for="n3">Name</label>
+                    <input id="n3" class="app-input" type="text" value="Ada Lovelace" />
+                  </div>
+                  <div class="app-field">
+                    <label class="app-field__label" for="e3">Email</label>
+                    <input id="e3" class="app-input is-focus" type="email" value="ada@" />
+                  </div>
+                  <div class="app-field">
+                    <label class="app-field__label" for="p3">Password</label>
+                    <div class="app-input-wrap">
+                      <input id="p3" class="app-input app-input--affix" type="password" placeholder="At least 8 characters" />
+                      <button type="button" class="app-input-affix" aria-label="Show password">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                      </button>
+                    </div>
+                    <p class="app-field__hint">8+ characters, with a number or symbol.</p>
+                  </div>
+                  <p class="app-auth__terms">By creating an account you agree to burkmak’s <a href="#/terms">Terms</a> and <a href="#/privacy">Privacy</a>.</p>
+                  <button class="app-button" type="submit"><span>Create account</span></button>
+                </form>
+                <p class="app-auth__meta">Already have a library? <a href="#/sign-in">Sign in</a></p>
+              </main>
+            </div>
+          </div>
+        </div>
+
+        <!-- validation error: weak password -->
+        <div>
+          <p class="spec__card-label">validation error · weak password</p>
+          <div class="spec__frame">
+            <div class="app-auth" data-theme="light">
+              <main class="app-card" aria-labelledby="t4">
+                <header class="app-auth__top">
+                  <span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span class="app-brand__word">burkmak</span></span>
+                </header>
+                <div class="app-auth__head">
+                  <h1 id="t4" class="app-auth__title">Create your library</h1>
+                  <p class="app-auth__subtitle">Save your first article in under a minute — it’s yours to keep.</p>
+                </div>
+                <form class="app-form" novalidate onsubmit="return false">
+                  <div class="app-field">
+                    <label class="app-field__label" for="n4">Name</label>
+                    <input id="n4" class="app-input" type="text" value="Ada Lovelace" />
+                  </div>
+                  <div class="app-field">
+                    <label class="app-field__label" for="e4">Email</label>
+                    <input id="e4" class="app-input" type="email" value="ada@lovelace.dev" />
+                  </div>
+                  <div class="app-field">
+                    <label class="app-field__label" for="p4">Password</label>
+                    <div class="app-input-wrap">
+                      <input id="p4" class="app-input app-input--affix" type="password" value="ada" aria-invalid="true" aria-describedby="p4-err" />
+                      <button type="button" class="app-input-affix" aria-label="Show password">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                      </button>
+                    </div>
+                    <div class="app-strength" data-tone="error">
+                      <div class="app-strength__track" aria-hidden="true">
+                        <span class="app-strength__seg is-on"></span><span class="app-strength__seg"></span><span class="app-strength__seg"></span><span class="app-strength__seg"></span>
+                      </div>
+                      <p class="app-strength__label">Too weak password</p>
+                    </div>
+                    <p id="p4-err" class="app-field__error" role="alert"><span class="app-field__error-dot" aria-hidden="true"></span>Too easy to guess — use 8+ characters with a number or symbol.</p>
+                  </div>
+                  <p class="app-auth__terms">By creating an account you agree to burkmak’s <a href="#/terms">Terms</a> and <a href="#/privacy">Privacy</a>.</p>
+                  <button class="app-button" type="submit"><span>Create account</span></button>
+                </form>
+                <p class="app-auth__meta">Already have a library? <a href="#/sign-in">Sign in</a></p>
+              </main>
+            </div>
+          </div>
+        </div>
+
+        <!-- submit loading -->
+        <div>
+          <p class="spec__card-label">submit loading</p>
+          <div class="spec__frame">
+            <div class="app-auth" data-theme="light">
+              <main class="app-card" aria-labelledby="t5">
+                <header class="app-auth__top">
+                  <span class="app-brand"><span class="app-brand__mark" aria-hidden="true">b</span><span class="app-brand__word">burkmak</span></span>
+                </header>
+                <div class="app-auth__head">
+                  <h1 id="t5" class="app-auth__title">Create your library</h1>
+                  <p class="app-auth__subtitle">Save your first article in under a minute — it’s yours to keep.</p>
+                </div>
+                <form class="app-form" novalidate onsubmit="return false">
+                  <div class="app-field">
+                    <label class="app-field__label" for="n5">Name</label>
+                    <input id="n5" class="app-input" type="text" value="Ada Lovelace" disabled />
+                  </div>
+                  <div class="app-field">
+                    <label class="app-field__label" for="e5">Email</label>
+                    <input id="e5" class="app-input" type="email" value="ada@lovelace.dev" disabled />
+                  </div>
+                  <div class="app-field">
+                    <label class="app-field__label" for="p5">Password</label>
+                    <div class="app-input-wrap">
+                      <input id="p5" class="app-input app-input--affix" type="password" value="river-stone-77" disabled />
+                      <button type="button" class="app-input-affix" aria-label="Show password" disabled>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                      </button>
+                    </div>
+                    <div class="app-strength" data-tone="success">
+                      <div class="app-strength__track" aria-hidden="true">
+                        <span class="app-strength__seg is-on"></span><span class="app-strength__seg is-on"></span><span class="app-strength__seg is-on"></span><span class="app-strength__seg is-on"></span>
+                      </div>
+                      <p class="app-strength__label">Strong password</p>
+                    </div>
+                  </div>
+                  <p class="app-auth__terms">By creating an account you agree to burkmak’s <a href="#/terms">Terms</a> and <a href="#/privacy">Privacy</a>.</p>
+                  <button class="app-button" type="submit" aria-busy="true" disabled><span class="app-spinner" aria-hidden="true"></span><span>Creating your library…</span></button>
+                </form>
+                <p class="app-auth__meta">Already have a library? <a href="#/sign-in">Sign in</a></p>
+              </main>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</body>
+</html>

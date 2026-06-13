@@ -27,13 +27,16 @@ reconciled here. See `../open-design/README.md`.
 
 ## Screens
 
-| Screen        | `.vue` | `.html` | Notes |
-| ------------- | :----: | :-----: | ----- |
-| library       | ✅     | ✅      | core list: AppFilterBar + AppItemCard list; states: skeleton / empty / populated / pending / extracting / ready / failed; light + dark |
-| welcome       | —      | —       | next |
-| sign-in / sign-up | — | —       | next (replacing the earlier React drafts) |
-| add-link      | —      | —       | next |
-| item-detail   | —      | —       | next |
+| Screen      | `.vue` | `.html` | Primitives                                                                        | States                                                               |
+| ----------- | :----: | :-----: | --------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| library     |   ✅   |   ✅    | AppFilterBar, AppItemCard                                                         | skeleton / empty / populated / pending / extracting / ready / failed |
+| welcome     |   ✅   |   ✅    | AppButton                                                                         | landing / hero CTA                                                   |
+| sign-in     |   ✅   |   ✅    | AppBrand, AppCard, AppField, AppInput, AppButton, AppFormError                    | default / invalid / submitting                                       |
+| sign-up     |   ✅   |   ✅    | AppBrand, AppCard, AppField, AppInput, AppStrength, AppButton, AppFormError       | default / password-strength / invalid                                |
+| add-link    |   ✅   |   ✅    | AppAddBar, AppModal, AppInput, AppTagChip, AppStatusBadge, AppItemCard, AppButton | empty / pending · extracting                                         |
+| item-detail |   ✅   |   ✅    | AppReaderPreview, AppSegment, AppTagChip, AppButton                               | extracting / ready                                                   |
 
-> Viewing: open `library.html` in a browser. `library.vue` is the build
-> reference for the eventual `packages/ui` components.
+All six render **light + dark** with the states above.
+
+> Viewing: open any `<screen>.html` in a browser. The `<screen>.vue` is the
+> build reference for the eventual `packages/ui` components.

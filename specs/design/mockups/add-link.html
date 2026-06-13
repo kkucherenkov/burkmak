@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>burkmak — Add link</title>
+
+  <!-- Canonical token contract (B palette · A taxonomy). All var(--*) resolve from here. -->
+  <link rel="stylesheet" href="../tokens.preview.css" />
+
+  <!-- Brand faces: Fraunces (display) · Literata (reading) · Hanken Grotesk (UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&family=Hanken+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ----------------------------------------------------------------------
+     * burkmak — Add link component stylesheet (canonical-variable only).
+     * Mirrors add-link.vue's scoped styles, unscoped for the standalone copy.
+     * Token VALUES live in tokens.preview.css; this file only references them.
+     * Sole raw px: 1px hairline borders, 3px focus-ring spreads, 2px spinner
+     * stroke, 6px/3px dots (no matching tokens in the contract).
+     * -------------------------------------------------------------------- */
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; }
+
+    /* ---- showcase scaffolding (NOT part of the product UI) ---- */
+    .page {
+      background: var(--surface-page);
+      color: var(--text-fg);
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      line-height: var(--leading-normal);
+      -webkit-font-smoothing: antialiased;
+    }
+    .page__head {
+      max-width: 64rem;
+      margin-inline: auto;
+      padding: clamp(var(--space-8), 5vw, var(--space-16)) clamp(var(--space-4), 5vw, var(--space-8)) var(--space-6);
+    }
+    .page__eyebrow {
+      margin: 0 0 var(--space-2);
+      font-size: var(--text-xs); font-weight: var(--fw-semibold);
+      letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--brand-accent);
+    }
+    .page__title {
+      margin: 0 0 var(--space-2); font-family: var(--font-display); font-weight: var(--fw-semibold);
+      font-size: clamp(var(--text-3xl), 4vw, var(--text-5xl)); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight);
+    }
+    .page__lede {
+      margin: 0; max-width: 60ch; font-family: var(--font-reading);
+      font-size: var(--text-lg); line-height: var(--leading-relaxed); color: var(--text-secondary);
+    }
+    .stage {
+      background: var(--surface-page); color: var(--text-fg);
+      padding: clamp(var(--space-6), 4vw, var(--space-12)) clamp(var(--space-4), 5vw, var(--space-8)) clamp(var(--space-10), 6vw, var(--space-16));
+    }
+    .stage__label {
+      max-width: 64rem; margin: 0 auto var(--space-6); display: flex; align-items: center; gap: var(--space-3);
+      font-size: var(--text-sm); font-weight: var(--fw-semibold); letter-spacing: var(--tracking-wide);
+      text-transform: uppercase; color: var(--text-tertiary);
+    }
+    .stage__label::after { content: ""; flex: 1; height: 1px; background: var(--border-default); }
+    .grid {
+      max-width: 64rem; margin-inline: auto; display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+      gap: var(--space-8) var(--space-6); align-items: start;
+    }
+    .specimen { display: grid; gap: var(--space-3); min-width: 0; }
+    .specimen__caption {
+      margin: 0; font-size: var(--text-xs); font-weight: var(--fw-semibold);
+      letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--text-tertiary);
+    }
+    .stack { display: grid; gap: var(--space-3); }
+    /* faux overlay tint so a static modal sheet reads as a sheet */
+    .modal-frame {
+      display: grid; place-items: center; padding: var(--space-6);
+      background: color-mix(in oklab, var(--text-fg) 42%, transparent);
+      border-radius: var(--radius-2xl);
+    }
+    .live {
+      max-width: 48rem; margin-inline: auto;
+      padding: clamp(var(--space-5), 4vw, var(--space-8));
+      background: var(--surface-page);
+      border: 1px solid var(--border-default); border-radius: var(--radius-3xl);
+    }
+
+    /* ============================ product UI ============================ */
+    .app-add-link__head {
+      display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-5);
+    }
+    .app-add-link__title {
+      margin: 0; font-family: var(--font-display); font-weight: var(--fw-semibold);
+      font-size: clamp(var(--text-2xl), 4vw, var(--text-3xl)); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight);
+    }
+    .app-add-link__subtitle { margin: var(--space-1) 0 0; font-size: var(--text-md); color: var(--text-secondary); }
+    .app-add-link__open { flex: none; width: auto; }
+    .app-add-link__kbd {
+      display: inline-grid; place-items: center; min-width: var(--space-5); padding: 0 var(--space-1);
+      font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-secondary);
+      background: var(--surface-surface); border: 1px solid var(--border-default); border-radius: var(--radius-sm);
+    }
+
+    /* ------------------------------------------------------- AppAddBar */
+    .app-add-bar {
+      display: grid; grid-template-columns: 1fr auto; gap: var(--space-3);
+      padding: var(--space-3); background: var(--surface-raised);
+      border: 1px solid var(--border-default); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm);
+      transition: border-color var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard);
+    }
+    .app-add-bar:focus-within { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+    .app-add-bar__field { position: relative; display: flex; align-items: center; min-width: 0; }
+    .app-add-bar__icon { position: absolute; left: var(--space-3); color: var(--text-tertiary); pointer-events: none; }
+    .app-add-bar__submit { width: auto; margin: 0; white-space: nowrap; }
+    .app-add-bar__note {
+      grid-column: 1 / -1; display: flex; align-items: center; gap: var(--space-2); margin: 0;
+      padding-inline: var(--space-1); font-size: var(--text-sm); line-height: var(--leading-snug); color: var(--text-tertiary);
+    }
+    .app-add-bar__note--ok { color: var(--status-success-fg); }
+    .app-add-bar__note--error { color: var(--status-error-fg); }
+    .app-add-bar__note-dot { flex: none; width: 6px; height: 6px; border-radius: var(--radius-pill); background: currentColor; }
+    @media (max-width: 32rem) {
+      .app-add-bar { grid-template-columns: 1fr; }
+      .app-add-bar__submit { width: 100%; }
+    }
+
+    /* --------------------------------------------------------- AppInput */
+    .app-input {
+      width: 100%; font: inherit; font-size: var(--text-md); color: var(--text-fg);
+      background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg);
+      padding: var(--space-3) var(--space-4);
+      transition: border-color var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard);
+    }
+    .app-input::placeholder { color: var(--text-tertiary); }
+    .app-input--lead { padding-inline-start: var(--space-10); }
+    .app-input:focus-visible, .app-input.is-focus {
+      outline: none; border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-accent) 32%, transparent);
+    }
+    .app-input:disabled { color: var(--text-disabled); background: var(--surface-surface); cursor: not-allowed; }
+    .app-input[aria-invalid="true"] { border-color: var(--status-error-fg); }
+    .app-input[aria-invalid="true"]:focus-visible, .app-input[aria-invalid="true"].is-focus {
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--status-error-fg) 30%, transparent);
+    }
+
+    /* -------------------------------------------------------- AppButton */
+    .app-button {
+      display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+      font: inherit; font-weight: var(--fw-semibold); font-size: var(--text-md);
+      color: var(--brand-accent-fg); background: var(--brand-accent);
+      border: 1px solid transparent; border-radius: var(--radius-lg); padding: var(--space-3) var(--space-5); cursor: pointer;
+      transition: background var(--dur-base) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
+    }
+    .app-button:hover:not(:disabled) { background: var(--brand-accent-hover); }
+    .app-button:active:not(:disabled) { background: var(--brand-accent-active); transform: translateY(1px); }
+    .app-button:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-accent) 38%, transparent); }
+    .app-button[aria-busy="true"] { cursor: progress; opacity: 0.88; }
+    .app-button:disabled:not([aria-busy="true"]) { color: var(--text-disabled); background: var(--surface-surface); cursor: not-allowed; }
+    .app-button--ghost {
+      color: var(--text-fg); background: transparent; border-color: var(--border-default);
+    }
+    .app-button--ghost:hover:not(:disabled) { background: var(--surface-surface); border-color: var(--border-strong); }
+    .app-button--ghost:active:not(:disabled) { background: var(--surface-surface); }
+    .app-button--ghost:disabled { color: var(--text-disabled); background: transparent; }
+
+    .app-spinner {
+      flex: none; width: var(--space-4); height: var(--space-4);
+      border: 2px solid color-mix(in oklab, var(--brand-accent-fg) 40%, transparent);
+      border-top-color: var(--brand-accent-fg); border-radius: var(--radius-pill);
+      animation: app-spin 0.7s linear infinite;
+    }
+    /* spinner on the ghost cancel/secondary uses ink, not accent-fg */
+    .app-button--ghost .app-spinner {
+      border-color: color-mix(in oklab, var(--text-fg) 30%, transparent); border-top-color: var(--text-fg);
+    }
+
+    /* ---------------------------------------------------------- AppList */
+    .app-list { display: grid; gap: var(--space-3); }
+
+    /* ------------------------------------------------------ AppItemCard */
+    .app-item-card {
+      position: relative; display: grid; grid-template-columns: auto 1fr; gap: var(--space-4); padding: var(--space-4);
+      background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-xl);
+      transition: border-color var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard);
+    }
+    .app-item-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+    .app-item-card--fresh {
+      border-color: color-mix(in oklab, var(--brand-accent) 45%, var(--border-default));
+      animation: app-rise var(--dur-slow) var(--ease-decelerate) both;
+    }
+    .app-item-card__favicon {
+      display: grid; place-items: center; width: var(--space-10); height: var(--space-10);
+      font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: var(--text-lg);
+      color: var(--brand-accent); background: var(--surface-surface); border-radius: var(--radius-lg);
+    }
+    .app-item-card__body { display: grid; align-content: start; gap: var(--space-1); min-width: 0; }
+    .app-item-card__title-row { display: flex; align-items: center; gap: var(--space-2); }
+    .app-item-card__title {
+      margin: 0; font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: var(--text-lg);
+      line-height: var(--leading-snug); letter-spacing: var(--tracking-tight); color: var(--text-fg); text-wrap: pretty;
+      display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .app-item-card__meta { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-secondary); }
+    .app-item-card__sep { width: 3px; height: 3px; border-radius: var(--radius-pill); background: currentColor; opacity: 0.55; }
+    .app-item-card__fetching { display: grid; gap: var(--space-2); margin-top: var(--space-2); }
+    .app-item-card__excerpt {
+      margin: var(--space-1) 0 0; font-family: var(--font-reading); font-size: var(--text-md);
+      line-height: var(--leading-normal); color: var(--text-secondary);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .app-item-card__tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
+
+    /* -------------------------------------------------------- AppTagChip */
+    .app-tag-chip {
+      padding: var(--space-1) var(--space-3); font-size: var(--text-sm); font-weight: var(--fw-medium);
+      color: var(--text-secondary); background: var(--surface-surface);
+      border: 1px solid var(--border-default); border-radius: var(--radius-pill);
+    }
+
+    /* ---------------------------------------------------- AppStatusBadge */
+    .app-status-badge {
+      display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-1) var(--space-2);
+      font-size: var(--text-xs); font-weight: var(--fw-semibold); letter-spacing: var(--tracking-wide);
+      white-space: nowrap; border-radius: var(--radius-pill);
+    }
+    .app-status-badge__dot { width: 6px; height: 6px; border-radius: var(--radius-pill); background: currentColor; }
+    .app-status-badge--pending { color: var(--status-info-fg); background: var(--status-info-subtle); }
+    .app-status-badge--extracting { color: var(--status-warning-fg); background: var(--status-warning-subtle); }
+    .app-status-badge--failed { color: var(--status-error-fg); background: var(--status-error-subtle); }
+    .app-status-badge--pending .app-status-badge__dot,
+    .app-status-badge--extracting .app-status-badge__dot { animation: app-pulse 1.3s var(--ease-standard) infinite; }
+
+    /* -------------------------------------------------------- AppSkeleton */
+    .app-skeleton {
+      display: block;
+      background: linear-gradient(90deg, var(--surface-surface) 8%,
+        color-mix(in oklab, var(--surface-surface), var(--text-fg) 6%) 24%, var(--surface-surface) 40%);
+      background-size: 200% 100%; border-radius: var(--radius-sm); animation: app-shimmer 1.4s linear infinite;
+    }
+    .app-skeleton--line { height: var(--space-3); }
+    .app-skeleton--w90 { width: 90%; }
+    .app-skeleton--w70 { width: 70%; }
+
+    /* -------------------------------------------------------- AppIconBtn */
+    .app-icon-btn {
+      display: grid; place-items: center; width: var(--space-8); height: var(--space-8);
+      color: var(--text-tertiary); background: transparent; border: 1px solid transparent; border-radius: var(--radius-md); cursor: pointer;
+      transition: color var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard);
+    }
+    .app-icon-btn:hover { color: var(--text-fg); background: var(--surface-surface); }
+    .app-icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-accent) 32%, transparent); }
+
+    /* ----------------------------------------------------------- AppModal */
+    .app-modal { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; padding: var(--space-4); }
+    .app-modal.is-open { display: grid; }
+    .app-modal__backdrop {
+      position: absolute; inset: 0; background: color-mix(in oklab, var(--text-fg) 42%, transparent); backdrop-filter: blur(2px);
+    }
+    .app-modal__sheet {
+      position: relative; width: min(100%, 30rem); background: var(--surface-overlay);
+      border: 1px solid var(--border-default); border-radius: var(--radius-2xl); box-shadow: var(--shadow-lg);
+      padding: clamp(var(--space-5), 4vw, var(--space-6));
+    }
+    .app-modal.is-open .app-modal__sheet { animation: app-rise var(--dur-slow) var(--ease-decelerate) both; }
+    .app-modal__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-5); }
+    .app-modal__title {
+      margin: 0; font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: var(--text-2xl);
+      line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); color: var(--text-fg);
+    }
+    .app-modal__close { flex: none; }
+    .app-modal__body { display: grid; gap: var(--space-5); }
+    .app-modal__foot { display: flex; justify-content: flex-end; gap: var(--space-3); }
+
+    .app-field { display: grid; gap: var(--space-2); }
+    .app-field__label { font-size: var(--text-sm); font-weight: var(--fw-semibold); color: var(--text-fg); }
+
+    @media (max-width: 32rem) {
+      .app-modal { place-items: end stretch; padding: 0; }
+      .app-modal__sheet { width: 100%; border-radius: var(--radius-2xl) var(--radius-2xl) 0 0; padding-bottom: max(var(--space-6), env(safe-area-inset-bottom)); }
+      .app-modal__foot { flex-direction: column-reverse; }
+      .app-modal__foot .app-button { width: 100%; }
+    }
+
+    @keyframes app-spin { to { transform: rotate(360deg); } }
+    @keyframes app-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    @keyframes app-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    @keyframes app-rise { from { opacity: 0; transform: translateY(var(--space-2)); } to { opacity: 1; transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) {
+      .app-spinner { animation-duration: 1.4s; }
+      .app-skeleton { animation-duration: 2.6s; }
+      .app-status-badge__dot { animation: none; }
+      .app-item-card--fresh, .app-modal.is-open .app-modal__sheet { animation: none; }
+      .app-button:active:not(:disabled) { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="page__head">
+      <p class="page__eyebrow">burkmak · @app/ui</p>
+      <h1 class="page__title">Add link</h1>
+      <p class="page__lede">
+        The quick-add flow, two ways: a persistent <strong>inline bar</strong> at the top of the library, and a
+        centered <strong>modal sheet</strong> (a bottom sheet on small screens). One bar and one modal below are live —
+        paste a link to watch the just-saved card walk <em>Saving → Extracting → Ready</em>. The remaining tiles pin
+        each state for review, light and dark.
+      </p>
+    </header>
+
+    <!-- ====================================================== LIVE ====================================================== -->
+    <section class="stage" data-theme="light">
+      <p class="stage__label">Interactive — try it (light)</p>
+      <div class="live" id="live">
+        <header class="app-add-link__head">
+          <div>
+            <h2 class="app-add-link__title">Library</h2>
+            <p class="app-add-link__subtitle" data-role="subtitle">2 saved · paste anything worth reading later</p>
+          </div>
+          <button class="app-button app-button--ghost app-add-link__open" type="button" data-role="open-modal">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            <span>Save a link</span>
+            <kbd class="app-add-link__kbd" aria-hidden="true">N</kbd>
+          </button>
+        </header>
+
+        <!-- @app/ui: AppAddBar -->
+        <form class="app-add-bar" data-role="bar" novalidate style="margin-bottom: var(--space-6);">
+          <div class="app-add-bar__field">
+            <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+            <input class="app-input app-input--lead" data-role="url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://example.com/article" aria-label="Link to save" aria-describedby="live-note" />
+          </div>
+          <button class="app-button app-add-bar__submit" type="submit" data-role="submit"><span class="app-spinner" data-role="spinner" hidden></span><span data-role="submit-label">Save</span></button>
+          <p class="app-add-bar__note" id="live-note" data-role="note" role="status">Paste a link — burkmak fetches a clean reader view and keeps it for later.</p>
+        </form>
+
+        <div class="app-list" data-role="list">
+          <article class="app-item-card">
+            <span class="app-item-card__favicon" aria-hidden="true">N</span>
+            <div class="app-item-card__body">
+              <div class="app-item-card__title-row"><h3 class="app-item-card__title">The case for reading on paper, on a screen</h3></div>
+              <div class="app-item-card__meta"><span>newyorker.com</span><span class="app-item-card__sep" aria-hidden="true"></span><span>2h ago</span></div>
+              <p class="app-item-card__excerpt">Screens trained us to skim. A handful of small interface choices can teach them to slow back down — and why that matters for what we keep.</p>
+              <div class="app-item-card__tags"><span class="app-tag-chip">#reading</span><span class="app-tag-chip">#longread</span></div>
+            </div>
+          </article>
+          <article class="app-item-card">
+            <span class="app-item-card__favicon" aria-hidden="true">C</span>
+            <div class="app-item-card__body">
+              <div class="app-item-card__title-row"><h3 class="app-item-card__title">Notes on building a calmer reading queue</h3></div>
+              <div class="app-item-card__meta"><span>craigmod.com</span><span class="app-item-card__sep" aria-hidden="true"></span><span>Yesterday</span></div>
+              <p class="app-item-card__excerpt">The hardest part of a reading queue is not collecting — it is forgetting gracefully. A library should feel like a shelf, not a backlog that nags.</p>
+              <div class="app-item-card__tags"><span class="app-tag-chip">#product</span><span class="app-tag-chip">#reading</span></div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- live modal (real overlay; toggled by JS) -->
+      <div class="app-modal" data-role="modal" data-theme="light">
+        <div class="app-modal__backdrop" data-role="modal-backdrop"></div>
+        <div class="app-modal__sheet" role="dialog" aria-modal="true" aria-labelledby="live-modal-title">
+          <header class="app-modal__head">
+            <h2 id="live-modal-title" class="app-modal__title">Save a link</h2>
+            <button class="app-icon-btn app-modal__close" type="button" aria-label="Close" data-role="modal-close"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg></button>
+          </header>
+          <form class="app-modal__body" data-role="modal-form" novalidate>
+            <div class="app-field">
+              <label class="app-field__label" for="live-modal-url">Article URL</label>
+              <div class="app-add-bar__field">
+                <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+                <input id="live-modal-url" class="app-input app-input--lead" data-role="modal-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://example.com/article" aria-describedby="live-modal-note" />
+              </div>
+              <p class="app-add-bar__note" id="live-modal-note" data-role="modal-note" role="status">We’ll grab the title, a clean excerpt, and a reader view automatically.</p>
+            </div>
+            <div class="app-modal__foot">
+              <button class="app-button app-button--ghost" type="button" data-role="modal-cancel">Cancel</button>
+              <button class="app-button" type="submit" data-role="modal-submit"><span class="app-spinner" data-role="modal-spinner" hidden></span><span data-role="modal-submit-label">Save to library</span></button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================== LIGHT specimens ====================================================== -->
+    <section class="stage" data-theme="light">
+      <p class="stage__label">States · light · warm paper</p>
+      <div class="grid">
+
+        <!-- Inline · idle -->
+        <div class="specimen">
+          <p class="specimen__caption">Inline bar · idle</p>
+          <form class="app-add-bar" novalidate onsubmit="return false">
+            <div class="app-add-bar__field">
+              <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+              <input class="app-input app-input--lead" type="url" placeholder="https://example.com/article" aria-label="Link to save" />
+            </div>
+            <button class="app-button app-add-bar__submit" type="submit"><span>Save</span></button>
+            <p class="app-add-bar__note">Paste a link — burkmak fetches a clean reader view and keeps it for later.</p>
+          </form>
+        </div>
+
+        <!-- Inline · typing / valid -->
+        <div class="specimen">
+          <p class="specimen__caption">Inline bar · typing · valid</p>
+          <form class="app-add-bar" novalidate onsubmit="return false">
+            <div class="app-add-bar__field">
+              <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+              <input class="app-input app-input--lead is-focus" type="url" value="https://www.theverge.com/2026/3/ai-browsers" aria-label="Link to save" />
+            </div>
+            <button class="app-button app-add-bar__submit" type="submit"><span>Save</span></button>
+            <p class="app-add-bar__note app-add-bar__note--ok"><span class="app-add-bar__note-dot" aria-hidden="true"></span>Looks like a link — press Save to keep it.</p>
+          </form>
+        </div>
+
+        <!-- Inline · validating -->
+        <div class="specimen">
+          <p class="specimen__caption">Inline bar · validating</p>
+          <form class="app-add-bar" novalidate onsubmit="return false">
+            <div class="app-add-bar__field">
+              <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+              <input class="app-input app-input--lead" type="url" value="https://www.theverge.com/2026/3/ai-browsers" aria-label="Link to save" disabled />
+            </div>
+            <button class="app-button app-add-bar__submit" type="submit" aria-busy="true" disabled><span class="app-spinner" aria-hidden="true"></span><span>Saving…</span></button>
+            <p class="app-add-bar__note">Checking link…</p>
+          </form>
+        </div>
+
+        <!-- Inline · invalid-URL error -->
+        <div class="specimen">
+          <p class="specimen__caption">Inline bar · invalid-URL error</p>
+          <form class="app-add-bar" novalidate onsubmit="return false">
+            <div class="app-add-bar__field">
+              <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+              <input class="app-input app-input--lead" type="url" value="the verge ai browsers article" aria-invalid="true" aria-describedby="le-note" aria-label="Link to save" />
+            </div>
+            <button class="app-button app-add-bar__submit" type="submit"><span>Save</span></button>
+            <p class="app-add-bar__note app-add-bar__note--error" id="le-note" role="alert"><span class="app-add-bar__note-dot" aria-hidden="true"></span>That doesn’t look like a link. Try a full address like https://example.com/article.</p>
+          </form>
+        </div>
+
+        <!-- Inline · just saved (pending card) -->
+        <div class="specimen">
+          <p class="specimen__caption">Inline bar · just saved → pending card</p>
+          <div class="stack">
+            <form class="app-add-bar" novalidate onsubmit="return false">
+              <div class="app-add-bar__field">
+                <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+                <input class="app-input app-input--lead" type="url" placeholder="https://example.com/article" aria-label="Link to save" />
+              </div>
+              <button class="app-button app-add-bar__submit" type="submit"><span>Save</span></button>
+              <p class="app-add-bar__note app-add-bar__note--ok"><span class="app-add-bar__note-dot" aria-hidden="true"></span>Saved — fetching a clean reader view.</p>
+            </form>
+            <article class="app-item-card app-item-card--fresh">
+              <span class="app-item-card__favicon" aria-hidden="true">T</span>
+              <div class="app-item-card__body">
+                <div class="app-item-card__title-row">
+                  <h3 class="app-item-card__title">theverge.com</h3>
+                  <span class="app-status-badge app-status-badge--pending"><span class="app-status-badge__dot" aria-hidden="true"></span>Saving</span>
+                </div>
+                <div class="app-item-card__meta"><span>theverge.com</span><span class="app-item-card__sep" aria-hidden="true"></span><span>Just now</span></div>
+                <div class="app-item-card__fetching" role="status" aria-label="Fetching article">
+                  <span class="app-skeleton app-skeleton--line app-skeleton--w90"></span>
+                  <span class="app-skeleton app-skeleton--line app-skeleton--w70"></span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Inline · extracting (pipeline mid-step) -->
+        <div class="specimen">
+          <p class="specimen__caption">Pending card · extracting</p>
+          <article class="app-item-card">
+            <span class="app-item-card__favicon" aria-hidden="true">T</span>
+            <div class="app-item-card__body">
+              <div class="app-item-card__title-row">
+                <h3 class="app-item-card__title">Ai browsers</h3>
+                <span class="app-status-badge app-status-badge--extracting"><span class="app-status-badge__dot" aria-hidden="true"></span>Extracting</span>
+              </div>
+              <div class="app-item-card__meta"><span>theverge.com</span><span class="app-item-card__sep" aria-hidden="true"></span><span>Just now</span></div>
+              <div class="app-item-card__fetching" role="status" aria-label="Fetching article">
+                <span class="app-skeleton app-skeleton--line app-skeleton--w90"></span>
+                <span class="app-skeleton app-skeleton--line app-skeleton--w70"></span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Modal · idle -->
+        <div class="specimen">
+          <p class="specimen__caption">Modal sheet · idle</p>
+          <div class="modal-frame">
+            <div class="app-modal__sheet" role="dialog" aria-modal="true" aria-labelledby="lm1-title">
+              <header class="app-modal__head">
+                <h3 id="lm1-title" class="app-modal__title">Save a link</h3>
+                <button class="app-icon-btn app-modal__close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg></button>
+              </header>
+              <form class="app-modal__body" novalidate onsubmit="return false">
+                <div class="app-field">
+                  <label class="app-field__label" for="lm1-url">Article URL</label>
+                  <div class="app-add-bar__field">
+                    <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+                    <input id="lm1-url" class="app-input app-input--lead" type="url" placeholder="https://example.com/article" />
+                  </div>
+                  <p class="app-add-bar__note">We’ll grab the title, a clean excerpt, and a reader view automatically.</p>
+                </div>
+                <div class="app-modal__foot">
+                  <button class="app-button app-button--ghost" type="button">Cancel</button>
+                  <button class="app-button" type="submit"><span>Save to library</span></button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal · invalid -->
+        <div class="specimen">
+          <p class="specimen__caption">Modal sheet · invalid-URL error</p>
+          <div class="modal-frame">
+            <div class="app-modal__sheet" role="dialog" aria-modal="true" aria-labelledby="lm2-title">
+              <header class="app-modal__head">
+                <h3 id="lm2-title" class="app-modal__title">Save a link</h3>
+                <button class="app-icon-btn app-modal__close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg></button>
+              </header>
+              <form class="app-modal__body" novalidate onsubmit="return false">
+                <div class="app-field">
+                  <label class="app-field__label" for="lm2-url">Article URL</label>
+                  <div class="app-add-bar__field">
+                    <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+                    <input id="lm2-url" class="app-input app-input--lead is-focus" type="url" value="theverge dot com slash ai" aria-invalid="true" aria-describedby="lm2-note" />
+                  </div>
+                  <p class="app-add-bar__note app-add-bar__note--error" id="lm2-note" role="alert"><span class="app-add-bar__note-dot" aria-hidden="true"></span>That doesn’t look like a link. Try a full address like https://example.com/article.</p>
+                </div>
+                <div class="app-modal__foot">
+                  <button class="app-button app-button--ghost" type="button">Cancel</button>
+                  <button class="app-button" type="submit"><span>Save to library</span></button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================== DARK specimens ====================================================== -->
+    <section class="stage" data-theme="dark">
+      <p class="stage__label">States · dark · warm low-glare ink</p>
+      <div class="grid">
+
+        <!-- Inline · idle -->
+        <div class="specimen">
+          <p class="specimen__caption">Inline bar · idle</p>
+          <form class="app-add-bar" novalidate onsubmit="return false">
+            <div class="app-add-bar__field">
+              <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+              <input class="app-input app-input--lead" type="url" placeholder="https://example.com/article" aria-label="Link to save" />
+            </div>
+            <button class="app-button app-add-bar__submit" type="submit"><span>Save</span></button>
+            <p class="app-add-bar__note">Paste a link — burkmak fetches a clean reader view and keeps it for later.</p>
+          </form>
+        </div>
+
+        <!-- Inline · typing / valid -->
+        <div class="specimen">
+          <p class="specimen__caption">Inline bar · typing · valid</p>
+          <form class="app-add-bar" novalidate onsubmit="return false">
+            <div class="app-add-bar__field">
+              <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+              <input class="app-input app-input--lead is-focus" type="url" value="https://stratechery.com/2026/the-quiet-web/" aria-label="Link to save" />
+            </div>
+            <button class="app-button app-add-bar__submit" type="submit"><span>Save</span></button>
+            <p class="app-add-bar__note app-add-bar__note--ok"><span class="app-add-bar__note-dot" aria-hidden="true"></span>Looks like a link — press Save to keep it.</p>
+          </form>
+        </div>
+
+        <!-- Inline · validating -->
+        <div class="specimen">
+          <p class="specimen__caption">Inline bar · validating</p>
+          <form class="app-add-bar" novalidate onsubmit="return false">
+            <div class="app-add-bar__field">
+              <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+              <input class="app-input app-input--lead" type="url" value="https://stratechery.com/2026/the-quiet-web/" aria-label="Link to save" disabled />
+            </div>
+            <button class="app-button app-add-bar__submit" type="submit" aria-busy="true" disabled><span class="app-spinner" aria-hidden="true"></span><span>Saving…</span></button>
+            <p class="app-add-bar__note">Checking link…</p>
+          </form>
+        </div>
+
+        <!-- Inline · invalid-URL error -->
+        <div class="specimen">
+          <p class="specimen__caption">Inline bar · invalid-URL error</p>
+          <form class="app-add-bar" novalidate onsubmit="return false">
+            <div class="app-add-bar__field">
+              <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+              <input class="app-input app-input--lead" type="url" value="stratechery the quiet web" aria-invalid="true" aria-describedby="de-note" aria-label="Link to save" />
+            </div>
+            <button class="app-button app-add-bar__submit" type="submit"><span>Save</span></button>
+            <p class="app-add-bar__note app-add-bar__note--error" id="de-note" role="alert"><span class="app-add-bar__note-dot" aria-hidden="true"></span>That doesn’t look like a link. Try a full address like https://example.com/article.</p>
+          </form>
+        </div>
+
+        <!-- Inline · just saved (pending card) -->
+        <div class="specimen">
+          <p class="specimen__caption">Inline bar · just saved → pending card</p>
+          <div class="stack">
+            <form class="app-add-bar" novalidate onsubmit="return false">
+              <div class="app-add-bar__field">
+                <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+                <input class="app-input app-input--lead" type="url" placeholder="https://example.com/article" aria-label="Link to save" />
+              </div>
+              <button class="app-button app-add-bar__submit" type="submit"><span>Save</span></button>
+              <p class="app-add-bar__note app-add-bar__note--ok"><span class="app-add-bar__note-dot" aria-hidden="true"></span>Saved — fetching a clean reader view.</p>
+            </form>
+            <article class="app-item-card app-item-card--fresh">
+              <span class="app-item-card__favicon" aria-hidden="true">S</span>
+              <div class="app-item-card__body">
+                <div class="app-item-card__title-row">
+                  <h3 class="app-item-card__title">stratechery.com</h3>
+                  <span class="app-status-badge app-status-badge--pending"><span class="app-status-badge__dot" aria-hidden="true"></span>Saving</span>
+                </div>
+                <div class="app-item-card__meta"><span>stratechery.com</span><span class="app-item-card__sep" aria-hidden="true"></span><span>Just now</span></div>
+                <div class="app-item-card__fetching" role="status" aria-label="Fetching article">
+                  <span class="app-skeleton app-skeleton--line app-skeleton--w90"></span>
+                  <span class="app-skeleton app-skeleton--line app-skeleton--w70"></span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Pending card · extracting -->
+        <div class="specimen">
+          <p class="specimen__caption">Pending card · extracting</p>
+          <article class="app-item-card">
+            <span class="app-item-card__favicon" aria-hidden="true">S</span>
+            <div class="app-item-card__body">
+              <div class="app-item-card__title-row">
+                <h3 class="app-item-card__title">The quiet web</h3>
+                <span class="app-status-badge app-status-badge--extracting"><span class="app-status-badge__dot" aria-hidden="true"></span>Extracting</span>
+              </div>
+              <div class="app-item-card__meta"><span>stratechery.com</span><span class="app-item-card__sep" aria-hidden="true"></span><span>Just now</span></div>
+              <div class="app-item-card__fetching" role="status" aria-label="Fetching article">
+                <span class="app-skeleton app-skeleton--line app-skeleton--w90"></span>
+                <span class="app-skeleton app-skeleton--line app-skeleton--w70"></span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Modal · idle -->
+        <div class="specimen">
+          <p class="specimen__caption">Modal sheet · idle</p>
+          <div class="modal-frame">
+            <div class="app-modal__sheet" role="dialog" aria-modal="true" aria-labelledby="dm1-title">
+              <header class="app-modal__head">
+                <h3 id="dm1-title" class="app-modal__title">Save a link</h3>
+                <button class="app-icon-btn app-modal__close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg></button>
+              </header>
+              <form class="app-modal__body" novalidate onsubmit="return false">
+                <div class="app-field">
+                  <label class="app-field__label" for="dm1-url">Article URL</label>
+                  <div class="app-add-bar__field">
+                    <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+                    <input id="dm1-url" class="app-input app-input--lead" type="url" placeholder="https://example.com/article" />
+                  </div>
+                  <p class="app-add-bar__note">We’ll grab the title, a clean excerpt, and a reader view automatically.</p>
+                </div>
+                <div class="app-modal__foot">
+                  <button class="app-button app-button--ghost" type="button">Cancel</button>
+                  <button class="app-button" type="submit"><span>Save to library</span></button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal · saving -->
+        <div class="specimen">
+          <p class="specimen__caption">Modal sheet · saving</p>
+          <div class="modal-frame">
+            <div class="app-modal__sheet" role="dialog" aria-modal="true" aria-labelledby="dm2-title">
+              <header class="app-modal__head">
+                <h3 id="dm2-title" class="app-modal__title">Save a link</h3>
+                <button class="app-icon-btn app-modal__close" type="button" aria-label="Close" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg></button>
+              </header>
+              <form class="app-modal__body" novalidate onsubmit="return false">
+                <div class="app-field">
+                  <label class="app-field__label" for="dm2-url">Article URL</label>
+                  <div class="app-add-bar__field">
+                    <svg class="app-add-bar__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-2 2"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l2-2"/></svg>
+                    <input id="dm2-url" class="app-input app-input--lead" type="url" value="https://stratechery.com/2026/the-quiet-web/" disabled />
+                  </div>
+                  <p class="app-add-bar__note">Checking link…</p>
+                </div>
+                <div class="app-modal__foot">
+                  <button class="app-button app-button--ghost" type="button" disabled>Cancel</button>
+                  <button class="app-button" type="submit" aria-busy="true" disabled><span class="app-spinner" aria-hidden="true"></span><span>Saving…</span></button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Live bar + live modal — mirrors add-link.vue's validation and the
+    // pending → extracting → ready pipeline so every state is reachable
+    // without a backend.
+    (function () {
+      var URL_RE = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/\S*)?$/i;
+      var IDLE_HINT = 'Paste a link — burkmak fetches a clean reader view and keeps it for later.';
+      var MODAL_HINT = 'We’ll grab the title, a clean excerpt, and a reader view automatically.';
+      var INVALID = 'That doesn’t look like a link. Try a full address like https://example.com/article.';
+      var root = document.getElementById('live');
+      if (!root) return;
+      var q = function (r, scope) { return (scope || root).querySelector('[data-role="' + r + '"]'); };
+      var seq = 0;
+
+      function normalize(raw) { return raw.indexOf('://') > -1 ? raw : 'https://' + raw; }
+      function hostOf(raw) {
+        try { return new URL(normalize(raw)).hostname.replace(/^www\./, ''); }
+        catch (e) { return raw.replace(/^https?:\/\//, '').split('/')[0]; }
+      }
+      function titleFromUrl(raw) {
+        try {
+          var u = new URL(normalize(raw));
+          var parts = u.pathname.split('/').filter(Boolean);
+          var seg = parts.length ? parts[parts.length - 1] : '';
+          var words = decodeURIComponent(seg).replace(/\.[a-z0-9]+$/i, '').replace(/[-_]+/g, ' ').trim();
+          if (!words) return hostOf(raw);
+          return words.charAt(0).toUpperCase() + words.slice(1);
+        } catch (e) { return hostOf(raw); }
+      }
+      function setNote(el, kind, text) {
+        el.className = 'app-add-bar__note' + (kind === 'hint' ? '' : ' app-add-bar__note--' + kind);
+        el.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+        el.textContent = '';
+        if (kind !== 'hint') {
+          var dot = document.createElement('span');
+          dot.className = 'app-add-bar__note-dot';
+          dot.setAttribute('aria-hidden', 'true');
+          el.appendChild(dot);
+        }
+        el.appendChild(document.createTextNode(text));
+      }
+
+      var list = q('list');
+      var subtitle = q('subtitle');
+      function bumpCount() {
+        var n = list.querySelectorAll('.app-item-card').length;
+        subtitle.textContent = n + ' saved · paste anything worth reading later';
+      }
+
+      // Build a fresh pending card and run it through the fetch pipeline.
+      function commitSave(raw) {
+        var site = hostOf(raw);
+        var card = document.createElement('article');
+        card.className = 'app-item-card app-item-card--fresh';
+        card.innerHTML =
+          '<span class="app-item-card__favicon" aria-hidden="true">' + site.charAt(0).toUpperCase() + '</span>' +
+          '<div class="app-item-card__body">' +
+            '<div class="app-item-card__title-row">' +
+              '<h3 class="app-item-card__title">' + site + '</h3>' +
+              '<span class="app-status-badge app-status-badge--pending" data-role="badge"><span class="app-status-badge__dot" aria-hidden="true"></span>Saving</span>' +
+            '</div>' +
+            '<div class="app-item-card__meta"><span>' + site + '</span><span class="app-item-card__sep" aria-hidden="true"></span><span>Just now</span></div>' +
+            '<div class="app-item-card__fetching" data-role="fetching" role="status" aria-label="Fetching article">' +
+              '<span class="app-skeleton app-skeleton--line app-skeleton--w90"></span>' +
+              '<span class="app-skeleton app-skeleton--line app-skeleton--w70"></span>' +
+            '</div>' +
+          '</div>';
+        list.insertBefore(card, list.firstChild);
+        bumpCount();
+
+        var badge = q('badge', card);
+        window.setTimeout(function () {
+          badge.className = 'app-status-badge app-status-badge--extracting';
+          badge.innerHTML = '<span class="app-status-badge__dot" aria-hidden="true"></span>Extracting';
+        }, 1100);
+        window.setTimeout(function () {
+          badge.remove();
+          card.querySelector('.app-item-card__title').textContent = titleFromUrl(normalize(raw));
+          var fetching = q('fetching', card);
+          var p = document.createElement('p');
+          p.className = 'app-item-card__excerpt';
+          p.textContent = 'Reader view ready — open to read the full article, highlight, and sync to your devices.';
+          fetching.replaceWith(p);
+        }, 2400);
+      }
+
+      // ---- inline bar ----
+      var bar = q('bar'), url = q('url'), note = q('note');
+      var submit = q('submit'), spinner = q('spinner'), label = q('submit-label');
+      url.addEventListener('input', function () {
+        var v = url.value.trim();
+        if (!v) setNote(note, 'hint', IDLE_HINT);
+        else if (URL_RE.test(v)) setNote(note, 'ok', 'Looks like a link — press Save to keep it.');
+        else setNote(note, 'hint', 'Keep typing a full address, e.g. https://example.com/article.');
+      });
+      bar.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var raw = url.value.trim();
+        if (!raw) { setNote(note, 'error', 'Paste a link to save.'); url.setAttribute('aria-invalid', 'true'); return; }
+        if (!URL_RE.test(raw)) { setNote(note, 'error', INVALID); url.setAttribute('aria-invalid', 'true'); return; }
+        url.removeAttribute('aria-invalid');
+        submit.setAttribute('aria-busy', 'true'); submit.disabled = true; url.disabled = true;
+        spinner.hidden = false; label.textContent = 'Saving…';
+        setNote(note, 'hint', 'Checking link…');
+        window.setTimeout(function () {
+          submit.removeAttribute('aria-busy'); submit.disabled = false; url.disabled = false;
+          spinner.hidden = true; label.textContent = 'Save';
+          commitSave(raw);
+          url.value = '';
+          setNote(note, 'ok', 'Saved — fetching a clean reader view.');
+          window.setTimeout(function () {
+            if (note.className.indexOf('--ok') > -1) setNote(note, 'hint', IDLE_HINT);
+          }, 2600);
+        }, 700);
+      });
+
+      // ---- modal ----
+      var modal = q('modal'), mForm = q('modal-form'), mUrl = q('modal-url'), mNote = q('modal-note');
+      var mSubmit = q('modal-submit'), mSpinner = q('modal-spinner'), mLabel = q('modal-submit-label');
+      function openModal() {
+        mUrl.value = ''; mUrl.removeAttribute('aria-invalid');
+        setNote(mNote, 'hint', MODAL_HINT);
+        modal.classList.add('is-open');
+        window.setTimeout(function () { mUrl.focus(); }, 20);
+      }
+      function closeModal() { modal.classList.remove('is-open'); }
+      q('open-modal').addEventListener('click', openModal);
+      q('modal-close').addEventListener('click', closeModal);
+      q('modal-cancel').addEventListener('click', closeModal);
+      q('modal-backdrop').addEventListener('click', closeModal);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+        if ((e.key === 'n' || e.key === 'N') && !modal.classList.contains('is-open') &&
+            document.activeElement && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); openModal(); }
+      });
+      mUrl.addEventListener('input', function () {
+        if (mNote.className.indexOf('--error') > -1) { mUrl.removeAttribute('aria-invalid'); setNote(mNote, 'hint', MODAL_HINT); }
+      });
+      mForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var raw = mUrl.value.trim();
+        if (!raw) { setNote(mNote, 'error', 'Paste a link to save.'); mUrl.setAttribute('aria-invalid', 'true'); return; }
+        if (!URL_RE.test(raw)) { setNote(mNote, 'error', INVALID); mUrl.setAttribute('aria-invalid', 'true'); return; }
+        mSubmit.setAttribute('aria-busy', 'true'); mSubmit.disabled = true; mUrl.disabled = true;
+        mSpinner.hidden = false; mLabel.textContent = 'Saving…';
+        window.setTimeout(function () {
+          mSubmit.removeAttribute('aria-busy'); mSubmit.disabled = false; mUrl.disabled = false;
+          mSpinner.hidden = true; mLabel.textContent = 'Save to library';
+          commitSave(raw);
+          closeModal();
+        }, 700);
+      });
+    })();
+  </script>
+</body>
+</html>

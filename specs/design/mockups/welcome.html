@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>burkmak — Welcome</title>
+
+  <!-- brand Google Fonts: Fraunces (display) · Literata (reading) · Hanken Grotesk (UI) · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- canonical burkmak token contract (defines every var(--*) used below) -->
+  <link rel="stylesheet" href="../tokens.preview.css" />
+
+  <style>
+    /* ---- base ---- */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background: var(--surface-surface);
+      color: var(--text-fg);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---- spec gallery chrome (mockup file only — NOT part of the product) ---- */
+    .spec { display: grid; gap: var(--space-10); padding: var(--space-8); }
+    .spec__group { display: grid; gap: var(--space-4); }
+    .spec__label {
+      margin: 0;
+      font-size: var(--text-sm);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .spec__frame {
+      overflow: hidden;
+      border: thin solid var(--border-default);
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-md);
+    }
+    .spec__states {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-8) var(--space-10);
+      padding: var(--space-8);
+      border: thin solid var(--border-default);
+      border-radius: var(--radius-2xl);
+      background: var(--surface-page);
+    }
+    .spec__state { display: grid; gap: var(--space-3); justify-items: start; }
+    .spec__state-name {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: var(--tracking-wide);
+      color: var(--text-tertiary);
+    }
+
+    /* =================================================================
+       Component styles — mirror welcome.vue 1:1 (same BEM, same tokens)
+       ================================================================= */
+    .app-welcome {
+      --app-welcome-measure: 64rem;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-20);
+      min-height: 100vh;
+      padding: var(--space-6) var(--space-6) var(--space-16);
+      background: var(--surface-page);
+      color: var(--text-fg);
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      line-height: var(--leading-normal);
+      text-rendering: optimizeLegibility;
+    }
+
+    .app-welcome__bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: var(--app-welcome-measure);
+      margin-inline: auto;
+      padding-block: var(--space-2);
+    }
+
+    .app-welcome__wordmark {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--tracking-tight);
+      color: var(--text-fg);
+      text-decoration: none;
+    }
+
+    .app-welcome__hero {
+      position: relative;
+      width: 100%;
+      max-width: var(--app-welcome-measure);
+      margin-inline: auto;
+      padding-block: var(--space-16) var(--space-8);
+    }
+
+    /* the single decisive flourish: soft reading-lamp glow behind the headline */
+    .app-welcome__hero::before {
+      content: '';
+      position: absolute;
+      inset-block-start: calc(var(--space-2) * -1);
+      inset-inline-start: calc(var(--space-12) * -1);
+      inline-size: var(--space-24);
+      block-size: var(--space-24);
+      background: radial-gradient(
+        circle at center,
+        color-mix(in oklab, var(--brand-accent) 24%, transparent),
+        transparent 68%
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app-welcome__eyebrow {
+      position: relative;
+      z-index: 1;
+      margin: 0 0 var(--space-5);
+      font-size: var(--text-sm);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--brand-accent);
+    }
+
+    .app-welcome__title {
+      position: relative;
+      z-index: 1;
+      max-width: 16ch;
+      margin: 0;
+      font-family: var(--font-display);
+      font-weight: var(--fw-semibold);
+      font-size: var(--text-6xl);
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+      color: var(--text-fg);
+      text-wrap: balance;
+    }
+
+    .app-welcome__lead {
+      position: relative;
+      z-index: 1;
+      max-width: 44ch;
+      margin: var(--space-6) 0 0;
+      font-family: var(--font-reading);
+      font-size: var(--text-xl);
+      line-height: var(--leading-relaxed);
+      color: var(--text-secondary);
+      text-wrap: pretty;
+    }
+
+    .app-welcome__actions {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-4);
+      margin-block-start: var(--space-10);
+    }
+
+    .app-welcome__features {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-10);
+      width: 100%;
+      max-width: var(--app-welcome-measure);
+      margin: 0 auto;
+      padding-block-start: var(--space-10);
+      list-style: none;
+      border-block-start: thin solid var(--border-default);
+    }
+
+    .app-feature { display: flex; flex-direction: column; gap: var(--space-3); }
+    .app-feature__title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-weight: var(--fw-medium);
+      font-size: var(--text-xl);
+      line-height: var(--leading-snug);
+      letter-spacing: var(--tracking-tight);
+      color: var(--text-fg);
+    }
+    .app-feature__body {
+      max-width: 36ch;
+      margin: 0;
+      font-family: var(--font-reading);
+      font-size: var(--text-base);
+      line-height: var(--leading-relaxed);
+      color: var(--text-secondary);
+      text-wrap: pretty;
+    }
+
+    /* ---- AppButton ---- */
+    .app-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      border: thin solid transparent;
+      border-radius: var(--radius-lg);
+      padding: var(--space-3) var(--space-6);
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      font-weight: var(--fw-semibold);
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-normal);
+      text-decoration: none;
+      cursor: pointer;
+      transition:
+        background-color var(--dur-base) var(--ease-standard),
+        border-color var(--dur-base) var(--ease-standard),
+        color var(--dur-base) var(--ease-standard),
+        box-shadow var(--dur-fast) var(--ease-standard);
+    }
+    .app-button:focus-visible,
+    .app-button.is-focus {
+      outline: none;
+      box-shadow: 0 0 0 var(--space-1) color-mix(in oklab, var(--border-focus) 42%, transparent);
+    }
+
+    .app-button--primary {
+      background: var(--brand-accent);
+      border-color: var(--brand-accent);
+      color: var(--brand-accent-fg);
+      box-shadow: var(--shadow-sm);
+    }
+    .app-button--primary:hover,
+    .app-button--primary.is-hover {
+      background: var(--brand-accent-hover);
+      border-color: var(--brand-accent-hover);
+    }
+    .app-button--primary:active,
+    .app-button--primary.is-active {
+      background: var(--brand-accent-active);
+      border-color: var(--brand-accent-active);
+      box-shadow: none;
+    }
+    .app-button--primary:focus-visible,
+    .app-button--primary.is-focus {
+      box-shadow:
+        var(--shadow-sm),
+        0 0 0 var(--space-1) color-mix(in oklab, var(--border-focus) 48%, transparent);
+    }
+    .app-button--primary:disabled,
+    .app-button--primary.is-disabled {
+      background: var(--text-disabled);
+      border-color: var(--text-disabled);
+      color: var(--surface-page);
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .app-button--link {
+      padding-inline: var(--space-2);
+      background: transparent;
+      border-color: transparent;
+      color: var(--text-link);
+    }
+    .app-button--link:hover,
+    .app-button--link.is-hover {
+      color: var(--brand-accent-hover);
+      text-decoration: underline;
+      text-underline-offset: var(--space-1);
+    }
+    .app-button--link:active,
+    .app-button--link.is-active { color: var(--brand-accent-active); }
+    .app-button--link:disabled,
+    .app-button--link.is-disabled { color: var(--text-disabled); cursor: not-allowed; }
+
+    @media (max-width: 52rem) {
+      .app-welcome__title { font-size: var(--text-5xl); }
+      .app-welcome__features { grid-template-columns: 1fr; gap: var(--space-8); }
+    }
+    @media (max-width: 34rem) {
+      .app-welcome { gap: var(--space-12); }
+      .app-welcome__title { font-size: var(--text-4xl); }
+      .app-welcome__actions { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="spec">
+    <!-- ===== Welcome screen — LIGHT ===== -->
+    <section class="spec__group">
+      <p class="spec__label">Welcome · Light</p>
+      <div class="spec__frame">
+        <div class="app-welcome" data-theme="light">
+          <header class="app-welcome__bar">
+            <a class="app-welcome__wordmark" href="#" aria-label="burkmak — home">burkmak</a>
+          </header>
+          <main class="app-welcome__hero">
+            <p class="app-welcome__eyebrow">Read-it-later, kept warm</p>
+            <h1 class="app-welcome__title">A quiet home for everything you mean to read.</h1>
+            <p class="app-welcome__lead">
+              Save anything from the web, read it clean, and keep your library truly yours.
+            </p>
+            <div class="app-welcome__actions">
+              <!-- @app/ui: AppButton -->
+              <button class="app-button app-button--primary" type="button">Get started</button>
+              <!-- @app/ui: AppButton (link variant) -->
+              <button class="app-button app-button--link" type="button">Sign in</button>
+            </div>
+          </main>
+          <ul class="app-welcome__features">
+            <li class="app-feature">
+              <h2 class="app-feature__title">Save anything</h2>
+              <p class="app-feature__body">Paste a link or share from any app. burkmak grabs the full article and keeps it — even if the original goes dark.</p>
+            </li>
+            <li class="app-feature">
+              <h2 class="app-feature__title">Clean reader view</h2>
+              <p class="app-feature__body">No ads, no clutter. Just Literata, generous margins, and the highlights you leave behind.</p>
+            </li>
+            <li class="app-feature">
+              <h2 class="app-feature__title">Sync to Kobo &amp; export to Obsidian</h2>
+              <p class="app-feature__body">Send a piece to your e-reader for the evening, then push your notes straight into your vault.</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Welcome screen — DARK ===== -->
+    <section class="spec__group">
+      <p class="spec__label">Welcome · Dark</p>
+      <div class="spec__frame">
+        <div class="app-welcome" data-theme="dark">
+          <header class="app-welcome__bar">
+            <a class="app-welcome__wordmark" href="#" aria-label="burkmak — home">burkmak</a>
+          </header>
+          <main class="app-welcome__hero">
+            <p class="app-welcome__eyebrow">Read-it-later, kept warm</p>
+            <h1 class="app-welcome__title">A quiet home for everything you mean to read.</h1>
+            <p class="app-welcome__lead">
+              Save anything from the web, read it clean, and keep your library truly yours.
+            </p>
+            <div class="app-welcome__actions">
+              <button class="app-button app-button--primary" type="button">Get started</button>
+              <button class="app-button app-button--link" type="button">Sign in</button>
+            </div>
+          </main>
+          <ul class="app-welcome__features">
+            <li class="app-feature">
+              <h2 class="app-feature__title">Save anything</h2>
+              <p class="app-feature__body">Paste a link or share from any app. burkmak grabs the full article and keeps it — even if the original goes dark.</p>
+            </li>
+            <li class="app-feature">
+              <h2 class="app-feature__title">Clean reader view</h2>
+              <p class="app-feature__body">No ads, no clutter. Just Literata, generous margins, and the highlights you leave behind.</p>
+            </li>
+            <li class="app-feature">
+              <h2 class="app-feature__title">Sync to Kobo &amp; export to Obsidian</h2>
+              <p class="app-feature__body">Send a piece to your e-reader for the evening, then push your notes straight into your vault.</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Button states reference (forced classes mirror real pseudo-states) ===== -->
+    <section class="spec__group">
+      <p class="spec__label">AppButton states · Light</p>
+      <div class="spec__states" data-theme="light">
+        <div class="spec__state"><span class="spec__state-name">default</span><button class="app-button app-button--primary" type="button">Get started</button></div>
+        <div class="spec__state"><span class="spec__state-name">hover</span><button class="app-button app-button--primary is-hover" type="button">Get started</button></div>
+        <div class="spec__state"><span class="spec__state-name">focus-visible</span><button class="app-button app-button--primary is-focus" type="button">Get started</button></div>
+        <div class="spec__state"><span class="spec__state-name">active</span><button class="app-button app-button--primary is-active" type="button">Get started</button></div>
+        <div class="spec__state"><span class="spec__state-name">disabled</span><button class="app-button app-button--primary" type="button" disabled>Get started</button></div>
+        <div class="spec__state"><span class="spec__state-name">link · default</span><button class="app-button app-button--link" type="button">Sign in</button></div>
+        <div class="spec__state"><span class="spec__state-name">link · hover</span><button class="app-button app-button--link is-hover" type="button">Sign in</button></div>
+        <div class="spec__state"><span class="spec__state-name">link · focus-visible</span><button class="app-button app-button--link is-focus" type="button">Sign in</button></div>
+      </div>
+    </section>
+
+    <section class="spec__group">
+      <p class="spec__label">AppButton states · Dark</p>
+      <div class="spec__states" data-theme="dark">
+        <div class="spec__state"><span class="spec__state-name">default</span><button class="app-button app-button--primary" type="button">Get started</button></div>
+        <div class="spec__state"><span class="spec__state-name">hover</span><button class="app-button app-button--primary is-hover" type="button">Get started</button></div>
+        <div class="spec__state"><span class="spec__state-name">focus-visible</span><button class="app-button app-button--primary is-focus" type="button">Get started</button></div>
+        <div class="spec__state"><span class="spec__state-name">active</span><button class="app-button app-button--primary is-active" type="button">Get started</button></div>
+        <div class="spec__state"><span class="spec__state-name">disabled</span><button class="app-button app-button--primary" type="button" disabled>Get started</button></div>
+        <div class="spec__state"><span class="spec__state-name">link · default</span><button class="app-button app-button--link" type="button">Sign in</button></div>
+        <div class="spec__state"><span class="spec__state-name">link · hover</span><button class="app-button app-button--link is-hover" type="button">Sign in</button></div>
+        <div class="spec__state"><span class="spec__state-name">link · focus-visible</span><button class="app-button app-button--link is-focus" type="button">Sign in</button></div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
