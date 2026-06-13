@@ -38,7 +38,7 @@ function isStatusBearingError(err: unknown): err is StatusBearingError {
   if (typeof err !== 'object' || err === null || !('status' in err)) {
     return false;
   }
-  const status = (err as { status: unknown }).status;
+  const status = err.status;
   return typeof status === 'number' && status >= 400 && status <= 599;
 }
 
