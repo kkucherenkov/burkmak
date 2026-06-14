@@ -105,6 +105,8 @@ export default {
     failed: 'Extraction failed. Try again.',
     retry: 'Retry',
     highlights: 'Highlights',
+    actionFailed: 'Something went wrong. Please try again.',
+    dismiss: 'Dismiss',
   },
 
   highlight: {

@@ -2,16 +2,7 @@
   import { nextTick, onMounted, ref, watch } from 'vue';
 
   import { anchorHighlight, clearHighlights } from './highlight-mark';
-
-  export type AppHighlightColor = 'yellow' | 'green' | 'blue' | 'pink';
-
-  export interface AppHighlightData {
-    id: string;
-    quote: string;
-    prefix: string;
-    suffix: string;
-    color: AppHighlightColor;
-  }
+  import type { AppHighlightData } from './highlight-types';
 
   const props = withDefaults(
     defineProps<{

@@ -67,6 +67,7 @@ Target: grow toward 70%/70%/70%/60% as more modules gain test coverage.
 - [ ] Tests added for new behaviour; edge cases considered.
 - [ ] `specs/tasks/active.md` → `done.md` entry updated.
 - [ ] `pnpm --filter @app/ui audit:components` exits 0 (no story/spec gaps).
+- [ ] `pnpm --filter @app/ui build` succeeds — it's the only step that compiles component SCSS through Dart Sass (`typecheck`/`lint`/`test` won't catch a broken stylesheet).
 - [ ] Every new page handles all three states: loading, error, empty — not just the happy path.
 - [ ] Every new form uses `useFormValidation(schema)` — no inline regex or `computed` validators.
 - [ ] Every new backend handler has a unit test (`*.handler.spec.ts`).

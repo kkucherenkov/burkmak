@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
-import AppHighlightCard, { type AppHighlightCardHighlight } from './AppHighlightCard.vue';
+import type { AppHighlightCardHighlight } from '../AppArticleReader/highlight-types';
+
+import AppHighlightCard from './AppHighlightCard.vue';
 
 const meta: Meta<typeof AppHighlightCard> = {
   title: 'Compositions/AppHighlightCard',

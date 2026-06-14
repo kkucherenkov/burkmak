@@ -27,6 +27,8 @@ export interface UseItemsReturn {
   save(url: string): Promise<void>;
   toggleFavorite(item: Item): Promise<void>;
   setReadState(item: Item, readState: Item['readState']): Promise<void>;
+  addTag(item: Item, tag: string): Promise<void>;
+  removeTag(item: Item, slug: string): Promise<void>;
   remove(id: string): Promise<void>;
 }
 
@@ -92,6 +94,17 @@ export function useItems(): UseItemsReturn {
     await api.updateItem(item.id, { readState });
   }
 
+  async function addTag(item: Item, tag: string): Promise<void> {
+    // optimistic append, then reconcile with the server's canonical item (slug normalization etc.)
+    items.value = upsertItem(items.value, { ...item, tags: [...item.tags, tag] });
+    items.value = upsertItem(items.value, await api.addItemTag(item.id, tag));
+  }
+
+  async function removeTag(item: Item, slug: string): Promise<void> {
+    items.value = upsertItem(items.value, { ...item, tags: item.tags.filter((t) => t !== slug) });
+    await api.removeItemTag(item.id, slug);
+  }
+
   async function remove(id: string): Promise<void> {
     removeLocal(id);
     await api.deleteItem(id);
@@ -109,6 +122,8 @@ export function useItems(): UseItemsReturn {
     save,
     toggleFavorite,
     setReadState,
+    addTag,
+    removeTag,
     remove,
   };
 }

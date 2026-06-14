@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
+import type { AppHighlightCardHighlight } from '../AppArticleReader/highlight-types';
+
 import AppHighlightCard from './AppHighlightCard.vue';
-import type { AppHighlightCardHighlight } from './AppHighlightCard.vue';
 
 const global = { stubs: { UIcon: true } } as const;
 

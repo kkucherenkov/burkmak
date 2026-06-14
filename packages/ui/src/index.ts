@@ -22,7 +22,7 @@ export { AppArticleReader } from './components/AppArticleReader';
 export type {
   AppHighlightColor,
   AppHighlightData,
-} from './components/AppArticleReader/AppArticleReader.vue';
+  AppHighlightCardHighlight,
+} from './components/AppArticleReader/highlight-types';
 export { AppHighlightPopover } from './components/AppHighlightPopover';
 export { AppHighlightCard } from './components/AppHighlightCard';
-export type { AppHighlightCardHighlight } from './components/AppHighlightCard/AppHighlightCard.vue';

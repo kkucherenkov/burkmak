@@ -1,7 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import AppArticleReader, { type AppHighlightData } from './AppArticleReader.vue';
+import type { AppHighlightData } from './highlight-types';
+
+import AppArticleReader from './AppArticleReader.vue';
 
 const global = { stubs: { UIcon: true } } as const;
 
