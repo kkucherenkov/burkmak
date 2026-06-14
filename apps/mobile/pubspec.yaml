@@ -32,6 +32,7 @@ dependencies:
   app_api_client:
     path: ../../packages/api-client-dart/lib/generated
   flutter_html: ^3.0.0
+  receive_sharing_intent: ^1.8.1
 
 dev_dependencies:
   flutter_test:

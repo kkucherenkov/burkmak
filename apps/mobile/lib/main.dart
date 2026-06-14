@@ -7,7 +7,9 @@ import 'package:app_mobile/app/auth_gate.dart';
 import 'package:app_mobile/app/routes.dart';
 import 'package:app_mobile/i18n/strings.g.dart';
 import 'package:app_mobile/shared/di/injector.dart';
+import 'package:app_mobile/shared/navigation/app_navigator.dart';
 import 'package:app_mobile/shared/notifications/push_notification_service.dart';
+import 'package:app_mobile/shared/share/share_intent_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,12 +33,26 @@ Future<void> main() async {
   }
 }
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getIt<ShareIntentService>().start();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: appNavigatorKey,
       onGenerateTitle: (context) => context.t.common.appTitle,
       // Replace with your design-system theme once app_ui is populated:
       // theme: AppTheme.light(),

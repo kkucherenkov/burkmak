@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:app_mobile/features/add_link/presentation/add_link_screen.dart';
+import 'package:app_mobile/features/quick_save/presentation/quick_save_screen.dart';
 import 'package:app_mobile/features/auth/presentation/sign_in_screen.dart';
 import 'package:app_mobile/features/auth/presentation/sign_up_screen.dart';
 import 'package:app_mobile/features/auth/presentation/welcome_screen.dart';
@@ -17,6 +18,7 @@ abstract class AppRoutes {
   static const library = '/library';
   static const itemDetail = '/item';
   static const addLink = '/add-link';
+  static const quickSave = '/quick-save';
 }
 
 /// Route factory — maps route names to screen widgets.
@@ -69,6 +71,14 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     final id = settings.arguments as String;
     return MaterialPageRoute<void>(
       builder: (_) => ItemDetailScreen(id: id),
+      settings: settings,
+    );
+  }
+
+  if (name == AppRoutes.quickSave) {
+    final url = settings.arguments as String;
+    return MaterialPageRoute<void>(
+      builder: (_) => QuickSaveScreen(url: url),
       settings: settings,
     );
   }

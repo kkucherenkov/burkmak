@@ -2,6 +2,27 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-15-002 — S3-mobile: Android share-sheet capture
+
+- Created: 2026-06-15
+- Completed: 2026-06-15
+- Owner: claude
+- Spec: [specs/features/2026-06-15-s3-mobile.plan.md](../features/2026-06-15-s3-mobile.plan.md)
+- Result: merged to `main` via `--no-ff` (11 feature commits `22fddaa`→`95aa251`); branch deleted.
+- Delivered:
+  - Task 1 (`22fddaa`) — `flutter create --platforms=android,ios` scaffolds `android/` + `ios/` inside `apps/mobile`; existing `lib/` untouched, package name stays `app_mobile`.
+  - Task 2 (`c0ff7bd`) — `share_url_parser.dart` (`extractFirstUrl`) with TDD: 4 tests green.
+  - Task 3 (`1f60314`) — `PendingShareStore` (single-slot consume-once) + `appNavigatorKey` (`GlobalKey<NavigatorState>`).
+  - Task 4 (`6e97344`) — `receive_sharing_intent 1.8.1` added; API matches plan exactly (`getInitialMedia`/`getMediaStream`/`SharedMediaFile.path`).
+  - Task 5 (`1c7ad3d`) — `quickSave_{en,el,ru,uk}.i18n.json` source files; `dart run slang` regenerates gitignored `strings.g.dart` with `context.t.quickSave.*` accessors.
+  - Task 6 (`ff5431f`) — `QuickSaveScreen` reuses `AddLinkCubit`, auto-fires `save(url)` on init, handles idle/saving/saved/error states with retry + open-library actions.
+  - Task 7 (`1b0bee6`) — `AppRoutes.quickSave = '/quick-save'` + route handler in `onGenerateRoute`.
+  - Task 8 (`217f7e8`) — `ShareIntentService` (listens cold-start + warm stream, routes to quickSave or PendingShareStore by token presence); `PendingShareStore` + `ShareIntentService` registered as lazy singletons in DI.
+  - Task 9 (`faf10d6`) — `App` converted to `StatefulWidget`; `navigatorKey: appNavigatorKey` on `MaterialApp`; `ShareIntentService.start()` called `addPostFrameCallback`; `AuthGate` authenticated branch consumes `PendingShareStore.take()` post-frame and pushes quick-save if URL held.
+  - Task 10 (`e53082f`) — `ACTION_SEND text/*` intent-filter added to `AndroidManifest.xml` (per receive_sharing_intent README; `text/*` not `text/plain` to match lib guidance).
+  - Task 11 (`95aa251`) — `dart format` cleanup; final `flutter analyze` 0 issues; `flutter test` 30/30 green.
+- Verification: `flutter analyze` — `No issues found!`; `flutter test` — `+30: All tests passed!`; android/ + ios/ tracked in git; `strings.g.dart` and `strings_*.g.dart` NOT committed (gitignored by root `.gitignore` lines 73-74).
+
 ## T-2026-06-15-001 — S3-web: Bookmarklet & /save Popup
 
 - Created: 2026-06-15
