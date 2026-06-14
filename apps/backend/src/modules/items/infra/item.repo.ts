@@ -3,6 +3,7 @@ import type { Item } from '@prisma/client';
 
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import type {
+  ExtractStatus,
   IItemRepo,
   ItemDetail,
   ItemMetadataPatch,
@@ -196,6 +197,22 @@ export class ItemRepo implements IItemRepo {
 
   async applyMetadata(itemId: string, patch: ItemMetadataPatch): Promise<void> {
     await this.prisma.item.update({ where: { id: itemId }, data: { ...patch } });
+  }
+
+  async setExtractStatus(itemId: string, status: ExtractStatus): Promise<void> {
+    await this.prisma.item.update({ where: { id: itemId }, data: { extractStatus: status } });
+  }
+
+  async applyExtractStatus(
+    userId: string,
+    itemId: string,
+    status: ExtractStatus,
+  ): Promise<boolean> {
+    const res = await this.prisma.item.updateMany({
+      where: { id: itemId, userId },
+      data: { extractStatus: status },
+    });
+    return res.count > 0;
   }
 
   async delete(userId: string, id: string): Promise<boolean> {
