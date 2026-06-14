@@ -1,7 +1,10 @@
 {
   "welcome": {
-    "headline": "Book anything, anytime",
-    "subtitle": "Find and book appointments with top-rated professionals.",
+    "eyebrow": "Read-it-later, kept warm",
+    "headline": "A quiet home for everything you mean to read.",
+    "subtitle": "Save anything from the web, read it clean, and keep your library truly yours.",
+    "getStarted": "Get started",
+    "signIn": "Sign in",
     "continueWithPhone": "Continue with phone",
     "legalFootnote": "By continuing, you agree to our Terms and Privacy Policy."
   },
