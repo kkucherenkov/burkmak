@@ -15,9 +15,9 @@
   - [x] 3: EventsClient (SSE byte-stream → AppEvent)
   - [x] 4: ItemsRepository
   - [x] 5: LibraryState + LibraryCubit (TDD)
-  - [ ] 6: LibraryScreen + item card + filter bar
+  - [x] 6: LibraryScreen + item card + filter bar
   - [x] 7: DetailCubit + state (TDD)
-  - [ ] 8: ItemDetailScreen
+  - [x] 8: ItemDetailScreen
   - [x] 9a: AddLinkCubit + state (TDD) — cubit done; screen pending (after step 10 i18n)
   - [ ] 9b: AddLinkScreen (after i18n step 10)
   - [x] 10: slang namespaces (library/item_detail/add_link × en/ru/uk/el)
