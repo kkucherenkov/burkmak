@@ -10,3 +10,14 @@ export class ItemNotFoundError extends DomainError {
     });
   }
 }
+
+export class ArticleNotExtractedError extends DomainError {
+  constructor(itemId: string) {
+    super({
+      code: 'article-not-found',
+      status: 404,
+      title: 'Article not found',
+      detail: `Article for item ${itemId} is not available`,
+    });
+  }
+}

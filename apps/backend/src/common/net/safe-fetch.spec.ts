@@ -130,7 +130,6 @@ function mockLookup(address: string, family: 4 | 6): void {
 }
 
 describe('assertSafeHost', () => {
-
   it('blocks hostname that resolves to 169.254.169.254', async () => {
     mockLookup('169.254.169.254', 4);
     await expect(assertSafeHost('metadata.internal')).rejects.toThrow(SafeFetchError);
