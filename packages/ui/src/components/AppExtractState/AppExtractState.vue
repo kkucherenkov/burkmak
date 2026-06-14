@@ -24,7 +24,9 @@
   <div v-if="status !== 'ready'" :class="['app-extract-state', `app-extract-state--${status}`]">
     <!-- none: pitch + extract button -->
     <div v-if="status === 'none'" class="app-extract-state__pitch">
-      <p class="app-extract-state__hint">{{ labels.pitch }}</p>
+      <p class="app-extract-state__hint">
+        {{ labels.pitch }}
+      </p>
       <AppButton
         variant="solid"
         color="primary"
@@ -45,7 +47,9 @@
 
     <!-- failed: error message + retry -->
     <div v-else-if="status === 'failed'" class="app-extract-state__failed">
-      <p class="app-extract-state__hint">{{ labels.failed }}</p>
+      <p class="app-extract-state__hint">
+        {{ labels.failed }}
+      </p>
       <AppButton
         variant="solid"
         color="primary"

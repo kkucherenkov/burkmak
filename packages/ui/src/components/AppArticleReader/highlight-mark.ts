@@ -21,37 +21,55 @@ export interface HighlightSpec {
  * `spec.suffix` immediately after), and wrap the matched range in a
  * `<mark class="app-highlight app-highlight--<color>" data-hl="<id>">`.
  *
+ * WHY inner loop: a short quote can appear multiple times inside a single text
+ * node. The old code only checked the FIRST occurrence and moved on to the next
+ * node on disambiguation failure — silently dropping the match. We now loop over
+ * ALL positions within each text node (advancing `fromIndex` past each rejected
+ * hit) before giving up on that node.
+ *
  * Returns true if a mark was inserted, false if not found.
  */
 export function anchorHighlight(container: HTMLElement, spec: HighlightSpec): boolean {
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
 
+  const prefixTail = spec.prefix.slice(-10);
+  const suffixHead = spec.suffix.slice(0, 10);
+
   let node: Node | null;
   while ((node = walker.nextNode())) {
     const text = node.textContent ?? '';
-    const idx = text.indexOf(spec.quote);
-    if (idx === -1) continue;
 
-    // Disambiguate: verify that the characters immediately before/after
-    // the quote match prefix-tail and suffix-head (first 10 chars each).
-    const prefixTail = spec.prefix.slice(-10);
-    const suffixHead = spec.suffix.slice(0, 10);
-    const before = text.slice(Math.max(0, idx - prefixTail.length), idx);
-    const after = text.slice(idx + spec.quote.length, idx + spec.quote.length + suffixHead.length);
+    // Search every occurrence of spec.quote within this text node.
+    let fromIndex = 0;
+    let idx: number;
+    while ((idx = text.indexOf(spec.quote, fromIndex)) !== -1) {
+      // Disambiguate: verify that the characters immediately before/after
+      // the quote match prefix-tail and suffix-head (first 10 chars each).
+      const before = text.slice(Math.max(0, idx - prefixTail.length), idx);
+      const after = text.slice(
+        idx + spec.quote.length,
+        idx + spec.quote.length + suffixHead.length,
+      );
 
-    if (prefixTail && !before.endsWith(prefixTail.slice(-(before.length || 1)))) continue;
-    if (suffixHead && !after.startsWith(suffixHead.slice(0, after.length || 1))) continue;
+      const prefixOk = !prefixTail || before.endsWith(prefixTail.slice(-(before.length || 1)));
+      const suffixOk = !suffixHead || after.startsWith(suffixHead.slice(0, after.length || 1));
 
-    // Wrap the matched range.
-    const range = document.createRange();
-    range.setStart(node, idx);
-    range.setEnd(node, idx + spec.quote.length);
+      if (prefixOk && suffixOk) {
+        // Wrap the matched range.
+        const range = document.createRange();
+        range.setStart(node, idx);
+        range.setEnd(node, idx + spec.quote.length);
 
-    const mark = document.createElement('mark');
-    mark.className = `app-highlight app-highlight--${spec.color}`;
-    mark.dataset['hl'] = spec.id;
-    range.surroundContents(mark);
-    return true;
+        const mark = document.createElement('mark');
+        mark.className = `app-highlight app-highlight--${spec.color}`;
+        mark.dataset['hl'] = spec.id;
+        range.surroundContents(mark);
+        return true;
+      }
+
+      // This occurrence failed disambiguation — advance past it and try the next.
+      fromIndex = idx + 1;
+    }
   }
   return false;
 }

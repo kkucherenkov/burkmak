@@ -6,6 +6,7 @@
     AppHighlightData,
   } from '../AppArticleReader/AppArticleReader.vue';
   import AppButton from '../AppButton/AppButton.vue';
+  import AppTextarea from '../AppTextarea/AppTextarea.vue';
 
   export interface AppHighlightCardHighlight extends AppHighlightData {
     note?: string | null;
@@ -54,16 +55,17 @@
   <div
     :class="['app-highlight-card', `app-highlight-card--${highlight.color as AppHighlightColor}`]"
   >
-    <blockquote class="app-highlight-card__quote">{{ highlight.quote }}</blockquote>
+    <blockquote class="app-highlight-card__quote">
+      {{ highlight.quote }}
+    </blockquote>
 
     <!-- Editing state: note textarea + save/cancel actions -->
     <form v-if="editing" class="app-highlight-card__editor" @submit.prevent="onSave">
-      <textarea
+      <AppTextarea
         v-model="draft"
-        class="app-highlight-card__textarea"
         :placeholder="labels.notePlaceholder"
         :aria-label="labels.notePlaceholder"
-        rows="3"
+        :rows="3"
       />
       <div class="app-highlight-card__editor-actions">
         <AppButton
@@ -88,7 +90,9 @@
 
     <!-- View state: note (if any) + action buttons -->
     <template v-else>
-      <p v-if="highlight.note" class="app-highlight-card__note">{{ highlight.note }}</p>
+      <p v-if="highlight.note" class="app-highlight-card__note">
+        {{ highlight.note }}
+      </p>
 
       <footer class="app-highlight-card__foot">
         <AppButton
@@ -176,32 +180,6 @@
     &__editor {
       display: grid;
       gap: var(--space-3);
-    }
-
-    &__textarea {
-      width: 100%;
-      padding: var(--space-3);
-      font: inherit;
-      font-size: var(--text-sm);
-      line-height: var(--leading-normal);
-      color: var(--text-fg);
-      background: var(--surface-raised);
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-md);
-      resize: vertical;
-      transition:
-        border-color var(--dur-base) var(--ease-default),
-        box-shadow var(--dur-base) var(--ease-default);
-
-      &::placeholder {
-        color: var(--text-tertiary);
-      }
-
-      &:focus-visible {
-        outline: none;
-        border-color: var(--border-focus);
-        box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-accent) 32%, transparent);
-      }
     }
 
     &__editor-actions {

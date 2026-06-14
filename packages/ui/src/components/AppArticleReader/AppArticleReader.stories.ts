@@ -36,7 +36,10 @@ const highlights: AppHighlightData[] = [
   {
     id: 'h2',
     quote: 'The fix is not willpower',
-    prefix: '\n\n<p>',
+    // WHY: prefix/suffix must come from rendered textContent, not raw HTML.
+    // The paragraph before ends with "the habit of staying." and there is a
+    // "\n\n" whitespace text node between the </p> and <p> in the HTML string.
+    prefix: 'the habit of staying.\n\n',
     suffix: '. It is friction',
     color: 'green',
   },

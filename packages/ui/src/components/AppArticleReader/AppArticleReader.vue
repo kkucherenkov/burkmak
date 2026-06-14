@@ -17,7 +17,7 @@
     defineProps<{
       /** Server-sanitized HTML string. Sanitization is the backend's responsibility. */
       contentHtml: string;
-      highlights: AppHighlightData[];
+      highlights?: AppHighlightData[];
     }>(),
     {
       highlights: () => [],
@@ -75,14 +75,44 @@
     if (!quote) return;
 
     // Compute prefix (up to 64 chars before) and suffix (up to 64 chars after).
-    // TypeScript infers textContent as string (not null) on HTMLDivElement in this context.
+    // WHY loop: textContent concatenates all text nodes so the quote may appear
+    // multiple times. We use startContainer + startOffset to locate the character
+    // position of the selection within the full textContent string, ensuring we
+    // always pick the occurrence the user actually selected (not the first one).
+    // el.textContent is non-null on a mounted HTMLDivElement (Vue-test-utils
+    // ref type infers string directly).
     const text = el.textContent;
-    const start = text.indexOf(quote);
+    const start = resolveSelectionStart(el, range, quote, text);
     if (start === -1) return;
     const prefix = text.slice(Math.max(0, start - 64), start);
     const suffix = text.slice(start + quote.length, start + quote.length + 64);
 
     emit('select', { quote, prefix, suffix });
+  }
+
+  /**
+   * Resolve the character index of a text selection within `fullText`
+   * (= el.textContent) by walking text nodes up to the selection's
+   * startContainer, then adding startOffset.  Falls back to the first
+   * occurrence of `quote` in `fullText` if walking fails.
+   */
+  function resolveSelectionStart(
+    el: HTMLElement,
+    range: Range,
+    quote: string,
+    fullText: string,
+  ): number {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+    let charOffset = 0;
+    let node: Node | null;
+    while ((node = walker.nextNode())) {
+      if (node === range.startContainer) {
+        return charOffset + range.startOffset;
+      }
+      charOffset += (node.textContent ?? '').length;
+    }
+    // Fallback: first occurrence (pre-Fix behaviour; should rarely trigger).
+    return fullText.indexOf(quote);
   }
 </script>
 
@@ -100,9 +130,9 @@
     <div
       ref="bodyRef"
       class="app-article-reader__body"
-      v-html="contentHtml"
       @click="onBodyClick"
       @mouseup="onMouseUp"
+      v-html="contentHtml"
     />
     <!-- eslint-enable vue/no-v-html -->
   </article>

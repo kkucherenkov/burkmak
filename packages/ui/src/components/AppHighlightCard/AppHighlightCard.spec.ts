@@ -47,7 +47,8 @@ describe('AppHighlightCard', () => {
       global,
       props: { highlight, labels, editing: true },
     });
-    expect(w.find('.app-highlight-card__textarea').exists()).toBe(true);
+    // AppTextarea renders a native <textarea> element; target that directly.
+    expect(w.find('textarea').exists()).toBe(true);
   });
 
   it('emits save with the textarea value when Save is clicked', async () => {
@@ -55,7 +56,8 @@ describe('AppHighlightCard', () => {
       global,
       props: { highlight, labels, editing: true },
     });
-    const textarea = w.find<HTMLTextAreaElement>('.app-highlight-card__textarea');
+    // AppTextarea renders a native <textarea>; interact with it directly.
+    const textarea = w.find<HTMLTextAreaElement>('textarea');
     await textarea.setValue('New note text');
     await w.find('[data-testid="save-btn"]').trigger('click');
     expect(w.emitted('save')?.[0]).toEqual(['New note text']);
