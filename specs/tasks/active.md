@@ -16,7 +16,7 @@
   - [x] 4: useEvents SSE composable
   - [x] 5: AppAddBar + AddLinkModal + library.vue
   - [x] 6: items/[id].vue metadata detail
-  - [ ] 7: settings.vue (theme + language)
-  - [ ] 8: verification
+  - [x] 7: settings.vue (theme + language)
+  - [x] 8: verification (typecheck/test/lint green; nuxt build blocked by pre-existing i18n issue → see memory)
 - Status: in-progress
 - Blockers: —
