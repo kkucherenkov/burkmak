@@ -5,7 +5,7 @@
   import { isValidEmail, isValidPassword } from '~/utils/auth-validation';
 
   definePageMeta({ middleware: 'guest' });
-  const { t } = useI18n({ useScope: 'local' });
+  const { t } = useI18n();
   const auth = useAuth();
 
   const email = ref('');
@@ -17,7 +17,7 @@
   async function onSignIn(): Promise<void> {
     errorMsg.value = '';
     if (!formValid.value) {
-      errorMsg.value = t('errorInvalid');
+      errorMsg.value = t('signIn.errorInvalid');
       return;
     }
     loading.value = true;
@@ -27,61 +27,32 @@
         const msg = result.error.message?.toLowerCase() ?? '';
         errorMsg.value =
           msg.includes('invalid') || msg.includes('credential') || msg.includes('password')
-            ? t('errorCredentials')
-            : t('errorGeneric');
+            ? t('signIn.errorCredentials')
+            : t('signIn.errorGeneric');
         return;
       }
       await navigateTo('/library');
     } catch {
-      errorMsg.value = t('errorGeneric');
+      errorMsg.value = t('signIn.errorGeneric');
     } finally {
       loading.value = false;
     }
   }
 </script>
 
-<i18n lang="json">
-{
-  "en": {
-    "title": "Welcome back",
-    "subtitle": "Sign in to your library",
-    "email": "Email",
-    "password": "Password",
-    "submit": "Sign in",
-    "noAccount": "New to burkmak?",
-    "createAccount": "Create an account",
-    "errorInvalid": "Enter a valid email and an 8+ character password.",
-    "errorCredentials": "Wrong email or password.",
-    "errorGeneric": "Something went wrong. Please try again."
-  },
-  "ru": {
-    "title": "С возвращением",
-    "subtitle": "Войдите в свою библиотеку",
-    "email": "Эл. почта",
-    "password": "Пароль",
-    "submit": "Войти",
-    "noAccount": "Впервые в burkmak?",
-    "createAccount": "Создать аккаунт",
-    "errorInvalid": "Введите корректный email и пароль от 8 символов.",
-    "errorCredentials": "Неверный email или пароль.",
-    "errorGeneric": "Что-то пошло не так. Попробуйте ещё раз."
-  }
-}
-</i18n>
-
 <template>
   <div class="page-auth" data-testid="page-sign-in">
     <main class="page-auth__card">
       <AuthAppBrand />
       <h1 class="page-auth__title">
-        {{ t('title') }}
+        {{ t('signIn.title') }}
       </h1>
       <p class="page-auth__subtitle">
-        {{ t('subtitle') }}
+        {{ t('signIn.subtitle') }}
       </p>
       <AuthAppFormError :message="errorMsg" />
       <form class="page-auth__form" novalidate @submit.prevent="onSignIn">
-        <AppField :label="t('email')" required>
+        <AppField :label="t('signIn.email')" required>
           <template #default="slotAttrs">
             <AppInput
               v-bind="slotAttrs"
@@ -93,7 +64,7 @@
             />
           </template>
         </AppField>
-        <AppField :label="t('password')" required>
+        <AppField :label="t('signIn.password')" required>
           <template #default="slotAttrs">
             <AppInput
               v-bind="slotAttrs"
@@ -110,13 +81,13 @@
           color="primary"
           :loading="loading"
           :disabled="loading || !formValid"
-          :label="t('submit')"
+          :label="t('signIn.submit')"
         />
       </form>
       <p class="page-auth__meta">
-        {{ t('noAccount') }}
+        {{ t('signIn.noAccount') }}
         <NuxtLink to="/sign-up" class="page-auth__link">
-          {{ t('createAccount') }}
+          {{ t('signIn.createAccount') }}
         </NuxtLink>
       </p>
     </main>

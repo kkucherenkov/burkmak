@@ -5,7 +5,7 @@
   const props = defineProps<{ open: boolean }>();
   const emit = defineEmits<{ save: [url: string]; close: [] }>();
 
-  const { t } = useI18n({ useScope: 'local' });
+  const { t } = useI18n();
 
   const url = ref('');
   const saving = ref(false);
@@ -44,23 +44,6 @@
   }
 </script>
 
-<i18n lang="json">
-{
-  "en": {
-    "title": "Save a link",
-    "placeholder": "https://example.com/article",
-    "cancel": "Cancel",
-    "save": "Save"
-  },
-  "ru": {
-    "title": "Сохранить ссылку",
-    "placeholder": "https://example.com/article",
-    "cancel": "Отмена",
-    "save": "Сохранить"
-  }
-}
-</i18n>
-
 <template>
   <Teleport to="body">
     <div
@@ -70,21 +53,36 @@
       @click.self="onBackdropClick"
       @keydown="onKeydown"
     >
-      <div class="add-link-modal__sheet" role="dialog" aria-modal="true" :aria-label="t('title')">
+      <div
+        class="add-link-modal__sheet"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="t('addModal.title')"
+      >
         <h2 class="add-link-modal__title">
-          {{ t('title') }}
+          {{ t('addModal.title') }}
         </h2>
         <form class="add-link-modal__form" @submit.prevent="onSave">
-          <AppInput ref="inputRef" v-model="url" type="url" :placeholder="t('placeholder')" />
+          <AppInput
+            ref="inputRef"
+            v-model="url"
+            type="url"
+            :placeholder="t('addModal.placeholder')"
+          />
           <div class="add-link-modal__actions">
             <AppButton
               type="button"
               variant="outline"
               color="neutral"
-              :label="t('cancel')"
+              :label="t('addModal.cancel')"
               @click="emit('close')"
             />
-            <AppButton type="submit" :loading="saving" :disabled="!looksValid" :label="t('save')" />
+            <AppButton
+              type="submit"
+              :loading="saving"
+              :disabled="!looksValid"
+              :label="t('addModal.save')"
+            />
           </div>
         </form>
       </div>

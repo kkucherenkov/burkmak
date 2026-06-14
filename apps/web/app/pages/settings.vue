@@ -2,7 +2,7 @@
   import { AppButton, AppSelect } from '@app/ui';
 
   definePageMeta({ middleware: 'auth' });
-  const { t, locale, setLocale } = useI18n({ useScope: 'local' });
+  const { t, locale, setLocale } = useI18n();
   const colorMode = useColorMode();
 
   const localeOptions = [
@@ -15,19 +15,12 @@
   }
 </script>
 
-<i18n lang="json">
-{
-  "en": { "title": "Settings", "theme": "Toggle theme", "language": "Language" },
-  "ru": { "title": "Настройки", "theme": "Сменить тему", "language": "Язык" }
-}
-</i18n>
-
 <template>
   <div class="page-settings">
     <h1 class="page-settings__title">
-      {{ t('title') }}
+      {{ t('settings.title') }}
     </h1>
-    <AppButton variant="outline" :label="t('theme')" @click="toggleTheme" />
+    <AppButton variant="outline" :label="t('settings.theme')" @click="toggleTheme" />
     <AppSelect
       :model-value="locale"
       :options="localeOptions"

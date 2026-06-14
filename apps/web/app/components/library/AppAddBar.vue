@@ -3,7 +3,7 @@
   import { ref, computed } from 'vue';
 
   const emit = defineEmits<{ save: [url: string] }>();
-  const { t } = useI18n({ useScope: 'local' });
+  const { t } = useI18n();
   const url = ref('');
   const saving = ref(false);
   const looksValid = computed(() => /^https?:\/\/.+\..+/.test(url.value.trim()));
@@ -19,17 +19,10 @@
   }
 </script>
 
-<i18n lang="json">
-{
-  "en": { "placeholder": "https://example.com/article", "save": "Save" },
-  "ru": { "placeholder": "https://example.com/article", "save": "Сохранить" }
-}
-</i18n>
-
 <template>
   <form class="app-add-bar" @submit.prevent="onSave">
-    <AppInput v-model="url" type="url" :placeholder="t('placeholder')" />
-    <AppButton type="submit" :loading="saving" :disabled="!looksValid" :label="t('save')" />
+    <AppInput v-model="url" type="url" :placeholder="t('addBar.placeholder')" />
+    <AppButton type="submit" :loading="saving" :disabled="!looksValid" :label="t('addBar.save')" />
   </form>
 </template>
 

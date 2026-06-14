@@ -7,7 +7,7 @@
   import { toCardData } from '~/utils/to-card-data';
 
   definePageMeta({ middleware: 'auth' });
-  const { t } = useI18n({ useScope: 'local' });
+  const { t } = useI18n();
 
   const store = useItems();
   const tagStore = useTags();
@@ -34,19 +34,19 @@
   );
 
   const labels = computed(() => ({
-    unread: t('seg.unread'),
-    read: t('seg.read'),
-    archived: t('seg.archived'),
-    favorite: t('seg.favorite'),
-    allTags: t('allTags'),
-    search: t('search'),
+    unread: t('library.seg.unread'),
+    read: t('library.seg.read'),
+    archived: t('library.seg.archived'),
+    favorite: t('library.seg.favorite'),
+    allTags: t('library.allTags'),
+    search: t('library.search'),
   }));
 
   const cardLabels = computed(() => ({
-    status: t('status'),
-    favorite: t('act.favorite'),
-    archive: t('act.archive'),
-    delete: t('act.delete'),
+    status: t('library.status'),
+    favorite: t('library.act.favorite'),
+    archive: t('library.act.archive'),
+    delete: t('library.act.delete'),
   }));
 
   function setSegment(segment: 'unread' | 'read' | 'archived' | 'favorite'): void {
@@ -54,60 +54,15 @@
   }
 </script>
 
-<i18n lang="json">
-{
-  "en": {
-    "title": "Library",
-    "saveLink": "Save a link",
-    "empty": "Nothing here yet",
-    "emptyHint": "Paste a link to begin.",
-    "allTags": "All tags",
-    "search": "Search library",
-    "status": "Pending",
-    "seg": {
-      "unread": "Unread",
-      "read": "Read",
-      "archived": "Archived",
-      "favorite": "Favorite"
-    },
-    "act": {
-      "favorite": "Favorite",
-      "archive": "Archive",
-      "delete": "Delete"
-    }
-  },
-  "ru": {
-    "title": "Библиотека",
-    "saveLink": "Сохранить ссылку",
-    "empty": "Пока пусто",
-    "emptyHint": "Вставьте ссылку, чтобы начать.",
-    "allTags": "Все теги",
-    "search": "Поиск",
-    "status": "В обработке",
-    "seg": {
-      "unread": "Не прочитано",
-      "read": "Прочитано",
-      "archived": "В архиве",
-      "favorite": "Избранное"
-    },
-    "act": {
-      "favorite": "В избранное",
-      "archive": "В архив",
-      "delete": "Удалить"
-    }
-  }
-}
-</i18n>
-
 <template>
   <div class="page-library">
     <header class="page-library__head">
       <h1 class="page-library__title">
-        {{ t('title') }}
+        {{ t('library.title') }}
       </h1>
       <AppButton
         variant="ghost"
-        :label="t('saveLink')"
+        :label="t('library.saveLink')"
         icon="i-lucide-plus"
         @click="modalOpen = true"
       />
@@ -144,7 +99,12 @@
       />
     </div>
 
-    <AppEmptyState v-else icon="i-lucide-inbox" :title="t('empty')" :description="t('emptyHint')" />
+    <AppEmptyState
+      v-else
+      icon="i-lucide-inbox"
+      :title="t('library.empty')"
+      :description="t('library.emptyHint')"
+    />
 
     <AddLinkModal :open="modalOpen" @save="store.save($event)" @close="modalOpen = false" />
   </div>

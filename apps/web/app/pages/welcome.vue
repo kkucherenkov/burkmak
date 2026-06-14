@@ -2,12 +2,16 @@
   import { AppButton } from '@app/ui';
 
   definePageMeta({ middleware: 'guest' });
-  const { t } = useI18n({ useScope: 'local' });
+  const { t } = useI18n();
 
   const features = [
-    { key: 'save', titleKey: 'features.save.title', bodyKey: 'features.save.body' },
-    { key: 'reader', titleKey: 'features.reader.title', bodyKey: 'features.reader.body' },
-    { key: 'sync', titleKey: 'features.sync.title', bodyKey: 'features.sync.body' },
+    { key: 'save', titleKey: 'welcome.features.save.title', bodyKey: 'welcome.features.save.body' },
+    {
+      key: 'reader',
+      titleKey: 'welcome.features.reader.title',
+      bodyKey: 'welcome.features.reader.body',
+    },
+    { key: 'sync', titleKey: 'welcome.features.sync.title', bodyKey: 'welcome.features.sync.body' },
   ] as const;
 
   async function getStarted(): Promise<void> {
@@ -18,55 +22,6 @@
   }
 </script>
 
-<i18n lang="json">
-{
-  "en": {
-    "eyebrow": "Self-hosted read-it-later",
-    "title": "Your quiet reading room",
-    "lead": "Save links, read later, sync to Kobo, export to Obsidian.",
-    "getStarted": "Get started",
-    "signIn": "Sign in",
-    "brand": "burkmak",
-    "features": {
-      "save": {
-        "title": "Save anything",
-        "body": "Paste a link or share from any app. burkmak grabs the full article and keeps it — even if the original goes dark."
-      },
-      "reader": {
-        "title": "Clean reader view",
-        "body": "No ads, no clutter. Just Literata, generous margins, and the highlights you leave behind."
-      },
-      "sync": {
-        "title": "Sync to Kobo & export to Obsidian",
-        "body": "Send a piece to your e-reader for the evening, then push your notes straight into your vault."
-      }
-    }
-  },
-  "ru": {
-    "eyebrow": "Self-hosted «прочитать позже»",
-    "title": "Ваша тихая читальня",
-    "lead": "Сохраняйте ссылки, читайте позже, синхронизируйте с Kobo, экспортируйте в Obsidian.",
-    "getStarted": "Начать",
-    "signIn": "Войти",
-    "brand": "burkmak",
-    "features": {
-      "save": {
-        "title": "Сохраняйте всё",
-        "body": "Вставьте ссылку или поделитесь из любого приложения. burkmak сохранит полный текст статьи — даже если оригинал исчезнет."
-      },
-      "reader": {
-        "title": "Чистый режим чтения",
-        "body": "Без рекламы и лишнего. Только Literata, широкие поля и ваши выделения."
-      },
-      "sync": {
-        "title": "Синхронизация с Kobo и экспорт в Obsidian",
-        "body": "Отправьте статью на электронную книгу вечером, а заметки — прямо в ваше хранилище."
-      }
-    }
-  }
-}
-</i18n>
-
 <template>
   <div class="page-welcome">
     <header class="page-welcome__bar">
@@ -75,17 +30,17 @@
 
     <main class="page-welcome__hero">
       <p class="page-welcome__eyebrow">
-        {{ t('eyebrow') }}
+        {{ t('welcome.eyebrow') }}
       </p>
       <h1 class="page-welcome__title">
-        {{ t('title') }}
+        {{ t('welcome.title') }}
       </h1>
       <p class="page-welcome__lead">
-        {{ t('lead') }}
+        {{ t('welcome.lead') }}
       </p>
       <div class="page-welcome__actions">
-        <AppButton size="lg" :label="t('getStarted')" @click="getStarted" />
-        <AppButton variant="link" :label="t('signIn')" @click="signIn" />
+        <AppButton size="lg" :label="t('welcome.getStarted')" @click="getStarted" />
+        <AppButton variant="link" :label="t('welcome.signIn')" @click="signIn" />
       </div>
     </main>
 

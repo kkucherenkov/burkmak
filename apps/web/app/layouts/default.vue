@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { computed } from 'vue';
 
-  const { t } = useI18n({ useScope: 'local' });
+  const { t } = useI18n();
   const route = useRoute();
   const auth = useAuth();
   const session = auth.useSession();
@@ -17,29 +17,12 @@
   }
 </script>
 
-<i18n lang="json">
-{
-  "en": {
-    "appName": "burkmak",
-    "navHome": "Home",
-    "navLogin": "Login",
-    "navSignOut": "Sign out"
-  },
-  "ru": {
-    "appName": "burkmak",
-    "navHome": "Главная",
-    "navLogin": "Войти",
-    "navSignOut": "Выйти"
-  }
-}
-</i18n>
-
 <template>
   <div class="default-layout">
     <header class="default-layout__header">
-      <nav class="default-layout__nav" :aria-label="t('appName')">
+      <nav class="default-layout__nav" :aria-label="t('nav.appName')">
         <NuxtLink to="/" class="default-layout__brand">
-          {{ t('appName') }}
+          {{ t('nav.appName') }}
         </NuxtLink>
         <ul class="default-layout__nav-list">
           <li class="default-layout__nav-item">
@@ -48,7 +31,7 @@
               class="default-layout__nav-link"
               :class="{ 'default-layout__nav-link--active': route.path === '/' }"
             >
-              {{ t('navHome') }}
+              {{ t('nav.navHome') }}
             </NuxtLink>
           </li>
           <li v-if="!isAuthenticated" class="default-layout__nav-item">
@@ -57,12 +40,12 @@
               class="default-layout__nav-link"
               :class="{ 'default-layout__nav-link--active': route.path === '/sign-in' }"
             >
-              {{ t('navLogin') }}
+              {{ t('nav.navLogin') }}
             </NuxtLink>
           </li>
           <li v-if="isAuthenticated" class="default-layout__nav-item">
             <button type="button" class="default-layout__nav-link" @click="onSignOut">
-              {{ t('navSignOut') }}
+              {{ t('nav.navSignOut') }}
             </button>
           </li>
         </ul>
@@ -74,7 +57,7 @@
     </main>
 
     <footer class="default-layout__footer">
-      <span class="default-layout__footer-copy">&copy; 2026 {{ t('appName') }}</span>
+      <span class="default-layout__footer-copy">&copy; 2026 {{ t('nav.appName') }}</span>
     </footer>
   </div>
 </template>
