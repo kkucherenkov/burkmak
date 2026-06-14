@@ -12,11 +12,11 @@
 - Sub-steps (web):
   - [x] W1: auth-validation + password-strength utils (TDD)
   - [x] W2: extend useAuth with signUp.email
-  - [ ] W3: app-local AppBrand/AppFormError/AppStrength
-  - [ ] W4: welcome.vue
-  - [ ] W5: sign-in.vue (replace login.vue)
+  - [x] W3: app-local AppBrand/AppFormError/AppStrength
+  - [x] W4: welcome.vue
+  - [x] W5: sign-in.vue (replace login.vue)
   - [ ] W6: sign-up.vue
-  - [ ] W7: auth/guest middleware + index redirect
+  - [x] W7: auth/guest middleware + index redirect
   - [ ] W8: web verification
 - Sub-steps (mobile):
   - [ ] M1: email sign-in i18n keys
