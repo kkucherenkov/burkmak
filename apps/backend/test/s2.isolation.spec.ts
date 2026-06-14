@@ -3,8 +3,9 @@
  *
  * Mirrors the pattern from items.isolation.spec.ts:
  *  - temp SQLite DB via `prisma db push`
- *  - repos instantiated directly (no NestJS app boot — avoids the
- *    better-auth postgresql adapter requirement)
+ *  - repos instantiated directly (repo-layer focus — fast, and ownership
+ *    scoping needs no HTTP). Full-app boot over SQLite now works once Better
+ *    Auth's provider matches the datasource — see auth-sqlite-boot.spec.ts.
  *  - FTS DDL applied manually so article body indexing works
  *
  * What is under test:
