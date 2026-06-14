@@ -1,3 +1,26 @@
 # Active tasks
 
-_No tasks in progress. Start here when beginning new work._
+## T-2026-06-14-005 — S1-mobile (library / item_detail / add_link + live SSE)
+
+- Created: 2026-06-14
+- Owner: claude
+- Branch: `feat/s1-mobile`
+- Spec: [specs/features/2026-06-13-foundation-and-core.md](../features/2026-06-13-foundation-and-core.md) §B5
+- Plan: [specs/features/2026-06-13-s1-mobile.plan.md](../features/2026-06-13-s1-mobile.plan.md)
+- Goal: Flutter library experience — list (filters + `q`), add-link, item metadata detail; flutter_bloc cubits, Dio SSE (pending→ready live), generated `app_api_client`, slang i18n (en/ru/uk/el).
+- Depends on: S1-auth (merged) + generated Dart client. Codegen impact: re-run spec:codegen.
+- Sub-steps:
+  - [x] 1: codegen + fix app_api_client path + pub get
+  - [ ] 2: ItemsApi/TagsApi factories + DI
+  - [ ] 3: EventsClient (SSE byte-stream → AppEvent)
+  - [ ] 4: ItemsRepository
+  - [ ] 5: LibraryState + LibraryCubit (TDD)
+  - [ ] 6: LibraryScreen + item card + filter bar
+  - [ ] 7: DetailCubit + state (TDD)
+  - [ ] 8: ItemDetailScreen
+  - [ ] 9: AddLinkCubit + AddLinkScreen (TDD)
+  - [ ] 10: slang namespaces (library/item_detail/add_link × en/ru/uk/el)
+  - [ ] 11: routes + cubit DI + app wiring
+  - [ ] 12: verification
+- Status: in-progress
+- Blockers: —
