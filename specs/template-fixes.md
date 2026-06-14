@@ -68,6 +68,22 @@ The headline class is **A: generator ↔ consumer mismatches** — where a code/
 - **Fix:** global `.ts` langDir locales (`apps/web/i18n/locales/{en,ru}.ts`, `useI18n()` + namespaced keys); remove `<i18n>` blocks.
 - **Commit:** `5b48b2b`.
 
+### B5. `@app/ui` library `build` absent from every gate → latent SCSS errors ship
+
+- **Symptom:** a Dart-Sass compile error in a `@app/ui` component (here: a `&--<mod>` BEM suffix nested under a `:deep()` pseudo — invalid Sass) shipped green through the per-slice gate **and** CI; it only surfaced later when a _consumer_ build (web `nuxt build`) finally compiled the library.
+- **Root cause:** only `vite build` compiles component SCSS through Dart Sass — `vue-tsc`/vitest don't. But turbo's `build` task is `dependsOn: ["^build", …]` (builds a package's **dependencies**, never itself), so `pnpm --filter @app/ui {test,typecheck,lint}` never builds `@app/ui`. CI had **only** `audit:components` for `@app/ui` (no build/lint/typecheck/test). So a broken stylesheet is latent until a downstream consumer build pulls `@app/ui#build` via `^build`.
+- **Fix:** add the library `build` to the gates — a full `ui` CI job (`design:build` → lint/typecheck/test/**build**/audit) and `build` in the documented local gates (`turbo run build lint test typecheck`, the per-slice UI gate, the PR checklist).
+- **Commits:** `240c629` (T-013, the SCSS symptom fix) + `a0779a0` (T-015, the structural gate fix).
+- **Template relevance:** **high** — every project's component library has SCSS that compiles only at build time; the template's gate + CI omit the library build, so the same class of error ships latent everywhere.
+
+### B6. `@app/ui` exported types declared inside `.vue` SFCs → cross-package consumers can't import them
+
+- **Symptom:** importing a `@app/ui` exported type (e.g. `AppHighlightData`) from another package (the web app) makes typescript-eslint's `projectService` resolve it to an `error`/`any` type → hard **lint** errors, even though `vue-tsc` resolves it fine (passes typecheck, fails lint). Consumers resort to re-deriving the shape (S2-web derived it from the OpenAPI contract).
+- **Root cause:** the component scaffold declares exported types **inside** `.vue` SFCs (e.g. `AppHighlightColor`/`AppHighlightData` in `AppArticleReader.vue`, `AppItemCardData` in `AppItemCard.vue`, `AppFilterSegment`, `AppSelectOption`), and the barrel re-exports `from './X.vue'`. typescript-eslint's projectService can't resolve `.vue` type exports across a package boundary.
+- **Fix:** declare cross-package exported types in a plain `.ts` module; the SFC and the barrel import/re-export from the `.ts` (here: `AppArticleReader/highlight-types.ts`).
+- **Commit:** `325b9c9` (T-015).
+- **Template relevance:** **high** — the template's types-in-`.vue` convention bites any cross-package type consumer; the same fix applies to the other SFC-declared exported types if/when they're consumed outside `@app/ui`.
+
 ---
 
 ## C. Candidates (not yet fixed — flag for the template)

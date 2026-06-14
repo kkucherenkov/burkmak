@@ -21,7 +21,7 @@ _Last updated: 2026-06-14 (S2-web shipped — **P2/S2 complete**). Orientation f
 
 - The OpenAPI contract + generated `@app/api-client-{ts,dart}` clients for all S2 endpoints are committed — frontends consume them directly (no further codegen unless the contract changes).
 - **After pulling / on a fresh worktree:** run `pnpm design:build` (web tokens `tokens.generated.css`) and `dart run slang` in `apps/mobile` (generated `strings.g.dart`) before building — both are gitignored codegen. A merge that adds i18n/token sources will leave the app non-compiling until these run (caught S2-mobile post-merge).
-- **S2 follow-ups carried forward (non-blocking):** (a) `@app/ui` should re-export `AppHighlightColor`/`AppHighlightData`/`AppHighlightCardHighlight` from a `.ts` barrel, not only inside `.vue` SFCs — cross-package `.vue` type imports trip typescript-eslint's `projectService` (S2-web had to derive those shapes from the OpenAPI contract instead). (b) The `@app/ui` per-slice gate should include the library `vite build` — `test/typecheck/lint` never runs it (turbo `dependsOn: ["^build"]` builds deps, not self), so a Dart-Sass error shipped latent in S2-ui and only surfaced starting S2-web (T-013).
+- **S2 follow-ups — RESOLVED in T-2026-06-14-015** (`17265b1`): (a) `@app/ui` highlight types now live in `AppArticleReader/highlight-types.ts` (a `.ts`, not a `.vue` SFC) and the web page imports them from `@app/ui` directly — the OpenAPI-derived workaround is gone. (b) The `@app/ui` library `build` is now a gate — a full `ui` CI job + the documented local gates (`turbo run build …`, per-slice UI gate, PR checklist) include it. Both are logged as upstream-PR candidates in `specs/template-fixes.md` (B5, B6).
 
 ## How to continue (the proven workflow)
 
