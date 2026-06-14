@@ -77,6 +77,7 @@ export type Item = {
      */
     faviconUrl?: string | null;
     status: ItemStatus;
+    extractStatus: ExtractStatus;
     readState: ReadState;
     /**
      * Whether the item is marked as a favourite
@@ -161,6 +162,116 @@ export type RenameTagRequest = {
      * New display name for the tag
      */
     name: string;
+};
+
+/**
+ * Status of the article content extraction job for an item
+ */
+export type ExtractStatus = 'none' | 'extracting' | 'ready' | 'failed';
+
+/**
+ * Response body returned when an extraction job is accepted (202).
+ */
+export type ExtractAccepted = {
+    extractStatus: ExtractStatus;
+};
+
+export type Article = {
+    /**
+     * Full article body as HTML
+     */
+    contentHtml: string;
+    /**
+     * Full article body as plain text (HTML stripped)
+     */
+    contentText: string;
+    /**
+     * Number of words in the extracted article
+     */
+    wordCount: number;
+    /**
+     * Estimated reading time in minutes
+     */
+    readingTimeMin: number;
+    /**
+     * ISO-8601 timestamp when the extraction completed
+     */
+    extractedAt: string;
+};
+
+/**
+ * Color label for a text highlight
+ */
+export type HighlightColor = 'yellow' | 'green' | 'blue' | 'pink';
+
+export type Highlight = {
+    /**
+     * Unique highlight ID (cuid)
+     */
+    id: string;
+    /**
+     * ID of the item this highlight belongs to (cuid)
+     */
+    itemId: string;
+    /**
+     * The exact text that was highlighted
+     */
+    quote: string;
+    /**
+     * Short text immediately before the highlighted quote (for anchor context)
+     */
+    prefix: string;
+    /**
+     * Short text immediately after the highlighted quote (for anchor context)
+     */
+    suffix: string;
+    /**
+     * Optional reader note attached to the highlight
+     */
+    note?: string | null;
+    color: HighlightColor;
+    /**
+     * ISO-8601 timestamp when the highlight was created
+     */
+    createdAt: string;
+};
+
+export type HighlightList = {
+    highlights: Array<Highlight>;
+};
+
+export type CreateHighlightRequest = {
+    /**
+     * The exact text that was highlighted
+     */
+    quote: string;
+    /**
+     * Short text immediately before the quote (for anchor context)
+     */
+    prefix?: string;
+    /**
+     * Short text immediately after the quote (for anchor context)
+     */
+    suffix?: string;
+    /**
+     * Optional reader note to attach. To clear a note on an existing
+     * highlight, use `PATCH /highlights/{id}` with `note: null` —
+     * create only sets a note, it cannot null one.
+     *
+     */
+    note?: string;
+    color?: HighlightColor;
+};
+
+/**
+ * At least one of `note` or `color` must be provided.
+ */
+export type UpdateHighlightRequest = {
+    /**
+     * Updated reader note; set to null to clear
+     */
+    note?: string | null;
+    color?: HighlightColor;
 };
 
 export type GetHealthData = {
@@ -473,6 +584,264 @@ export type RemoveItemTagResponses = {
 };
 
 export type RemoveItemTagResponse = RemoveItemTagResponses[keyof RemoveItemTagResponses];
+
+export type GetArticleData = {
+    body?: never;
+    path: {
+        /**
+         * Item ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/items/{id}/article';
+};
+
+export type GetArticleErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Article not yet extracted or item not found
+     */
+    404: Problem;
+};
+
+export type GetArticleError = GetArticleErrors[keyof GetArticleErrors];
+
+export type GetArticleResponses = {
+    /**
+     * Extracted article content
+     */
+    200: Article;
+};
+
+export type GetArticleResponse = GetArticleResponses[keyof GetArticleResponses];
+
+export type ExtractArticleData = {
+    body?: never;
+    path: {
+        /**
+         * Item ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/items/{id}/extract';
+};
+
+export type ExtractArticleErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Item not found
+     */
+    404: Problem;
+};
+
+export type ExtractArticleError = ExtractArticleErrors[keyof ExtractArticleErrors];
+
+export type ExtractArticleResponses = {
+    /**
+     * Extraction job accepted; extractStatus is now `extracting`
+     */
+    202: ExtractAccepted;
+};
+
+export type ExtractArticleResponse = ExtractArticleResponses[keyof ExtractArticleResponses];
+
+export type ListHighlightsData = {
+    body?: never;
+    path: {
+        /**
+         * Item ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/items/{id}/highlights';
+};
+
+export type ListHighlightsErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Item not found
+     */
+    404: Problem;
+};
+
+export type ListHighlightsError = ListHighlightsErrors[keyof ListHighlightsErrors];
+
+export type ListHighlightsResponses = {
+    /**
+     * List of highlights
+     */
+    200: HighlightList;
+};
+
+export type ListHighlightsResponse = ListHighlightsResponses[keyof ListHighlightsResponses];
+
+export type CreateHighlightData = {
+    body: CreateHighlightRequest;
+    path: {
+        /**
+         * Item ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/items/{id}/highlights';
+};
+
+export type CreateHighlightErrors = {
+    /**
+     * Request body invalid
+     */
+    400: Problem;
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Item not found
+     */
+    404: Problem;
+};
+
+export type CreateHighlightError = CreateHighlightErrors[keyof CreateHighlightErrors];
+
+export type CreateHighlightResponses = {
+    /**
+     * Highlight created
+     */
+    201: Highlight;
+};
+
+export type CreateHighlightResponse = CreateHighlightResponses[keyof CreateHighlightResponses];
+
+export type GetItemImageData = {
+    body?: never;
+    path: {
+        /**
+         * Item ID (cuid)
+         */
+        id: string;
+        /**
+         * Opaque image key assigned by the extraction job. Clients MUST NOT
+         * construct this value: the extraction job rewrites `<img src>` URLs
+         * inside `Article.contentHtml` to `/api/v1/items/{id}/image/{key}`
+         * paths, so clients only ever follow keys that already appear in the
+         * article HTML.
+         *
+         */
+        key: string;
+    };
+    query?: never;
+    url: '/api/v1/items/{id}/image/{key}';
+};
+
+export type GetItemImageErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Image not found or not owned by the authenticated user
+     */
+    404: Problem;
+};
+
+export type GetItemImageError = GetItemImageErrors[keyof GetItemImageErrors];
+
+export type GetItemImageResponses = {
+    /**
+     * Raw cached image bytes. The `Content-Type` header reflects the
+     * original media type of the image. No example is representable for
+     * binary content; follow the URL directly in a browser or image view.
+     *
+     */
+    200: Blob | File;
+};
+
+export type GetItemImageResponse = GetItemImageResponses[keyof GetItemImageResponses];
+
+export type DeleteHighlightData = {
+    body?: never;
+    path: {
+        /**
+         * Highlight ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/highlights/{id}';
+};
+
+export type DeleteHighlightErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Highlight not found
+     */
+    404: Problem;
+};
+
+export type DeleteHighlightError = DeleteHighlightErrors[keyof DeleteHighlightErrors];
+
+export type DeleteHighlightResponses = {
+    /**
+     * Highlight deleted successfully
+     */
+    204: void;
+};
+
+export type DeleteHighlightResponse = DeleteHighlightResponses[keyof DeleteHighlightResponses];
+
+export type UpdateHighlightData = {
+    body: UpdateHighlightRequest;
+    path: {
+        /**
+         * Highlight ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/highlights/{id}';
+};
+
+export type UpdateHighlightErrors = {
+    /**
+     * Request body invalid
+     */
+    400: Problem;
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Highlight not found
+     */
+    404: Problem;
+};
+
+export type UpdateHighlightError = UpdateHighlightErrors[keyof UpdateHighlightErrors];
+
+export type UpdateHighlightResponses = {
+    /**
+     * Updated highlight
+     */
+    200: Highlight;
+};
+
+export type UpdateHighlightResponse = UpdateHighlightResponses[keyof UpdateHighlightResponses];
 
 export type ListTagsData = {
     body?: never;

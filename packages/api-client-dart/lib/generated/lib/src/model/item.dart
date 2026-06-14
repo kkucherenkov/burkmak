@@ -6,6 +6,7 @@
 import 'package:app_api_client/src/model/item_status.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:app_api_client/src/model/read_state.dart';
+import 'package:app_api_client/src/model/extract_status.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -23,6 +24,7 @@ part 'item.g.dart';
 /// * [leadImageUrl] - Hero/lead image URL
 /// * [faviconUrl] - Site favicon URL
 /// * [status] 
+/// * [extractStatus] 
 /// * [readState] 
 /// * [favorite] - Whether the item is marked as a favourite
 /// * [savedAt] - ISO-8601 timestamp when the item was saved
@@ -65,6 +67,10 @@ abstract class Item implements Built<Item, ItemBuilder> {
   @BuiltValueField(wireName: r'status')
   ItemStatus get status;
   // enum statusEnum {  pending,  ready,  failed,  };
+
+  @BuiltValueField(wireName: r'extractStatus')
+  ExtractStatus get extractStatus;
+  // enum extractStatusEnum {  none,  extracting,  ready,  failed,  };
 
   @BuiltValueField(wireName: r'readState')
   ReadState get readState;
@@ -165,6 +171,11 @@ class _$ItemSerializer implements PrimitiveSerializer<Item> {
     yield serializers.serialize(
       object.status,
       specifiedType: const FullType(ItemStatus),
+    );
+    yield r'extractStatus';
+    yield serializers.serialize(
+      object.extractStatus,
+      specifiedType: const FullType(ExtractStatus),
     );
     yield r'readState';
     yield serializers.serialize(
@@ -284,6 +295,13 @@ class _$ItemSerializer implements PrimitiveSerializer<Item> {
             specifiedType: const FullType(ItemStatus),
           ) as ItemStatus;
           result.status = valueDes;
+          break;
+        case r'extractStatus':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(ExtractStatus),
+          ) as ExtractStatus;
+          result.extractStatus = valueDes;
           break;
         case r'readState':
           final valueDes = serializers.deserialize(

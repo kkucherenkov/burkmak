@@ -150,6 +150,141 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/items/{id}/article": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * Get extracted article content for an item
+         * @description Returns the full extracted article body (HTML and plain text) for the given item. Returns 404 if the article has not been extracted yet.
+         */
+        get: operations["getArticle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/items/{id}/extract": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Trigger article content extraction for an item
+         * @description Idempotent: always returns 202 and (re)starts extraction, replacing any
+         *     existing article. No request body. Safe to call in any `extractStatus`
+         *     state (`none`, `failed`, or `ready`). The item's `extractStatus`
+         *     transitions to `extracting` immediately and becomes `ready` or `failed`
+         *     asynchronously.
+         */
+        post: operations["extractArticle"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/items/{id}/highlights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * List all highlights on an item
+         * @description Returns all highlights the authenticated user has created on the given item.
+         */
+        get: operations["listHighlights"];
+        put?: never;
+        /**
+         * Create a highlight on an item
+         * @description Saves a new text highlight (with optional note and color) on the given item.
+         */
+        post: operations["createHighlight"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/items/{id}/image/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID (cuid) */
+                id: string;
+                /**
+                 * @description Opaque image key assigned by the extraction job. Clients MUST NOT
+                 *     construct this value: the extraction job rewrites `<img src>` URLs
+                 *     inside `Article.contentHtml` to `/api/v1/items/{id}/image/{key}`
+                 *     paths, so clients only ever follow keys that already appear in the
+                 *     article HTML.
+                 */
+                key: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * Retrieve a cached image associated with an item
+         * @description Streams a cached image file that was downloaded during article extraction. Returns 404 if the image key does not exist or is not owned by the authenticated user.
+         */
+        get: operations["getItemImage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/highlights/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Highlight ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a highlight
+         * @description Permanently removes the highlight. This operation cannot be undone.
+         */
+        delete: operations["deleteHighlight"];
+        options?: never;
+        head?: never;
+        /**
+         * Update a highlight's note or color
+         * @description Partially updates a highlight. At least one of `note` or `color` must be provided.
+         */
+        patch: operations["updateHighlight"];
+        trace?: never;
+    };
     "/api/v1/tags": {
         parameters: {
             query?: never;
@@ -267,6 +402,7 @@ export interface components {
              */
             faviconUrl?: string | null;
             status: components["schemas"]["ItemStatus"];
+            extractStatus: components["schemas"]["ExtractStatus"];
             readState: components["schemas"]["ReadState"];
             /** @description Whether the item is marked as a favourite */
             favorite: boolean;
@@ -323,6 +459,84 @@ export interface components {
         RenameTagRequest: {
             /** @description New display name for the tag */
             name: string;
+        };
+        /**
+         * @description Status of the article content extraction job for an item
+         * @enum {string}
+         */
+        ExtractStatus: "none" | "extracting" | "ready" | "failed";
+        /**
+         * @description Response body returned when an extraction job is accepted (202).
+         * @example {
+         *       "extractStatus": "extracting"
+         *     }
+         */
+        ExtractAccepted: {
+            extractStatus: components["schemas"]["ExtractStatus"];
+        };
+        Article: {
+            /** @description Full article body as HTML */
+            contentHtml: string;
+            /** @description Full article body as plain text (HTML stripped) */
+            contentText: string;
+            /** @description Number of words in the extracted article */
+            wordCount: number;
+            /** @description Estimated reading time in minutes */
+            readingTimeMin: number;
+            /**
+             * Format: date-time
+             * @description ISO-8601 timestamp when the extraction completed
+             */
+            extractedAt: string;
+        };
+        /**
+         * @description Color label for a text highlight
+         * @enum {string}
+         */
+        HighlightColor: "yellow" | "green" | "blue" | "pink";
+        Highlight: {
+            /** @description Unique highlight ID (cuid) */
+            id: string;
+            /** @description ID of the item this highlight belongs to (cuid) */
+            itemId: string;
+            /** @description The exact text that was highlighted */
+            quote: string;
+            /** @description Short text immediately before the highlighted quote (for anchor context) */
+            prefix: string;
+            /** @description Short text immediately after the highlighted quote (for anchor context) */
+            suffix: string;
+            /** @description Optional reader note attached to the highlight */
+            note?: string | null;
+            color: components["schemas"]["HighlightColor"];
+            /**
+             * Format: date-time
+             * @description ISO-8601 timestamp when the highlight was created
+             */
+            createdAt: string;
+        };
+        HighlightList: {
+            highlights: components["schemas"]["Highlight"][];
+        };
+        CreateHighlightRequest: {
+            /** @description The exact text that was highlighted */
+            quote: string;
+            /** @description Short text immediately before the quote (for anchor context) */
+            prefix?: string;
+            /** @description Short text immediately after the quote (for anchor context) */
+            suffix?: string;
+            /**
+             * @description Optional reader note to attach. To clear a note on an existing
+             *     highlight, use `PATCH /highlights/{id}` with `note: null` —
+             *     create only sets a note, it cannot null one.
+             */
+            note?: string;
+            color?: components["schemas"]["HighlightColor"];
+        };
+        /** @description At least one of `note` or `color` must be provided. */
+        UpdateHighlightRequest: {
+            /** @description Updated reader note; set to null to clear */
+            note?: string | null;
+            color?: components["schemas"]["HighlightColor"];
         };
     };
     responses: never;
@@ -694,6 +908,332 @@ export interface operations {
                 };
             };
             /** @description Item not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getArticle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Extracted article content */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Article"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Article not yet extracted or item not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    extractArticle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Extraction job accepted; extractStatus is now `extracting` */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExtractAccepted"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Item not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listHighlights: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of highlights */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HighlightList"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Item not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    createHighlight: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateHighlightRequest"];
+            };
+        };
+        responses: {
+            /** @description Highlight created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Highlight"];
+                };
+            };
+            /** @description Request body invalid */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Item not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getItemImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID (cuid) */
+                id: string;
+                /**
+                 * @description Opaque image key assigned by the extraction job. Clients MUST NOT
+                 *     construct this value: the extraction job rewrites `<img src>` URLs
+                 *     inside `Article.contentHtml` to `/api/v1/items/{id}/image/{key}`
+                 *     paths, so clients only ever follow keys that already appear in the
+                 *     article HTML.
+                 */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description Raw cached image bytes. The `Content-Type` header reflects the
+             *     original media type of the image. No example is representable for
+             *     binary content; follow the URL directly in a browser or image view.
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": string;
+                    "image/png": string;
+                    "image/webp": string;
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Image not found or not owned by the authenticated user */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    deleteHighlight: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Highlight ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Highlight deleted successfully */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Highlight not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    updateHighlight: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Highlight ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateHighlightRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated highlight */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Highlight"];
+                };
+            };
+            /** @description Request body invalid */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Highlight not found */
             404: {
                 headers: {
                     [name: string]: unknown;

@@ -26,6 +26,8 @@ class _$Item extends Item {
   @override
   final ItemStatus status;
   @override
+  final ExtractStatus extractStatus;
+  @override
   final ReadState readState;
   @override
   final bool favorite;
@@ -49,6 +51,7 @@ class _$Item extends Item {
       this.leadImageUrl,
       this.faviconUrl,
       required this.status,
+      required this.extractStatus,
       required this.readState,
       required this.favorite,
       required this.savedAt,
@@ -75,6 +78,7 @@ class _$Item extends Item {
         leadImageUrl == other.leadImageUrl &&
         faviconUrl == other.faviconUrl &&
         status == other.status &&
+        extractStatus == other.extractStatus &&
         readState == other.readState &&
         favorite == other.favorite &&
         savedAt == other.savedAt &&
@@ -94,6 +98,7 @@ class _$Item extends Item {
     _$hash = $jc(_$hash, leadImageUrl.hashCode);
     _$hash = $jc(_$hash, faviconUrl.hashCode);
     _$hash = $jc(_$hash, status.hashCode);
+    _$hash = $jc(_$hash, extractStatus.hashCode);
     _$hash = $jc(_$hash, readState.hashCode);
     _$hash = $jc(_$hash, favorite.hashCode);
     _$hash = $jc(_$hash, savedAt.hashCode);
@@ -115,6 +120,7 @@ class _$Item extends Item {
           ..add('leadImageUrl', leadImageUrl)
           ..add('faviconUrl', faviconUrl)
           ..add('status', status)
+          ..add('extractStatus', extractStatus)
           ..add('readState', readState)
           ..add('favorite', favorite)
           ..add('savedAt', savedAt)
@@ -163,6 +169,11 @@ class ItemBuilder implements Builder<Item, ItemBuilder> {
   ItemStatus? get status => _$this._status;
   set status(ItemStatus? status) => _$this._status = status;
 
+  ExtractStatus? _extractStatus;
+  ExtractStatus? get extractStatus => _$this._extractStatus;
+  set extractStatus(ExtractStatus? extractStatus) =>
+      _$this._extractStatus = extractStatus;
+
   ReadState? _readState;
   ReadState? get readState => _$this._readState;
   set readState(ReadState? readState) => _$this._readState = readState;
@@ -199,6 +210,7 @@ class ItemBuilder implements Builder<Item, ItemBuilder> {
       _leadImageUrl = $v.leadImageUrl;
       _faviconUrl = $v.faviconUrl;
       _status = $v.status;
+      _extractStatus = $v.extractStatus;
       _readState = $v.readState;
       _favorite = $v.favorite;
       _savedAt = $v.savedAt;
@@ -237,6 +249,8 @@ class ItemBuilder implements Builder<Item, ItemBuilder> {
             faviconUrl: faviconUrl,
             status: BuiltValueNullFieldError.checkNotNull(
                 status, r'Item', 'status'),
+            extractStatus: BuiltValueNullFieldError.checkNotNull(
+                extractStatus, r'Item', 'extractStatus'),
             readState: BuiltValueNullFieldError.checkNotNull(
                 readState, r'Item', 'readState'),
             favorite: BuiltValueNullFieldError.checkNotNull(

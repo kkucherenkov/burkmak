@@ -15,9 +15,16 @@ import 'package:app_api_client/src/date_serializer.dart';
 import 'package:app_api_client/src/model/date.dart';
 
 import 'package:app_api_client/src/model/add_tag_request.dart';
+import 'package:app_api_client/src/model/article.dart';
+import 'package:app_api_client/src/model/create_highlight_request.dart';
 import 'package:app_api_client/src/model/dependency_status.dart';
+import 'package:app_api_client/src/model/extract_accepted.dart';
+import 'package:app_api_client/src/model/extract_status.dart';
 import 'package:app_api_client/src/model/health_status.dart';
 import 'package:app_api_client/src/model/health_status_dependencies.dart';
+import 'package:app_api_client/src/model/highlight.dart';
+import 'package:app_api_client/src/model/highlight_color.dart';
+import 'package:app_api_client/src/model/highlight_list.dart';
 import 'package:app_api_client/src/model/item.dart';
 import 'package:app_api_client/src/model/item_list.dart';
 import 'package:app_api_client/src/model/item_status.dart';
@@ -27,15 +34,23 @@ import 'package:app_api_client/src/model/rename_tag_request.dart';
 import 'package:app_api_client/src/model/save_item_request.dart';
 import 'package:app_api_client/src/model/tag.dart';
 import 'package:app_api_client/src/model/tag_list.dart';
+import 'package:app_api_client/src/model/update_highlight_request.dart';
 import 'package:app_api_client/src/model/update_item_request.dart';
 
 part 'serializers.g.dart';
 
 @SerializersFor([
   AddTagRequest,
+  Article,
+  CreateHighlightRequest,
   DependencyStatus,
+  ExtractAccepted,
+  ExtractStatus,
   HealthStatus,
   HealthStatusDependencies,
+  Highlight,
+  HighlightColor,
+  HighlightList,
   Item,
   ItemList,
   ItemStatus,
@@ -45,6 +60,7 @@ part 'serializers.g.dart';
   SaveItemRequest,
   Tag,
   TagList,
+  UpdateHighlightRequest,
   UpdateItemRequest,
 ])
 Serializers serializers = (_$serializers.toBuilder()
