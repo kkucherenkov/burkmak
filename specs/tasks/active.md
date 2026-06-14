@@ -11,7 +11,7 @@
 - Depends on: S1-auth (merged) + generated Dart client. Codegen impact: re-run spec:codegen.
 - Sub-steps:
   - [x] 1: codegen + fix app_api_client path + pub get
-  - [ ] 2: ItemsApi/TagsApi factories + DI
+  - [x] 2: ItemsApi/TagsApi factories + DI
   - [ ] 3: EventsClient (SSE byte-stream → AppEvent)
   - [ ] 4: ItemsRepository
   - [ ] 5: LibraryState + LibraryCubit (TDD)
