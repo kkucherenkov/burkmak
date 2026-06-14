@@ -86,6 +86,14 @@ export class AppConfig {
     return { configured, accountSid, authToken, fromNumber };
   }
 
+  /**
+   * Base directory for local data storage (images, etc.).
+   * Defaults to `./data` relative to the process cwd.
+   */
+  get dataDir(): string {
+    return this.stringOrDefault('DATA_DIR', './data');
+  }
+
   get jobs(): { pollIntervalMs: number; backoffBaseMs: number } {
     return {
       pollIntervalMs: this.numberOrDefault('JOBS_POLL_INTERVAL_MS', 1000),
