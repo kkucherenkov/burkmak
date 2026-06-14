@@ -2,6 +2,15 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-14-001 — migrate web i18n to global .ts langDir locale files
+
+- Created: 2026-06-14
+- Completed: 2026-06-14
+- Owner: claude
+- Result: commit `5b48b2b` on branch `feat/s1-toolchain`
+- nuxt build: Σ Total size: 2.64 MB (✓). 17/17 tests pass. lint + typecheck green.
+- Docs updated: `.claude/docs/i18n.md`, `.claude/agents/frontend-engineer.md`.
+
 ## T-2026-06-14-005 — S1-mobile (library / item_detail / add_link + live SSE)
 
 - Created: 2026-06-14
