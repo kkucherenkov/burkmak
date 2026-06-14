@@ -595,8 +595,8 @@
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-sm);
     transition:
-      border-color var(--dur-base) var(--ease-standard),
-      box-shadow var(--dur-base) var(--ease-standard);
+      border-color var(--dur-base) var(--ease-default),
+      box-shadow var(--dur-base) var(--ease-default);
 
     &:focus-within {
       border-color: var(--border-strong);
@@ -672,8 +672,8 @@
     border-radius: var(--radius-lg);
     padding: var(--space-3) var(--space-4);
     transition:
-      border-color var(--dur-base) var(--ease-standard),
-      box-shadow var(--dur-base) var(--ease-standard);
+      border-color var(--dur-base) var(--ease-default),
+      box-shadow var(--dur-base) var(--ease-default);
 
     &::placeholder {
       color: var(--text-tertiary);
@@ -720,8 +720,8 @@
     padding: var(--space-3) var(--space-5);
     cursor: pointer;
     transition:
-      background var(--dur-base) var(--ease-standard),
-      transform var(--dur-fast) var(--ease-standard);
+      background var(--dur-base) var(--ease-default),
+      transform var(--dur-fast) var(--ease-default);
 
     &:hover:not(:disabled) {
       background: var(--brand-accent-hover);
@@ -796,8 +796,8 @@
     border: 1px solid var(--border-default);
     border-radius: var(--radius-xl);
     transition:
-      border-color var(--dur-base) var(--ease-standard),
-      box-shadow var(--dur-base) var(--ease-standard);
+      border-color var(--dur-base) var(--ease-default),
+      box-shadow var(--dur-base) var(--ease-default);
 
     &:hover {
       border-color: var(--border-strong);
@@ -807,7 +807,7 @@
     /* freshly-saved card gets the one calm load flourish + an accent edge */
     &--fresh {
       border-color: color-mix(in oklab, var(--brand-accent) 45%, var(--border-default));
-      animation: app-rise var(--dur-slow) var(--ease-decelerate) both;
+      animation: app-rise var(--dur-slow) var(--ease-out) both;
     }
 
     &__favicon {
@@ -940,7 +940,7 @@
 
     &--pending &__dot,
     &--extracting &__dot {
-      animation: app-pulse 1.3s var(--ease-standard) infinite;
+      animation: app-pulse 1.3s var(--ease-default) infinite;
     }
   }
 
@@ -982,8 +982,8 @@
     border-radius: var(--radius-md);
     cursor: pointer;
     transition:
-      color var(--dur-fast) var(--ease-standard),
-      background var(--dur-fast) var(--ease-standard);
+      color var(--dur-fast) var(--ease-default),
+      background var(--dur-fast) var(--ease-default);
 
     &:hover {
       color: var(--text-fg);
@@ -1089,13 +1089,13 @@
   /* modal enter/leave (Vue <Transition name="app-modal">) */
   .app-modal-enter-active,
   .app-modal-leave-active {
-    transition: opacity var(--dur-base) var(--ease-standard);
+    transition: opacity var(--dur-base) var(--ease-default);
   }
   .app-modal-enter-active .app-modal__sheet,
   .app-modal-leave-active .app-modal__sheet {
     transition:
-      transform var(--dur-slow) var(--ease-decelerate),
-      opacity var(--dur-base) var(--ease-standard);
+      transform var(--dur-slow) var(--ease-out),
+      opacity var(--dur-base) var(--ease-default);
   }
   .app-modal-enter-from,
   .app-modal-leave-to {
@@ -1109,7 +1109,7 @@
 
   /* one calm fade-up of the bar on load (DESIGN.md flourish) */
   .app-add-bar {
-    animation: app-rise var(--dur-slow) var(--ease-decelerate) both;
+    animation: app-rise var(--dur-slow) var(--ease-out) both;
   }
 
   @keyframes app-spin {
@@ -1164,7 +1164,7 @@
     }
     .app-modal-enter-active .app-modal__sheet,
     .app-modal-leave-active .app-modal__sheet {
-      transition: opacity var(--dur-base) var(--ease-standard);
+      transition: opacity var(--dur-base) var(--ease-default);
     }
     .app-modal-enter-from .app-modal__sheet,
     .app-modal-leave-to .app-modal__sheet {

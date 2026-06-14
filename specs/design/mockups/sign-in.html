@@ -170,7 +170,7 @@
       width: 100%; font: inherit; font-size: var(--text-md); color: var(--text-fg);
       background: var(--surface-raised); border: 1px solid var(--border-default);
       border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4);
-      transition: border-color var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard);
+      transition: border-color var(--dur-base) var(--ease-default), box-shadow var(--dur-base) var(--ease-default);
     }
     .app-input::placeholder { color: var(--text-tertiary); }
     .app-input--affix { padding-inline-end: var(--space-10); }
@@ -190,7 +190,7 @@
       position: absolute; inset-inline-end: var(--space-2); display: grid; place-items: center;
       padding: var(--space-1); color: var(--text-tertiary); background: transparent;
       border: 1px solid transparent; border-radius: var(--radius-sm); cursor: pointer;
-      transition: color var(--dur-fast) var(--ease-standard);
+      transition: color var(--dur-fast) var(--ease-default);
     }
     .app-input-affix:hover { color: var(--text-secondary); }
     .app-input-affix:focus-visible {
@@ -206,7 +206,7 @@
       font-size: var(--text-md); color: var(--brand-accent-fg); background: var(--brand-accent);
       border: 1px solid transparent; border-radius: var(--radius-lg);
       padding: var(--space-3) var(--space-5); cursor: pointer;
-      transition: background var(--dur-base) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
+      transition: background var(--dur-base) var(--ease-default), transform var(--dur-fast) var(--ease-default);
     }
     .app-button:hover:not(:disabled) { background: var(--brand-accent-hover); }
     .app-button:active:not(:disabled) { background: var(--brand-accent-active); transform: translateY(1px); }

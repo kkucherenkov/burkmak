@@ -148,13 +148,13 @@
       }
 
       &[aria-invalid='true'] {
-        border-color: var(--status-danger);
+        border-color: var(--status-error-fg);
       }
 
       &:disabled {
-        color: var(--text-fg-disabled);
+        color: var(--text-disabled);
         cursor: not-allowed;
-        background: var(--surface-bg-subtle);
+        background: var(--surface-surface);
       }
     }
 
@@ -165,7 +165,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: var(--text-fg-muted);
+      color: var(--text-secondary);
       pointer-events: none;
       transform: translateY(-50%);
     }

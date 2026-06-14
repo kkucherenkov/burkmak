@@ -164,8 +164,8 @@
       border-radius: var(--radius-lg);
       padding: var(--space-3) var(--space-4);
       transition:
-        border-color var(--dur-base) var(--ease-standard),
-        box-shadow var(--dur-base) var(--ease-standard);
+        border-color var(--dur-base) var(--ease-default),
+        box-shadow var(--dur-base) var(--ease-default);
     }
     .app-input::placeholder { color: var(--text-tertiary); }
     .app-input--affix { padding-inline-end: var(--space-10); }
@@ -197,7 +197,7 @@
       border: thin solid transparent;
       border-radius: var(--radius-sm);
       cursor: pointer;
-      transition: color var(--dur-fast) var(--ease-standard);
+      transition: color var(--dur-fast) var(--ease-default);
     }
     .app-input-affix:hover { color: var(--text-secondary); }
     .app-input-affix:disabled { cursor: not-allowed; opacity: 0.5; }
@@ -209,7 +209,7 @@
       height: var(--space-1);
       border-radius: var(--radius-pill);
       background: var(--border-default);
-      transition: background var(--dur-base) var(--ease-standard);
+      transition: background var(--dur-base) var(--ease-default);
     }
     .app-strength__seg.is-on { background: var(--text-tertiary); }
     .app-strength__label {
@@ -260,8 +260,8 @@
       padding: var(--space-3) var(--space-5);
       cursor: pointer;
       transition:
-        background var(--dur-base) var(--ease-standard),
-        transform var(--dur-fast) var(--ease-standard);
+        background var(--dur-base) var(--ease-default),
+        transform var(--dur-fast) var(--ease-default);
     }
     .app-button:hover:not(:disabled),
     .app-button.is-hover { background: var(--brand-accent-hover); }

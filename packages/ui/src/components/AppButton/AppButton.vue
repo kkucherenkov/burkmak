@@ -183,7 +183,7 @@
     &--solid {
       &.app-button--primary {
         background-color: var(--brand-accent);
-        color: var(--text-fg-inverse);
+        color: var(--text-inverse);
 
         &:hover:not(.app-button--disabled) {
           background-color: var(--brand-accent-hover);
@@ -196,26 +196,26 @@
 
       &.app-button--neutral {
         background-color: var(--text-fg);
-        color: var(--text-fg-inverse);
+        color: var(--text-inverse);
 
         &:hover:not(.app-button--disabled) {
-          background-color: var(--text-fg-muted);
+          background-color: var(--text-secondary);
         }
       }
 
       &.app-button--success {
-        background-color: var(--status-success);
-        color: var(--text-fg-inverse);
+        background-color: var(--status-success-fg);
+        color: var(--text-inverse);
       }
 
       &.app-button--warning {
-        background-color: var(--status-warning);
-        color: var(--text-fg-inverse);
+        background-color: var(--status-warning-fg);
+        color: var(--text-inverse);
       }
 
       &.app-button--error {
-        background-color: var(--status-danger);
-        color: var(--text-fg-inverse);
+        background-color: var(--status-error-fg);
+        color: var(--text-inverse);
       }
     }
 
@@ -227,7 +227,7 @@
         color: var(--brand-accent);
 
         &:hover:not(.app-button--disabled) {
-          background-color: var(--brand-accent-soft);
+          background-color: var(--brand-accent-subtle);
         }
       }
 
@@ -236,23 +236,23 @@
         color: var(--text-fg);
 
         &:hover:not(.app-button--disabled) {
-          background-color: var(--surface-surface-alt);
+          background-color: var(--surface-raised);
         }
       }
 
       &.app-button--success {
-        border-color: var(--status-success);
-        color: var(--status-success);
+        border-color: var(--status-success-fg);
+        color: var(--status-success-fg);
       }
 
       &.app-button--warning {
-        border-color: var(--status-warning);
-        color: var(--status-warning);
+        border-color: var(--status-warning-fg);
+        color: var(--status-warning-fg);
       }
 
       &.app-button--error {
-        border-color: var(--status-danger);
-        color: var(--status-danger);
+        border-color: var(--status-error-fg);
+        color: var(--status-error-fg);
       }
     }
 
@@ -264,7 +264,7 @@
         color: var(--brand-accent);
 
         &:hover:not(.app-button--disabled) {
-          background-color: var(--brand-accent-soft);
+          background-color: var(--brand-accent-subtle);
         }
       }
 
@@ -272,20 +272,20 @@
         color: var(--text-fg);
 
         &:hover:not(.app-button--disabled) {
-          background-color: var(--surface-surface-alt);
+          background-color: var(--surface-raised);
         }
       }
 
       &.app-button--success {
-        color: var(--status-success);
+        color: var(--status-success-fg);
       }
 
       &.app-button--warning {
-        color: var(--status-warning);
+        color: var(--status-warning-fg);
       }
 
       &.app-button--error {
-        color: var(--status-danger);
+        color: var(--status-error-fg);
       }
     }
 

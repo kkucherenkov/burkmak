@@ -86,7 +86,7 @@
       box-shadow var(--dur-fast) var(--ease-default);
 
     &::placeholder {
-      color: var(--text-fg-subtle);
+      color: var(--text-tertiary);
     }
 
     &:focus-visible {
@@ -97,17 +97,17 @@
 
     &:disabled,
     &--disabled {
-      background: var(--surface-bg-muted);
-      color: var(--text-fg-disabled);
+      background: var(--surface-surface);
+      color: var(--text-disabled);
       cursor: not-allowed;
 
       &::placeholder {
-        color: var(--text-fg-disabled);
+        color: var(--text-disabled);
       }
     }
 
     &--readonly {
-      background: var(--surface-bg-subtle);
+      background: var(--surface-surface);
       cursor: default;
     }
 

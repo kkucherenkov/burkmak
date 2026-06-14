@@ -75,11 +75,11 @@
     }
 
     &__help {
-      color: var(--text-fg-muted);
+      color: var(--text-secondary);
     }
 
     &__error {
-      color: var(--status-danger);
+      color: var(--status-error-fg);
       font-weight: var(--fw-medium);
     }
   }
