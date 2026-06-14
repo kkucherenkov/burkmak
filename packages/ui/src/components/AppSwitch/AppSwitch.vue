@@ -231,7 +231,7 @@
 
     &--checked.app-switch--color-success .app-switch__track,
     .app-switch--checked.app-switch--color-success .app-switch__track {
-      background: var(--status-success);
+      background: var(--status-success-fg);
     }
 
     &--checked.app-switch--color-neutral .app-switch__track,

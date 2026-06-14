@@ -148,17 +148,20 @@
 </template>
 
 <style lang="scss" scoped>
+  // WHY: auth card width with no spacing-scale token equivalent.
+  $card-max-width: 400px;
+
   .page-login {
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 100dvh;
     padding: var(--space-8);
-    background: var(--surface-bg);
+    background: var(--surface-page);
 
     &__card {
       width: 100%;
-      max-width: 400px;
+      max-width: $card-max-width;
       background: var(--surface-surface);
       border: 1px solid var(--border-default);
       border-radius: var(--radius-xl);
@@ -181,15 +184,15 @@
     &__subtitle {
       margin: 0;
       font-size: var(--text-sm);
-      color: var(--text-fg-muted);
+      color: var(--text-secondary);
     }
 
     &__error {
       margin: 0 0 var(--space-4);
       padding: var(--space-3) var(--space-4);
       border-radius: var(--radius-md);
-      background: var(--status-danger-soft);
-      color: var(--status-danger);
+      background: var(--status-error-subtle);
+      color: var(--status-error-fg);
       font-size: var(--text-sm);
     }
 
@@ -202,7 +205,7 @@
     &__footnote-link {
       margin: var(--space-4) 0 0;
       font-size: var(--text-sm);
-      color: var(--text-fg-muted);
+      color: var(--text-secondary);
       text-align: center;
     }
 
@@ -218,7 +221,7 @@
     &__legal {
       margin: var(--space-4) 0 0;
       font-size: var(--text-xs);
-      color: var(--text-fg-subtle);
+      color: var(--text-tertiary);
       text-align: center;
     }
   }

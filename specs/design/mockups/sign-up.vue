@@ -461,8 +461,8 @@
     border-radius: var(--radius-lg);
     padding: var(--space-3) var(--space-4);
     transition:
-      border-color var(--dur-base) var(--ease-standard),
-      box-shadow var(--dur-base) var(--ease-standard);
+      border-color var(--dur-base) var(--ease-default),
+      box-shadow var(--dur-base) var(--ease-default);
 
     &::placeholder {
       color: var(--text-tertiary);
@@ -504,7 +504,7 @@
     border: 1px solid transparent;
     border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: color var(--dur-fast) var(--ease-standard);
+    transition: color var(--dur-fast) var(--ease-default);
 
     &:hover {
       color: var(--text-secondary);
@@ -537,7 +537,7 @@
       height: var(--space-1);
       border-radius: var(--radius-pill);
       background: var(--border-default);
-      transition: background var(--dur-base) var(--ease-standard);
+      transition: background var(--dur-base) var(--ease-default);
 
       &.is-on {
         background: var(--text-tertiary);
@@ -628,8 +628,8 @@
     padding: var(--space-3) var(--space-5);
     cursor: pointer;
     transition:
-      background var(--dur-base) var(--ease-standard),
-      transform var(--dur-fast) var(--ease-standard);
+      background var(--dur-base) var(--ease-default),
+      transform var(--dur-fast) var(--ease-default);
 
     &:hover:not(:disabled) {
       background: var(--brand-accent-hover);
@@ -726,7 +726,7 @@
 
   /* one calm staggered fade-up on load (DESIGN.md flourish) */
   .app-card > * {
-    animation: app-rise var(--dur-slow) var(--ease-decelerate) both;
+    animation: app-rise var(--dur-slow) var(--ease-out) both;
   }
   .app-auth__head {
     animation-delay: 60ms;

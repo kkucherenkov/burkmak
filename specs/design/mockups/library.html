@@ -84,7 +84,7 @@
       padding: var(--space-2) var(--space-3); font: inherit; font-size: var(--text-sm);
       font-weight: var(--fw-semibold); color: var(--text-secondary);
       background: transparent; border: 0; border-radius: var(--radius-md); cursor: pointer;
-      transition: color var(--dur-base) var(--ease-standard), background var(--dur-base) var(--ease-standard);
+      transition: color var(--dur-base) var(--ease-default), background var(--dur-base) var(--ease-default);
     }
     .app-filter-bar__seg-btn:hover { color: var(--text-fg); }
     .app-filter-bar__seg-btn[aria-pressed="true"] {
@@ -118,7 +118,7 @@
       font: inherit; font-size: var(--text-md); color: var(--text-fg);
       background: var(--surface-raised); border: 1px solid var(--border-default);
       border-radius: var(--radius-lg);
-      transition: border-color var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard);
+      transition: border-color var(--dur-base) var(--ease-default), box-shadow var(--dur-base) var(--ease-default);
     }
     .app-search__control::placeholder { color: var(--text-tertiary); }
     .app-search__control:focus-visible {
@@ -133,7 +133,7 @@
       gap: var(--space-4); padding: var(--space-4);
       background: var(--surface-raised); border: 1px solid var(--border-default);
       border-radius: var(--radius-xl);
-      transition: border-color var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard);
+      transition: border-color var(--dur-base) var(--ease-default), box-shadow var(--dur-base) var(--ease-default);
     }
     .app-item-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
     .app-item-card--skeleton:hover { border-color: var(--border-default); box-shadow: none; }
@@ -172,7 +172,7 @@
     .app-item-card__tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
     .app-item-card__actions {
       display: flex; align-items: flex-start; gap: var(--space-1);
-      opacity: 0; transition: opacity var(--dur-base) var(--ease-standard);
+      opacity: 0; transition: opacity var(--dur-base) var(--ease-default);
     }
     .app-item-card:hover .app-item-card__actions,
     .app-item-card:focus-within .app-item-card__actions { opacity: 1; }
@@ -182,7 +182,7 @@
       display: grid; place-items: center; width: var(--space-8); height: var(--space-8);
       color: var(--text-tertiary); background: transparent; border: 1px solid transparent;
       border-radius: var(--radius-md); cursor: pointer;
-      transition: color var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard);
+      transition: color var(--dur-fast) var(--ease-default), background var(--dur-fast) var(--ease-default);
     }
     .app-icon-btn:hover { color: var(--text-fg); background: var(--surface-surface); }
     .app-icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-accent) 32%, transparent); }
@@ -208,7 +208,7 @@
     .app-status-badge--ready { color: var(--status-success-fg); background: var(--status-success-subtle); }
     .app-status-badge--failed { color: var(--status-error-fg); background: var(--status-error-subtle); }
     .app-status-badge--pending .app-status-badge__dot,
-    .app-status-badge--extracting .app-status-badge__dot { animation: app-pulse 1.3s var(--ease-standard) infinite; }
+    .app-status-badge--extracting .app-status-badge__dot { animation: app-pulse 1.3s var(--ease-default) infinite; }
 
     /* ------------------------------------------------------ AppSkeleton */
     .app-skeleton {
@@ -249,7 +249,7 @@
       font: inherit; font-weight: var(--fw-semibold); font-size: var(--text-md);
       color: var(--brand-accent-fg); background: var(--brand-accent);
       border: 0; border-radius: var(--radius-lg); cursor: pointer;
-      transition: background var(--dur-base) var(--ease-standard);
+      transition: background var(--dur-base) var(--ease-default);
     }
     .app-empty-state__cta:hover { background: var(--brand-accent-hover); }
     .app-empty-state__cta:active { background: var(--brand-accent-active); }

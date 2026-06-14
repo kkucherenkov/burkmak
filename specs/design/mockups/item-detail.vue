@@ -527,7 +527,7 @@
 
   /* gentle staggered fade-up on load (one calm motion, per DESIGN.md) */
   .app-detail__inner > * {
-    animation: app-rise var(--dur-slow) var(--ease-decelerate) both;
+    animation: app-rise var(--dur-slow) var(--ease-out) both;
   }
   .app-detail__inner > *:nth-child(1) {
     animation-delay: 0ms;
@@ -573,8 +573,8 @@
     border-radius: var(--radius-md);
     cursor: pointer;
     transition:
-      color var(--dur-base) var(--ease-standard),
-      background var(--dur-base) var(--ease-standard);
+      color var(--dur-base) var(--ease-default),
+      background var(--dur-base) var(--ease-default);
 
     &:hover {
       color: var(--text-fg);
@@ -598,8 +598,8 @@
     border-radius: var(--radius-md);
     cursor: pointer;
     transition:
-      color var(--dur-fast) var(--ease-standard),
-      background var(--dur-fast) var(--ease-standard);
+      color var(--dur-fast) var(--ease-default),
+      background var(--dur-fast) var(--ease-default);
 
     &:hover {
       color: var(--text-fg);
@@ -781,8 +781,8 @@
       border-radius: var(--radius-pill);
       cursor: pointer;
       transition:
-        color var(--dur-fast) var(--ease-standard),
-        background var(--dur-fast) var(--ease-standard);
+        color var(--dur-fast) var(--ease-default),
+        background var(--dur-fast) var(--ease-default);
 
       &:hover {
         color: var(--status-error-fg);
@@ -811,8 +811,8 @@
       border: 1px dashed var(--border-strong);
       border-radius: var(--radius-pill);
       transition:
-        border-color var(--dur-base) var(--ease-standard),
-        box-shadow var(--dur-base) var(--ease-standard);
+        border-color var(--dur-base) var(--ease-default),
+        box-shadow var(--dur-base) var(--ease-default);
 
       &::placeholder {
         color: var(--text-tertiary);
@@ -837,9 +837,9 @@
       border-radius: var(--radius-pill);
       cursor: pointer;
       transition:
-        color var(--dur-fast) var(--ease-standard),
-        background var(--dur-fast) var(--ease-standard),
-        border-color var(--dur-fast) var(--ease-standard);
+        color var(--dur-fast) var(--ease-default),
+        background var(--dur-fast) var(--ease-default),
+        border-color var(--dur-fast) var(--ease-default);
 
       &:hover:not(:disabled) {
         color: var(--brand-accent);
@@ -885,8 +885,8 @@
       border-radius: var(--radius-md);
       cursor: pointer;
       transition:
-        color var(--dur-base) var(--ease-standard),
-        background var(--dur-base) var(--ease-standard);
+        color var(--dur-base) var(--ease-default),
+        background var(--dur-base) var(--ease-default);
 
       &:hover {
         color: var(--text-fg);
@@ -919,9 +919,9 @@
     border-radius: var(--radius-pill);
     cursor: pointer;
     transition:
-      color var(--dur-base) var(--ease-standard),
-      border-color var(--dur-base) var(--ease-standard),
-      background var(--dur-base) var(--ease-standard);
+      color var(--dur-base) var(--ease-default),
+      border-color var(--dur-base) var(--ease-default),
+      background var(--dur-base) var(--ease-default);
 
     &:hover {
       color: var(--text-fg);
@@ -959,9 +959,9 @@
     border-radius: var(--radius-lg);
     cursor: pointer;
     transition:
-      background var(--dur-base) var(--ease-standard),
-      color var(--dur-base) var(--ease-standard),
-      border-color var(--dur-base) var(--ease-standard);
+      background var(--dur-base) var(--ease-default),
+      color var(--dur-base) var(--ease-default),
+      border-color var(--dur-base) var(--ease-default);
 
     &:focus-visible {
       outline: none;
@@ -1068,7 +1068,7 @@
       inline-size: 40%;
       border-radius: var(--radius-pill);
       background: var(--brand-accent);
-      animation: app-fetch-indeterminate 1.5s var(--ease-standard) infinite;
+      animation: app-fetch-indeterminate 1.5s var(--ease-default) infinite;
     }
 
     /* ready */
@@ -1239,7 +1239,7 @@
 
     &--pending &__dot,
     &--extracting &__dot {
-      animation: app-pulse 1.3s var(--ease-standard) infinite;
+      animation: app-pulse 1.3s var(--ease-default) infinite;
     }
   }
 

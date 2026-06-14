@@ -80,11 +80,15 @@
 </template>
 
 <style lang="scss" scoped>
+  // WHY: chrome layout dimensions with no spacing-scale token equivalent.
+  $nav-max-width: 1280px;
+  $nav-height: 56px;
+
   .default-layout {
     display: flex;
     flex-direction: column;
     min-height: 100dvh;
-    background: var(--surface-bg);
+    background: var(--surface-page);
     color: var(--text-fg);
 
     &__header {
@@ -99,10 +103,10 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      max-width: 1280px;
+      max-width: $nav-max-width;
       margin: 0 auto;
       padding: 0 var(--space-8);
-      height: 56px;
+      height: $nav-height;
     }
 
     &__brand {
@@ -111,7 +115,7 @@
       font-weight: var(--fw-semibold);
       color: var(--text-fg);
       text-decoration: none;
-      letter-spacing: var(--tracking-snug);
+      letter-spacing: var(--tracking-tight);
 
       &:hover {
         color: var(--brand-accent);
@@ -138,7 +142,7 @@
       border-radius: var(--radius-md);
       font-size: var(--text-sm);
       font-weight: var(--fw-medium);
-      color: var(--text-fg-muted);
+      color: var(--text-secondary);
       text-decoration: none;
       background: none;
       border: none;
@@ -149,7 +153,7 @@
 
       &:hover {
         color: var(--text-fg);
-        background: var(--surface-bg-subtle);
+        background: var(--surface-surface);
       }
 
       &:focus-visible {
@@ -159,11 +163,11 @@
 
       &--active {
         color: var(--brand-accent);
-        background: var(--brand-accent-soft);
+        background: var(--brand-accent-subtle);
 
         &:hover {
           color: var(--brand-accent-hover);
-          background: var(--brand-accent-soft-hover);
+          background: var(--brand-accent-subtle);
         }
       }
     }
@@ -178,14 +182,14 @@
     }
 
     &__footer {
-      border-top: 1px solid var(--border-soft);
+      border-top: 1px solid var(--border-default);
       padding: var(--space-6) var(--space-8);
       text-align: center;
     }
 
     &__footer-copy {
       font-size: var(--text-xs);
-      color: var(--text-fg-disabled);
+      color: var(--text-disabled);
     }
   }
 </style>
