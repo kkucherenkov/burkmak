@@ -1,43 +1,204 @@
 <script setup lang="ts">
-  import { AppTagChip, AppButton, AppInput, AppStatusBadge } from '@app/ui';
-  import { ref, onMounted } from 'vue';
+  import {
+    AppTagChip,
+    AppButton,
+    AppInput,
+    AppStatusBadge,
+    AppExtractState,
+    AppArticleReader,
+    AppHighlightPopover,
+    AppHighlightCard,
+  } from '@app/ui';
+  import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+
+  import { useArticle } from '~/composables/useArticle';
+  import { useHighlights } from '~/composables/useHighlights';
 
   import type { components } from '@app/specs';
 
   definePageMeta({ middleware: 'auth' });
+
+  type Item = components['schemas']['Item'];
+  type Highlight = components['schemas']['Highlight'];
+  type HighlightColor = components['schemas']['HighlightColor'];
+
+  // The @app/ui composites expose AppHighlightData / AppHighlightColor /
+  // AppHighlightCardHighlight, but those types originate inside .vue SFCs and
+  // typescript-eslint's projectService resolves cross-package .vue type exports
+  // to an `error` type (vue-tsc resolves them fine — the production typecheck
+  // passes). We derive the same structural shapes from the OpenAPI Highlight
+  // instead, so no .vue-origin type crosses the package boundary. The component
+  // props still validate structurally under vue-tsc.
+  type ReaderHighlight = Pick<Highlight, 'id' | 'quote' | 'prefix' | 'suffix' | 'color'>;
+  type CardHighlight = ReaderHighlight & { note: Highlight['note'] };
+
   const { t } = useI18n();
   const route = useRoute();
   const api = useApi();
+  const { public: pub } = useRuntimeConfig();
   const id = route.params.id as string;
 
-  type Item = components['schemas']['Item'];
-  const item = ref<Item | null>(null);
+  // Live extractStatus rides the list store + the global SSE stream: useEvents
+  // opens the EventSource and, on item.updated, calls store.refetchOne(id),
+  // which refreshes the item we read below via the computed.
+  const store = useItems();
+  useEvents();
+  const item = computed<Item | null>(() => store.items.value.find((i) => i.id === id) ?? null);
+
+  const article = useArticle(id);
+  const highlights = useHighlights(id);
+
   const newTag = ref('');
+  const editingId = ref<string | null>(null);
 
-  async function refresh(): Promise<void> {
-    item.value = await api.getItem(id);
+  onMounted(async () => {
+    await store.refetchOne(id);
+    await highlights.load();
+    await article.syncStatus(item.value?.extractStatus ?? 'none');
+  });
+
+  // Each SSE-driven item refresh re-feeds the article machine; syncStatus loads
+  // the article body once the extraction reaches 'ready'.
+  watch(
+    () => item.value?.extractStatus,
+    (s) => {
+      if (s) void article.syncStatus(s);
+    },
+  );
+
+  // WHY rewrite: Article.contentHtml carries root-relative image srcs like
+  // `/api/v1/items/.../image/...`. When the web origin differs from the API
+  // origin those resolve against the web host and 404. Prefix them with the
+  // API origin only in that cross-origin case; same-origin passes through.
+  const contentHtml = computed<string>(() => {
+    const raw = article.article.value?.contentHtml ?? '';
+    if (!raw) return '';
+    const apiOrigin = new URL(pub.apiBaseUrl as string, globalThis.location.href).origin;
+    if (apiOrigin === globalThis.location.origin) return raw;
+    return raw.replaceAll('src="/api/v1/', `src="${apiOrigin}/api/v1/`);
+  });
+
+  // ---- Highlight mapping (OpenAPI Highlight -> reader/card shapes) ---------
+  function toReaderHighlight(h: Highlight): ReaderHighlight {
+    return {
+      id: h.id,
+      quote: h.quote,
+      prefix: h.prefix,
+      suffix: h.suffix,
+      color: h.color,
+    };
   }
-  onMounted(refresh);
+  function toCardData(h: Highlight): CardHighlight {
+    return { ...toReaderHighlight(h), note: h.note };
+  }
+  const readerHighlights = computed<ReaderHighlight[]>(() => {
+    const hs: readonly Highlight[] = highlights.list.value;
+    return hs.map((h) => toReaderHighlight(h));
+  });
 
+  // ---- Selection popover --------------------------------------------------
+  interface Anchor {
+    quote: string;
+    prefix: string;
+    suffix: string;
+  }
+  const pendingAnchor = ref<Anchor | null>(null);
+  const popoverVisible = ref(false);
+  const popoverX = ref(0);
+  const popoverY = ref(0);
+
+  function hidePopover(): void {
+    popoverVisible.value = false;
+    pendingAnchor.value = null;
+  }
+
+  function onSelect(anchor: Anchor): void {
+    // AppArticleReader owns the DOM Selection and emits the resolved anchor
+    // strings. We only read the live Selection here to position the popover.
+    const sel = globalThis.getSelection();
+    const rect = sel && sel.rangeCount > 0 ? sel.getRangeAt(0).getBoundingClientRect() : null;
+    pendingAnchor.value = anchor;
+    popoverX.value = rect ? rect.left + rect.width / 2 : 0;
+    popoverY.value = rect ? rect.top : 0;
+    popoverVisible.value = true;
+  }
+
+  async function onPick(color: HighlightColor): Promise<void> {
+    if (!pendingAnchor.value) return;
+    await highlights.add({ ...pendingAnchor.value, color });
+    hidePopover();
+  }
+
+  async function onAddNote(): Promise<void> {
+    if (!pendingAnchor.value) return;
+    // Create a highlight with a sensible default color, then open its card editor.
+    const hl = await highlights.add({ ...pendingAnchor.value, color: 'yellow' });
+    hidePopover();
+    editingId.value = hl.id;
+  }
+
+  function focusHighlight(hid: string): void {
+    editingId.value = hid;
+  }
+
+  async function onSaveNote(hid: string, note: string): Promise<void> {
+    // Empty string clears the note (PATCH note:null) per the backend contract.
+    await highlights.update(hid, { note: note || null });
+    editingId.value = null;
+  }
+
+  // Hide the popover on scroll (its fixed coords would otherwise drift).
+  function onScroll(): void {
+    if (popoverVisible.value) hidePopover();
+  }
+  onMounted(() => {
+    globalThis.addEventListener('scroll', onScroll, true);
+  });
+  onBeforeUnmount(() => {
+    globalThis.removeEventListener('scroll', onScroll, true);
+  });
+
+  // ---- Metadata controls (route through the store; guard on item) ---------
   async function setReadState(readState: Item['readState']): Promise<void> {
-    item.value = await api.updateItem(id, { readState });
+    if (!item.value) return;
+    await store.setReadState(item.value, readState);
   }
   async function toggleFavorite(): Promise<void> {
-    if (item.value) item.value = await api.updateItem(id, { favorite: !item.value.favorite });
+    if (!item.value) return;
+    await store.toggleFavorite(item.value);
   }
   async function addTag(): Promise<void> {
-    if (!newTag.value.trim()) return;
-    item.value = await api.addItemTag(id, newTag.value.trim());
+    if (!item.value || !newTag.value.trim()) return;
+    await api.addItemTag(id, newTag.value.trim());
+    await store.refetchOne(id);
     newTag.value = '';
   }
   async function removeTag(slug: string): Promise<void> {
+    if (!item.value) return;
     await api.removeItemTag(id, slug);
-    await refresh();
+    await store.refetchOne(id);
   }
   async function remove(): Promise<void> {
-    await api.deleteItem(id);
+    if (!item.value) return;
+    await store.remove(id);
     await navigateTo('/library');
   }
+
+  const readerLabels = computed(() => ({
+    pitch: t('reader.pitch'),
+    extract: t('reader.extract'),
+    extracting: t('reader.extracting'),
+    failed: t('reader.failed'),
+    retry: t('reader.retry'),
+  }));
+  const popoverLabels = computed(() => ({ addNote: t('highlight.addNote') }));
+  const cardLabels = computed(() => ({
+    edit: t('highlight.edit'),
+    delete: t('highlight.delete'),
+    save: t('highlight.save'),
+    cancel: t('highlight.cancel'),
+    notePlaceholder: t('highlight.notePlaceholder'),
+  }));
 </script>
 
 <template>
@@ -130,13 +291,66 @@
         @click="toggleFavorite"
       />
     </div>
+
+    <!-- Reader: extract affordance until ready, then the article + highlights -->
+    <AppExtractState
+      v-if="article.status.value !== 'ready'"
+      :status="article.status.value"
+      :labels="readerLabels"
+      @extract="article.extract()"
+    />
+
+    <div v-else class="page-detail__reader">
+      <AppArticleReader
+        class="page-detail__article"
+        :content-html="contentHtml"
+        :highlights="readerHighlights"
+        @select="onSelect"
+        @highlight-click="focusHighlight"
+      />
+
+      <aside class="page-detail__panel" :aria-label="t('reader.highlights')">
+        <header class="page-detail__panel-head">
+          <h2 class="page-detail__panel-title">
+            {{ t('reader.highlights') }}
+          </h2>
+          <span class="page-detail__panel-count">{{ highlights.list.value.length }}</span>
+        </header>
+        <ul class="page-detail__panel-list">
+          <li v-for="h in highlights.list.value" :key="h.id">
+            <AppHighlightCard
+              :highlight="toCardData(h)"
+              :editing="editingId === h.id"
+              :labels="cardLabels"
+              @edit="editingId = h.id"
+              @cancel="editingId = null"
+              @delete="highlights.remove(h.id)"
+              @save="onSaveNote(h.id, $event)"
+            />
+          </li>
+        </ul>
+      </aside>
+    </div>
+
+    <!--
+      Selection popover. WHY :style CSS-var binding: the popover is fixed to the
+      live selection rect, which is only known at runtime. Passing the coords as
+      custom properties (consumed by scoped SCSS below) is the one sanctioned way
+      to feed runtime coordinates without a static inline style="" attribute.
+    -->
+    <div
+      v-if="popoverVisible"
+      class="page-detail__popover"
+      :style="{ '--popover-x': popoverX + 'px', '--popover-y': popoverY + 'px' }"
+    >
+      <AppHighlightPopover :labels="popoverLabels" @pick="onPick" @add-note="onAddNote" />
+    </div>
   </article>
 </template>
 
 <style scoped lang="scss">
-  // Metadata + tags + controls sections only. Reader section is S2 — out of scope.
   .page-detail {
-    max-width: 44rem;
+    max-width: 72rem;
     margin: 0 auto;
     padding: var(--space-8) var(--space-6);
     display: flex;
@@ -241,6 +455,88 @@
       display: flex;
       flex-wrap: wrap;
       gap: var(--space-2);
+    }
+
+    // Reader + highlights panel: panel beside the article on wide widths,
+    // collapsing below it when narrow.
+    &__reader {
+      display: grid;
+      grid-template-columns: minmax(0, 44rem) minmax(16rem, 22rem);
+      gap: clamp(var(--space-6), 4vw, var(--space-12));
+      align-items: start;
+    }
+
+    &__article {
+      min-width: 0;
+    }
+
+    &__panel {
+      position: sticky;
+      top: var(--space-6);
+      display: grid;
+      gap: var(--space-4);
+      padding: var(--space-5);
+      background: var(--surface-raised);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-sm);
+    }
+
+    &__panel-head {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    &__panel-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-weight: var(--fw-semibold);
+      font-size: var(--text-xl);
+      line-height: var(--leading-snug);
+      color: var(--text-fg);
+    }
+
+    &__panel-count {
+      display: grid;
+      place-items: center;
+      min-width: var(--space-6);
+      height: var(--space-6);
+      padding-inline: var(--space-2);
+      font-size: var(--text-xs);
+      font-weight: var(--fw-semibold);
+      color: var(--brand-accent);
+      background: var(--brand-accent-subtle);
+      border-radius: var(--radius-pill);
+    }
+
+    &__panel-list {
+      display: grid;
+      gap: var(--space-3);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    // Runtime-positioned selection popover. Coordinates arrive as --popover-x /
+    // --popover-y custom properties (set via :style in the template). The
+    // translate centers the popover horizontally and lifts it above the rect.
+    &__popover {
+      position: fixed;
+      left: var(--popover-x);
+      top: var(--popover-y);
+      transform: translate(-50%, calc(-100% - var(--space-3)));
+      z-index: var(--z-overlay);
+    }
+  }
+
+  @media (max-width: 56rem) {
+    .page-detail__reader {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .page-detail__panel {
+      position: static;
     }
   }
 </style>

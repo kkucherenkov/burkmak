@@ -98,6 +98,24 @@ export default {
     },
   },
 
+  reader: {
+    pitch: 'Загрузите полный текст статьи в чистый режим чтения.',
+    extract: 'Извлечь статью',
+    extracting: 'Извлечение…',
+    failed: 'Не удалось извлечь. Попробуйте ещё раз.',
+    retry: 'Повторить',
+    highlights: 'Выделения',
+  },
+
+  highlight: {
+    addNote: 'Добавить заметку',
+    edit: 'Изменить',
+    delete: 'Удалить',
+    save: 'Сохранить заметку',
+    cancel: 'Отмена',
+    notePlaceholder: 'Добавьте заметку…',
+  },
+
   addBar: {
     placeholder: 'https://example.com/article',
     save: 'Сохранить',

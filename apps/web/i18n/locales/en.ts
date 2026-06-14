@@ -98,6 +98,24 @@ export default {
     },
   },
 
+  reader: {
+    pitch: 'Pull the full article into a clean reader view.',
+    extract: 'Extract article',
+    extracting: 'Extracting…',
+    failed: 'Extraction failed. Try again.',
+    retry: 'Retry',
+    highlights: 'Highlights',
+  },
+
+  highlight: {
+    addNote: 'Add note',
+    edit: 'Edit',
+    delete: 'Delete',
+    save: 'Save note',
+    cancel: 'Cancel',
+    notePlaceholder: 'Add a note…',
+  },
+
   addBar: {
     placeholder: 'https://example.com/article',
     save: 'Save',
