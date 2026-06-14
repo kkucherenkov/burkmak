@@ -16,7 +16,7 @@
 - Design impact: none new — composes the shipped S2-ui composites (`AppArticleReader`, `AppExtractState`, `AppHighlightPopover`, `AppHighlightCard`) + `--highlight-*` tokens.
 - Tests: unit (pure `highlight-anchor` util, TDD); typecheck + the production `nuxt build` gate; manual/e2e smoke (extract → highlight → reload → FTS).
 - Sub-steps:
-  - [ ] Task 1 — extend `useApi` with article + highlight methods
+  - [x] Task 1 — extend `useApi` with article + highlight methods
   - [ ] Task 2 — pure `highlight-anchor` util (TDD)
   - [ ] Task 3 — `useArticle` + `useHighlights` composables
   - [ ] Task 4 — rewrite `pages/items/[id].vue` reader view + i18n (en/ru)
