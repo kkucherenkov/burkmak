@@ -1,0 +1,9 @@
+{
+  "title": "Save a link",
+  "urlLabel": "Article URL",
+  "placeholder": "https://example.com/article",
+  "save": "Save to library",
+  "cancel": "Cancel",
+  "errorInvalid": "Enter a valid URL.",
+  "errorGeneric": "Couldn't save. Please try again."
+}

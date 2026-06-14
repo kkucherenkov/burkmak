@@ -1,12 +1,19 @@
+import 'package:app_api_client/app_api_client.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
+import 'package:app_mobile/features/add_link/presentation/bloc/add_link_cubit.dart';
 import 'package:app_mobile/features/auth/data/auth_api.dart';
 import 'package:app_mobile/features/auth/domain/auth_repository.dart';
 import 'package:app_mobile/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:app_mobile/features/item_detail/presentation/bloc/detail_cubit.dart';
+import 'package:app_mobile/features/library/data/items_repository.dart';
+import 'package:app_mobile/features/library/presentation/bloc/library_cubit.dart';
 import 'package:app_mobile/shared/auth/token_storage.dart';
 import 'package:app_mobile/shared/config/app_config.dart';
 import 'package:app_mobile/shared/network/api_client.dart';
+import 'package:app_mobile/shared/network/api_factories.dart';
+import 'package:app_mobile/shared/network/events_client.dart';
 
 /// Global service locator. All runtime dependencies register here; widgets
 /// resolve blocs via `BlocProvider(create: (_) => getIt<FooBloc>())` and
@@ -32,20 +39,30 @@ void configureDependencies() {
         config: getIt<AppConfig>(),
         tokenStorage: getIt<TokenStorage>(),
       ),
-    );
+    )
+    ..registerLazySingleton<ItemsApi>(() => buildItemsApi(getIt<Dio>()))
+    ..registerLazySingleton<TagsApi>(() => buildTagsApi(getIt<Dio>()))
+    ..registerLazySingleton<EventsClient>(() => EventsClient(getIt<Dio>()));
 
   // ── Domain repository singletons ────────────────────────────────────────
-  getIt.registerLazySingleton<AuthRepository>(
-    () => AuthApiImpl(
-      dio: getIt<Dio>(),
-      tokenStorage: getIt<TokenStorage>(),
-    ),
-  );
+  getIt
+    ..registerLazySingleton<ItemsRepository>(
+      () => ItemsRepository(getIt<ItemsApi>(), getIt<TagsApi>()),
+    )
+    ..registerLazySingleton<AuthRepository>(
+      () => AuthApiImpl(dio: getIt<Dio>(), tokenStorage: getIt<TokenStorage>()),
+    );
 
   // ── Cubit factories ─────────────────────────────────────────────────────
-  getIt.registerFactory<AuthCubit>(
-    () => AuthCubit(getIt<AuthRepository>()),
-  );
+  getIt
+    ..registerFactory<AuthCubit>(() => AuthCubit(getIt<AuthRepository>()))
+    ..registerFactory<LibraryCubit>(
+      () => LibraryCubit(getIt<ItemsRepository>(), getIt<EventsClient>()),
+    )
+    ..registerFactory<DetailCubit>(() => DetailCubit(getIt<ItemsRepository>()))
+    ..registerFactory<AddLinkCubit>(
+      () => AddLinkCubit(getIt<ItemsRepository>()),
+    );
 }
 
 /// Test-only reset hook. Call in `tearDown` to drop singletons between cases.

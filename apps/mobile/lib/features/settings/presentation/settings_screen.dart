@@ -84,19 +84,14 @@ class _SettingsView extends StatelessWidget {
             leading: const Icon(Icons.privacy_tip_outlined),
             title: Text(t.privacyPolicy),
             trailing: const Icon(Icons.open_in_new, size: 16),
-            onTap: () => _showUrlSnackBar(
-              context,
-              'https://example.com/privacy',
-            ),
+            onTap: () =>
+                _showUrlSnackBar(context, 'https://example.com/privacy'),
           ),
           ListTile(
             leading: const Icon(Icons.description_outlined),
             title: Text(t.termsOfService),
             trailing: const Icon(Icons.open_in_new, size: 16),
-            onTap: () => _showUrlSnackBar(
-              context,
-              'https://example.com/terms',
-            ),
+            onTap: () => _showUrlSnackBar(context, 'https://example.com/terms'),
           ),
         ],
       ),
@@ -105,10 +100,7 @@ class _SettingsView extends StatelessWidget {
 
   void _showUrlSnackBar(BuildContext context, String url) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(url),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(url), behavior: SnackBarBehavior.floating),
     );
   }
 

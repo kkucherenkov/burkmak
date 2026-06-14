@@ -1,0 +1,9 @@
+{
+  "title": "Зберегти посилання",
+  "urlLabel": "URL статті",
+  "placeholder": "https://example.com/article",
+  "save": "Зберегти до бібліотеки",
+  "cancel": "Скасувати",
+  "errorInvalid": "Введіть коректний URL.",
+  "errorGeneric": "Не вдалося зберегти. Спробуйте ще раз."
+}

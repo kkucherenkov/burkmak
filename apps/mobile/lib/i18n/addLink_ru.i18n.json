@@ -1,0 +1,9 @@
+{
+  "title": "Сохранить ссылку",
+  "urlLabel": "URL статьи",
+  "placeholder": "https://example.com/article",
+  "save": "Сохранить в библиотеку",
+  "cancel": "Отмена",
+  "errorInvalid": "Введите корректный URL.",
+  "errorGeneric": "Не удалось сохранить. Попробуйте ещё раз."
+}
