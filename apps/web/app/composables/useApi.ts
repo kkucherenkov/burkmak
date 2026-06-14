@@ -18,6 +18,12 @@ type TagList = components['schemas']['TagList'];
 type SaveItemRequest = components['schemas']['SaveItemRequest'];
 type UpdateItemRequest = components['schemas']['UpdateItemRequest'];
 type ReadState = components['schemas']['ReadState'];
+type ExtractAccepted = components['schemas']['ExtractAccepted'];
+type Article = components['schemas']['Article'];
+type Highlight = components['schemas']['Highlight'];
+type HighlightList = components['schemas']['HighlightList'];
+type CreateHighlightRequest = components['schemas']['CreateHighlightRequest'];
+type UpdateHighlightRequest = components['schemas']['UpdateHighlightRequest'];
 
 export interface ItemsQuery {
   readState?: ReadState;
@@ -45,6 +51,16 @@ export interface ApiClient {
   getTags(): Promise<TagList>;
   renameTag(id: string, name: string): Promise<void>;
   deleteTag(id: string): Promise<void>;
+
+  // extraction
+  extractArticle(id: string): Promise<ExtractAccepted>;
+  getArticle(id: string): Promise<Article>;
+
+  // highlights
+  listHighlights(id: string): Promise<HighlightList>;
+  createHighlight(id: string, body: CreateHighlightRequest): Promise<Highlight>;
+  updateHighlight(hid: string, body: UpdateHighlightRequest): Promise<Highlight>;
+  deleteHighlight(hid: string): Promise<void>;
 }
 
 interface RequestInitLite {
@@ -84,5 +100,15 @@ export function useApi(): ApiClient {
     getTags: () => request<TagList>('/tags'),
     renameTag: (id, name) => request<undefined>(`/tags/${id}`, { method: 'PATCH', body: { name } }),
     deleteTag: (id) => request<undefined>(`/tags/${id}`, { method: 'DELETE' }),
+
+    extractArticle: (id) => request<ExtractAccepted>(`/items/${id}/extract`, { method: 'POST' }),
+    getArticle: (id) => request<Article>(`/items/${id}/article`),
+
+    listHighlights: (id) => request<HighlightList>(`/items/${id}/highlights`),
+    createHighlight: (id, body) =>
+      request<Highlight>(`/items/${id}/highlights`, { method: 'POST', body }),
+    updateHighlight: (hid, body) =>
+      request<Highlight>(`/highlights/${hid}`, { method: 'PATCH', body }),
+    deleteHighlight: (hid) => request<undefined>(`/highlights/${hid}`, { method: 'DELETE' }),
   };
 }
