@@ -1,7 +1,6 @@
 <script setup lang="ts">
   import { AppButton } from '@app/ui';
 
-  // @ts-expect-error -- 'guest' middleware is registered in W7; name is valid at runtime
   definePageMeta({ middleware: 'guest' });
   const { t } = useI18n({ useScope: 'local' });
 
@@ -85,25 +84,13 @@
         {{ t('lead') }}
       </p>
       <div class="page-welcome__actions">
-        <AppButton
-          size="lg"
-          :label="t('getStarted')"
-          @click="getStarted"
-        />
-        <AppButton
-          variant="link"
-          :label="t('signIn')"
-          @click="signIn"
-        />
+        <AppButton size="lg" :label="t('getStarted')" @click="getStarted" />
+        <AppButton variant="link" :label="t('signIn')" @click="signIn" />
       </div>
     </main>
 
     <ul class="page-welcome__features">
-      <li
-        v-for="f in features"
-        :key="f.key"
-        class="page-feature"
-      >
+      <li v-for="f in features" :key="f.key" class="page-feature">
         <h2 class="page-feature__title">
           {{ t(f.titleKey) }}
         </h2>
