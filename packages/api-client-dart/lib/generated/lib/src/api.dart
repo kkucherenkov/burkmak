@@ -10,6 +10,8 @@ import 'package:app_api_client/src/auth/basic_auth.dart';
 import 'package:app_api_client/src/auth/bearer_auth.dart';
 import 'package:app_api_client/src/auth/oauth.dart';
 import 'package:app_api_client/src/api/events_api.dart';
+import 'package:app_api_client/src/api/extraction_api.dart';
+import 'package:app_api_client/src/api/highlights_api.dart';
 import 'package:app_api_client/src/api/items_api.dart';
 import 'package:app_api_client/src/api/system_api.dart';
 import 'package:app_api_client/src/api/tags_api.dart';
@@ -72,6 +74,18 @@ class AppApiClient {
   /// by doing that all interceptors will not be executed
   EventsApi getEventsApi() {
     return EventsApi(dio, serializers);
+  }
+
+  /// Get ExtractionApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  ExtractionApi getExtractionApi() {
+    return ExtractionApi(dio, serializers);
+  }
+
+  /// Get HighlightsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  HighlightsApi getHighlightsApi() {
+    return HighlightsApi(dio, serializers);
   }
 
   /// Get ItemsApi instance, base route and serializer can be overridden by a given but be careful,

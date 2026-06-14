@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
+import { safeFetch } from '../../../common/net/safe-fetch';
 import { parseMetadata, type ParsedMetadata } from '../domain/metadata';
 
 export const METADATA_FETCHER = Symbol('METADATA_FETCHER');
@@ -16,8 +17,9 @@ export class HttpMetadataFetcher implements IMetadataFetcher {
       controller.abort();
     }, 10_000);
     try {
-      const res = await fetch(url, {
-        redirect: 'follow',
+      // safeFetch validates scheme + resolves hostname against blocked ranges,
+      // and follows redirects manually (re-checking each hop) — SSRF guard.
+      const res = await safeFetch(url, {
         signal: controller.signal,
         headers: { 'user-agent': 'burkmak/1.0 (+self-hosted read-it-later)' },
       });

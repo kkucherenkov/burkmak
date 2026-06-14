@@ -14,6 +14,7 @@ import {
 
 import { AuthModule } from './common/auth/auth.module';
 import { DataLoaderModule } from './common/dataloader/dataloader.module';
+import { FtsModule } from './common/fts/fts.module';
 import { NotificationsModule } from './common/notifications/notifications.module';
 import { ConfigModule } from './common/config/config.module';
 import { JobsModule } from './common/jobs/jobs.module';
@@ -24,6 +25,7 @@ import { EventsModule } from './modules/events/events.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { HealthModule } from './modules/health/health.module';
 import { ItemsModule } from './modules/items/items.module';
+import { HighlightsModule } from './modules/highlights/highlights.module';
 import { TagsModule } from './modules/tags/tags.module';
 
 type ImportableModule = DynamicModule | (new (...args: unknown[]) => unknown);
@@ -53,6 +55,7 @@ const devOnlyModules: ImportableModule[] = [];
     ObservabilityModule,
     DataLoaderModule,
     PrismaModule,
+    FtsModule,
     JobsModule,
     SmsModule,
     NotificationsModule,
@@ -62,6 +65,7 @@ const devOnlyModules: ImportableModule[] = [];
     HealthModule,
     ItemsModule,
     TagsModule,
+    HighlightsModule,
     ...devOnlyModules,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

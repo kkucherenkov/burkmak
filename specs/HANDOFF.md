@@ -7,10 +7,12 @@ _Last updated: 2026-06-14. Orientation for a cold-start session (Claude or human
 **burkmak** — self-hosted read-it-later (Omnivore-style core + Kobo sync + Obsidian export differentiators), per-user libraries. Stack: NestJS 11 + Prisma 7 (SQLite/FTS5) + Nuxt 4 SPA + Flutter, spec-first OpenAPI, DB-backed job worker + SSE. No remote git — **everything is merged locally to `main`** (per-slice `--no-ff` merges; user authorizes local merges).
 
 **Shipped (all on `main`):**
+
 - **P1 = S0 + S1** — foundation + core library (save → live metadata via SSE → tags → read-state/favorite → filtered list → delete), web + mobile + backend. See `specs/tasks/done.md` for the full per-slice ledger (S1-ui, token reconcile, S1-auth, S1-web, S1-mobile + toolchain fixes), each with commit SHAs.
 - This session also fixed two latent toolchain bugs and validated the stack — see `done.md` `T-2026-06-14-006/007`.
 
 **Planned and ready to build next: P2 = S2 — Extraction & Reading.**
+
 - Spec: `specs/features/2026-06-14-s2-extraction-and-reading.md` (approved).
 - Five plans (TDD, checkbox steps, mirror the S1 plans):
   `specs/features/2026-06-14-s2-{design,backend,ui,web,mobile}.plan.md`.
@@ -19,6 +21,7 @@ _Last updated: 2026-06-14. Orientation for a cold-start session (Claude or human
 ## How to continue (the proven workflow)
 
 Execute each S2 plan with **superpowers:subagent-driven-development**, exactly as S1 was built:
+
 - One **per-slice branch** off `main` (`feat/s2-<plan>`), fresh subagent per task (`frontend-engineer` for web/`@app/ui`, `flutter-engineer` for mobile, `backend-engineer`/general for backend), spec+quality review, then `--no-ff` merge to `main` and archive the entry from `active.md` → `done.md`.
 - **Spec-first loop** for any API change: edit `packages/specs/openapi/openapi.yaml` → `pnpm spec:validate && pnpm spec:bundle && pnpm spec:codegen` → commit codegen artifacts separately.
 - **Per-task gates:** backend `pnpm --filter @app/backend {test,typecheck}`; ui `pnpm --filter @app/ui {test,typecheck,lint}`; web `pnpm --filter @app/web {test,typecheck,lint} && build` (the production `nuxt build` is a real gate); mobile `flutter analyze && flutter test`; repo `pnpm stylelint:fix && pnpm format`.

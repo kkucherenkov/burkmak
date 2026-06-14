@@ -46,6 +46,7 @@ filters) are **later phases**, explicitly out of S2.
 ## Scope
 
 **In:**
+
 - `extract_article` job + `POST /items/{id}/extract` with live SSE status.
 - `Article` storage (sanitized HTML + plain text + word count + reading-time).
 - **Local lead + inline image caching** during extraction (capped), served by the
@@ -58,6 +59,7 @@ filters) are **later phases**, explicitly out of S2.
   on mobile.
 
 **Out (later phases / deferred):**
+
 - Adjustable reader typography controls (font/size/theme) — ship one default now.
 - **Mobile highlight authoring** — mobile renders highlights read-only; create/edit
   is web-only this slice.
@@ -130,15 +132,15 @@ Image cache: cached image bytes stored under a configurable data dir
 
 All under `/api/v1`, authenticated, ownership-scoped, `Problem` (RFC 9457) errors.
 
-| Method | Path                          | Purpose                                                        |
-| ------ | ----------------------------- | ------------------------------------------------------------- |
-| POST   | `/items/{id}/extract`         | Enqueue `extract_article`; → `202` `{ extractStatus }`        |
-| GET    | `/items/{id}/article`         | Get extracted `Article` (404 if not extracted)                |
-| GET    | `/items/{id}/image/{key}`     | Serve a cached image (binary; ownership-checked)              |
-| POST   | `/items/{id}/highlights`      | Create highlight `{ quote, prefix, suffix, note?, color? }`   |
-| GET    | `/items/{id}/highlights`      | List the item's highlights (caller's only)                    |
-| PATCH  | `/highlights/{id}`            | Update `{ note?, color? }`                                    |
-| DELETE | `/highlights/{id}`            | Delete                                                        |
+| Method | Path                      | Purpose                                                     |
+| ------ | ------------------------- | ----------------------------------------------------------- |
+| POST   | `/items/{id}/extract`     | Enqueue `extract_article`; → `202` `{ extractStatus }`      |
+| GET    | `/items/{id}/article`     | Get extracted `Article` (404 if not extracted)              |
+| GET    | `/items/{id}/image/{key}` | Serve a cached image (binary; ownership-checked)            |
+| POST   | `/items/{id}/highlights`  | Create highlight `{ quote, prefix, suffix, note?, color? }` |
+| GET    | `/items/{id}/highlights`  | List the item's highlights (caller's only)                  |
+| PATCH  | `/highlights/{id}`        | Update `{ note?, color? }`                                  |
+| DELETE | `/highlights/{id}`        | Delete                                                      |
 
 `GET /items` (S1) gains FTS: when `q` is present, match title+url+body via
 `item_fts` instead of `contains(title,url)`. Same query param, upgraded impl.
@@ -181,6 +183,7 @@ land in its own commit.
 
 New composites (Storybook story + colocated spec each, tokens-only, strings as
 props — built from the reader mockup + the new highlight mockups):
+
 - `AppArticleReader` — renders sanitized `contentHtml` in the reading column
   (Literata body, `--leading-relaxed`); exposes a `highlights` prop and a
   `text-selected` event (web authoring); renders highlight marks.
@@ -194,10 +197,11 @@ props — built from the reader mockup + the new highlight mockups):
 ## Mockups (S2-design)
 
 Reader/fetch machine is already designed (`item-detail.vue`). New mockups needed:
+
 - highlight-create **popover** (on text selection),
 - **highlights/notes panel** (list of `AppHighlightCard`),
 - **note editor** (attach/edit a note on a highlight).
-Produced into `specs/design/mockups/` using the existing tokens, before the web UI.
+  Produced into `specs/design/mockups/` using the existing tokens, before the web UI.
 
 ## Web (S2-web)
 
@@ -244,7 +248,7 @@ highlights are plain REST (single-user-session, not realtime this slice).
    of, search the body of, view/serve cached images of, or list/create/edit/delete
    highlights on, user B's items. Covered by tests.
 6. App boots via `docker compose` on SQLite; `pnpm spec:validate && spec:bundle &&
-   spec:codegen` succeed, drift-stable; `nuxt build` passes; CI green.
+spec:codegen` succeed, drift-stable; `nuxt build` passes; CI green.
 
 ## Testing
 
@@ -293,6 +297,7 @@ highlights are plain REST (single-user-session, not realtime this slice).
 
 ```md
 ## T-YYYY-MM-DD-NNN — S2 <plan> (P2 extraction & reading)
+
 - Spec: specs/features/2026-06-14-s2-extraction-and-reading.md
 - Plan: specs/features/2026-06-14-s2-<plan>.plan.md
 - ...

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: App API
-  version: 0.2.0
+  version: 0.3.0
   description: |
     Spec-first HTTP API. Paths include the versioned prefix (`/api/v1`) so
     generated clients can be used without additional base-URL rewriting.
@@ -29,6 +29,10 @@ tags:
     description: Saved reading-list items
   - name: tags
     description: User-defined item tags
+  - name: extraction
+    description: Article content extraction and cached images
+  - name: highlights
+    description: Reader highlights on saved items
 
 paths:
   /api/v1/health:
@@ -168,6 +172,7 @@ paths:
                         leadImageUrl: null
                         faviconUrl: null
                         status: ready
+                        extractStatus: ready
                         readState: unread
                         favorite: false
                         savedAt: "2026-06-13T10:00:00Z"
@@ -226,6 +231,7 @@ paths:
                     leadImageUrl: null
                     faviconUrl: null
                     status: pending
+                    extractStatus: none
                     readState: unread
                     favorite: false
                     savedAt: "2026-06-13T10:00:00Z"
@@ -294,6 +300,7 @@ paths:
                     leadImageUrl: https://example.com/img.jpg
                     faviconUrl: https://example.com/favicon.ico
                     status: ready
+                    extractStatus: ready
                     readState: unread
                     favorite: false
                     savedAt: "2026-06-13T10:00:00Z"
@@ -367,6 +374,7 @@ paths:
                     leadImageUrl: null
                     faviconUrl: null
                     status: ready
+                    extractStatus: ready
                     readState: read
                     favorite: false
                     savedAt: "2026-06-13T10:00:00Z"
@@ -498,6 +506,7 @@ paths:
                     leadImageUrl: null
                     faviconUrl: null
                     status: ready
+                    extractStatus: none
                     readState: unread
                     favorite: false
                     savedAt: "2026-06-13T10:00:00Z"
@@ -597,6 +606,485 @@ paths:
                     status: 404
                     detail: "Item clxabc123 does not exist"
                     code: item-not-found
+
+  /api/v1/items/{id}/article:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Item ID (cuid)
+
+    get:
+      operationId: getArticle
+      summary: Get extracted article content for an item
+      description: Returns the full extracted article body (HTML and plain text) for the given item. Returns 404 if the article has not been extracted yet.
+      tags: [extraction]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Extracted article content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Article"
+              examples:
+                extracted:
+                  value:
+                    contentHtml: "<p>Full article body in HTML.</p>"
+                    contentText: "Full article body in plain text."
+                    wordCount: 842
+                    readingTimeMin: 4
+                    extractedAt: "2026-06-14T08:00:00Z"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Article not yet extracted or item not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Article for item clxabc123 is not available"
+                    code: article-not-found
+
+  /api/v1/items/{id}/extract:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Item ID (cuid)
+
+    post:
+      operationId: extractArticle
+      summary: Trigger article content extraction for an item
+      description: |
+        Idempotent: always returns 202 and (re)starts extraction, replacing any
+        existing article. No request body. Safe to call in any `extractStatus`
+        state (`none`, `failed`, or `ready`). The item's `extractStatus`
+        transitions to `extracting` immediately and becomes `ready` or `failed`
+        asynchronously.
+      tags: [extraction]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "202":
+          description: Extraction job accepted; extractStatus is now `extracting`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExtractAccepted"
+              examples:
+                accepted:
+                  value:
+                    extractStatus: extracting
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Item not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Item clxabc123 does not exist"
+                    code: item-not-found
+
+  /api/v1/items/{id}/highlights:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Item ID (cuid)
+
+    get:
+      operationId: listHighlights
+      summary: List all highlights on an item
+      description: Returns all highlights the authenticated user has created on the given item.
+      tags: [highlights]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of highlights
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HighlightList"
+              examples:
+                list:
+                  value:
+                    highlights:
+                      - id: clxhl001
+                        itemId: clxabc123
+                        quote: "Full article body in plain text."
+                        prefix: "Returns the "
+                        suffix: " for the given item."
+                        note: null
+                        color: yellow
+                        createdAt: "2026-06-14T09:00:00Z"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Item not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Item clxabc123 does not exist"
+                    code: item-not-found
+
+    post:
+      operationId: createHighlight
+      summary: Create a highlight on an item
+      description: Saves a new text highlight (with optional note and color) on the given item.
+      tags: [highlights]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHighlightRequest"
+            examples:
+              basic:
+                value:
+                  quote: "Full article body in plain text."
+                  prefix: "Returns the "
+                  suffix: " for the given item."
+                  color: yellow
+              withNote:
+                value:
+                  quote: "Full article body in plain text."
+                  prefix: "Returns the "
+                  suffix: " for the given item."
+                  note: "Important paragraph"
+                  color: green
+      responses:
+        "201":
+          description: Highlight created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Highlight"
+              examples:
+                created:
+                  value:
+                    id: clxhl001
+                    itemId: clxabc123
+                    quote: "Full article body in plain text."
+                    prefix: "Returns the "
+                    suffix: " for the given item."
+                    note: null
+                    color: yellow
+                    createdAt: "2026-06-14T09:00:00Z"
+        "400":
+          description: Request body invalid
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                badBody:
+                  value:
+                    type: about:blank
+                    title: Bad Request
+                    status: 400
+                    detail: "quote is required"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Item not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Item clxabc123 does not exist"
+                    code: item-not-found
+
+  /api/v1/items/{id}/image/{key}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Item ID (cuid)
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+        description: |
+          Opaque image key assigned by the extraction job. Clients MUST NOT
+          construct this value: the extraction job rewrites `<img src>` URLs
+          inside `Article.contentHtml` to `/api/v1/items/{id}/image/{key}`
+          paths, so clients only ever follow keys that already appear in the
+          article HTML.
+
+    get:
+      operationId: getItemImage
+      summary: Retrieve a cached image associated with an item
+      description: Streams a cached image file that was downloaded during article extraction. Returns 404 if the image key does not exist or is not owned by the authenticated user.
+      tags: [extraction]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "200":
+          description: |
+            Raw cached image bytes. The `Content-Type` header reflects the
+            original media type of the image. No example is representable for
+            binary content; follow the URL directly in a browser or image view.
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Image not found or not owned by the authenticated user
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Image abc123.jpg does not exist"
+                    code: image-not-found
+
+  /api/v1/highlights/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Highlight ID (cuid)
+
+    patch:
+      operationId: updateHighlight
+      summary: Update a highlight's note or color
+      description: Partially updates a highlight. At least one of `note` or `color` must be provided.
+      tags: [highlights]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateHighlightRequest"
+            examples:
+              changeColor:
+                value:
+                  color: green
+              addNote:
+                value:
+                  note: "Key insight here"
+      responses:
+        "200":
+          description: Updated highlight
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Highlight"
+              examples:
+                updated:
+                  value:
+                    id: clxhl001
+                    itemId: clxabc123
+                    quote: "Full article body in plain text."
+                    prefix: "Returns the "
+                    suffix: " for the given item."
+                    note: "Key insight here"
+                    color: green
+                    createdAt: "2026-06-14T09:00:00Z"
+        "400":
+          description: Request body invalid
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                badBody:
+                  value:
+                    type: about:blank
+                    title: Bad Request
+                    status: 400
+                    detail: "At least one of note or color must be provided"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Highlight not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Highlight clxhl001 does not exist"
+                    code: highlight-not-found
+
+    delete:
+      operationId: deleteHighlight
+      summary: Delete a highlight
+      description: Permanently removes the highlight. This operation cannot be undone.
+      tags: [highlights]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Highlight deleted successfully
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Highlight not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Highlight clxhl001 does not exist"
+                    code: highlight-not-found
 
   /api/v1/tags:
     get:
@@ -818,7 +1306,7 @@ components:
 
     Item:
       type: object
-      required: [id, url, status, readState, favorite, savedAt, tags]
+      required: [id, url, status, extractStatus, readState, favorite, savedAt, tags]
       properties:
         id:
           type: string
@@ -850,6 +1338,8 @@ components:
           description: Site favicon URL
         status:
           $ref: "#/components/schemas/ItemStatus"
+        extractStatus:
+          $ref: "#/components/schemas/ExtractStatus"
         readState:
           $ref: "#/components/schemas/ReadState"
         favorite:
@@ -952,3 +1442,117 @@ components:
           minLength: 1
           maxLength: 40
           description: New display name for the tag
+
+    ExtractStatus:
+      type: string
+      enum: [none, extracting, ready, failed]
+      description: Status of the article content extraction job for an item
+
+    ExtractAccepted:
+      type: object
+      description: Response body returned when an extraction job is accepted (202).
+      required: [extractStatus]
+      properties:
+        extractStatus:
+          $ref: "#/components/schemas/ExtractStatus"
+      example:
+        extractStatus: extracting
+
+    Article:
+      type: object
+      required: [contentHtml, contentText, wordCount, readingTimeMin, extractedAt]
+      properties:
+        contentHtml:
+          type: string
+          description: Full article body as HTML
+        contentText:
+          type: string
+          description: Full article body as plain text (HTML stripped)
+        wordCount:
+          type: integer
+          minimum: 0
+          description: Number of words in the extracted article
+        readingTimeMin:
+          type: integer
+          minimum: 1
+          description: Estimated reading time in minutes
+        extractedAt:
+          type: string
+          format: date-time
+          description: ISO-8601 timestamp when the extraction completed
+
+    HighlightColor:
+      type: string
+      enum: [yellow, green, blue, pink]
+      description: Color label for a text highlight
+
+    Highlight:
+      type: object
+      required: [id, itemId, quote, prefix, suffix, color, createdAt]
+      properties:
+        id:
+          type: string
+          description: Unique highlight ID (cuid)
+        itemId:
+          type: string
+          description: ID of the item this highlight belongs to (cuid)
+        quote:
+          type: string
+          description: The exact text that was highlighted
+        prefix:
+          type: string
+          description: Short text immediately before the highlighted quote (for anchor context)
+        suffix:
+          type: string
+          description: Short text immediately after the highlighted quote (for anchor context)
+        note:
+          type: ["string", "null"]
+          description: Optional reader note attached to the highlight
+        color:
+          $ref: "#/components/schemas/HighlightColor"
+        createdAt:
+          type: string
+          format: date-time
+          description: ISO-8601 timestamp when the highlight was created
+
+    HighlightList:
+      type: object
+      required: [highlights]
+      properties:
+        highlights:
+          type: array
+          items:
+            $ref: "#/components/schemas/Highlight"
+
+    CreateHighlightRequest:
+      type: object
+      required: [quote]
+      properties:
+        quote:
+          type: string
+          description: The exact text that was highlighted
+        prefix:
+          type: string
+          description: Short text immediately before the quote (for anchor context)
+        suffix:
+          type: string
+          description: Short text immediately after the quote (for anchor context)
+        note:
+          type: string
+          description: |
+            Optional reader note to attach. To clear a note on an existing
+            highlight, use `PATCH /highlights/{id}` with `note: null` —
+            create only sets a note, it cannot null one.
+        color:
+          $ref: "#/components/schemas/HighlightColor"
+
+    UpdateHighlightRequest:
+      type: object
+      minProperties: 1
+      description: At least one of `note` or `color` must be provided.
+      properties:
+        note:
+          type: ["string", "null"]
+          description: Updated reader note; set to null to clear
+        color:
+          $ref: "#/components/schemas/HighlightColor"

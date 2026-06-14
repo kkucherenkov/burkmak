@@ -17,6 +17,7 @@ Name | Type | Description | Notes
 **leadImageUrl** | **String** | Hero/lead image URL | [optional] 
 **faviconUrl** | **String** | Site favicon URL | [optional] 
 **status** | [**ItemStatus**](ItemStatus.md) |  | 
+**extractStatus** | [**ExtractStatus**](ExtractStatus.md) |  | 
 **readState** | [**ReadState**](ReadState.md) |  | 
 **favorite** | **bool** | Whether the item is marked as a favourite | 
 **savedAt** | [**DateTime**](DateTime.md) | ISO-8601 timestamp when the item was saved | 

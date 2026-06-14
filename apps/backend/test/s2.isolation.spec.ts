@@ -1,0 +1,278 @@
+/**
+ * S2 multi-user isolation: article / image / highlights / FTS
+ *
+ * Mirrors the pattern from items.isolation.spec.ts:
+ *  - temp SQLite DB via `prisma db push`
+ *  - repos instantiated directly (no NestJS app boot — avoids the
+ *    better-auth postgresql adapter requirement)
+ *  - FTS DDL applied manually so article body indexing works
+ *
+ * What is under test:
+ *  - ArticleRepo.findByItem enforces userId scoping (join on item.userId)
+ *  - HighlightRepo.create / listForItem / update / remove enforce ownership
+ *  - ItemRepo.applyExtractStatus enforces ownership (used by extract command)
+ *  - ItemRepo.findMany (FTS branch) is userId-scoped: A cannot see B's article text
+ */
+
+import { execSync } from 'node:child_process';
+import { existsSync, rmSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+import { PrismaService } from '../src/common/prisma/prisma.service';
+import { ArticleRepo } from '../src/modules/items/infra/article.repo';
+import { ItemRepo } from '../src/modules/items/infra/item.repo';
+import { HighlightRepo } from '../src/modules/highlights/infra/highlight.repo';
+import { ItemNotFoundError } from '../src/modules/items/domain/items.errors';
+import { HighlightNotFoundError } from '../src/modules/highlights/domain/highlights.errors';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const BACKEND_DIR = path.join(HERE, '..');
+const DB_FILE = path.join(HERE, 'tmp-s2-isolation.db');
+const DB_URL = `file:${DB_FILE}`;
+
+/** Unique phrase only present in B's article body. */
+const UNIQUE_PHRASE = 'ztxqwophrase';
+
+function cleanup(): void {
+  for (const f of [DB_FILE, `${DB_FILE}-wal`, `${DB_FILE}-shm`]) {
+    if (existsSync(f)) rmSync(f);
+  }
+}
+
+let prisma: PrismaService;
+let items: ItemRepo;
+let articles: ArticleRepo;
+let highlights: HighlightRepo;
+
+// Seeded IDs — populated in beforeAll
+let bItemId: string;
+let bHighlightId: string;
+let aItemId: string;
+
+const FTS_DDL = [
+  `CREATE VIRTUAL TABLE IF NOT EXISTS item_fts USING fts5(
+    title, url, body, item_id UNINDEXED, tokenize = 'porter unicode61'
+  )`,
+
+  `CREATE TRIGGER IF NOT EXISTS item_fts_ai AFTER INSERT ON item BEGIN
+    INSERT INTO item_fts(title, url, body, item_id)
+    VALUES (new.title, new.url, '', new.id);
+  END`,
+
+  `CREATE TRIGGER IF NOT EXISTS item_fts_au AFTER UPDATE ON item BEGIN
+    UPDATE item_fts SET title = new.title, url = new.url WHERE item_id = new.id;
+  END`,
+
+  `CREATE TRIGGER IF NOT EXISTS item_fts_ad AFTER DELETE ON item BEGIN
+    DELETE FROM item_fts WHERE item_id = old.id;
+  END`,
+
+  `CREATE TRIGGER IF NOT EXISTS article_fts_ai AFTER INSERT ON article BEGIN
+    UPDATE item_fts SET body = new.contentText WHERE item_id = new.itemId;
+  END`,
+
+  `CREATE TRIGGER IF NOT EXISTS article_fts_au AFTER UPDATE ON article BEGIN
+    UPDATE item_fts SET body = new.contentText WHERE item_id = new.itemId;
+  END`,
+];
+
+beforeAll(async () => {
+  cleanup();
+
+  // Push Prisma schema to a throw-away SQLite file.
+  execSync('./node_modules/.bin/prisma db push --accept-data-loss', {
+    cwd: BACKEND_DIR,
+    env: { ...process.env, DATABASE_URL: DB_URL },
+    stdio: 'pipe',
+  });
+
+  prisma = new PrismaService({ databaseUrl: DB_URL } as never);
+  await prisma.onModuleInit();
+
+  // Apply FTS5 virtual table + sync triggers (mirrors FtsBootstrapService).
+  for (const stmt of FTS_DDL) {
+    await prisma.$executeRawUnsafe(stmt);
+  }
+
+  items = new ItemRepo(prisma);
+  articles = new ArticleRepo(prisma);
+  highlights = new HighlightRepo(prisma);
+
+  // ── Seed A ───────────────────────────────────────────────────────────────
+  aItemId = await items.create({ userId: 'userA', url: 'https://a.example.com/article' });
+  // Upsert article for A (contentText does NOT contain the unique phrase)
+  await articles.upsert(aItemId, {
+    contentHtml: '<p>Some article for user A.</p>',
+    contentText: 'Some article for user A.',
+    wordCount: 5,
+    readingTimeMin: 1,
+  });
+  await items.setExtractStatus(aItemId, 'ready');
+
+  // ── Seed B ───────────────────────────────────────────────────────────────
+  bItemId = await items.create({ userId: 'userB', url: 'https://b.example.com/article' });
+  // Article body contains the unique phrase — visible in FTS for B, invisible to A
+  await articles.upsert(bItemId, {
+    contentHtml: `<p>This is a secret article. ${UNIQUE_PHRASE} is here.</p>`,
+    contentText: `This is a secret article. ${UNIQUE_PHRASE} is here.`,
+    wordCount: 9,
+    readingTimeMin: 1,
+  });
+  await items.setExtractStatus(bItemId, 'ready');
+
+  // B creates a highlight on B's item
+  const bHighlight = await highlights.create('userB', bItemId, {
+    quote: 'secret article',
+    prefix: 'a ',
+    suffix: '.',
+    color: 'yellow',
+  });
+  bHighlightId = bHighlight.id;
+}, 60_000);
+
+afterAll(async () => {
+  if (prisma) await prisma.onModuleDestroy();
+  cleanup();
+});
+
+describe('S2 multi-user isolation', () => {
+  // ── Article isolation ────────────────────────────────────────────────────
+
+  it('A cannot read B article via ArticleRepo (returns null, mapped to 404)', async () => {
+    const result = await articles.findByItem('userA', bItemId);
+    expect(result).toBeNull();
+  });
+
+  it('B can read own article', async () => {
+    const result = await articles.findByItem('userB', bItemId);
+    expect(result).not.toBeNull();
+    expect(result?.contentText).toContain(UNIQUE_PHRASE);
+  });
+
+  // ── Extract isolation (applyExtractStatus = ownership-checked write) ─────
+
+  it('A cannot trigger extract on B item (applyExtractStatus returns false)', async () => {
+    const ok = await items.applyExtractStatus('userA', bItemId, 'extracting');
+    expect(ok).toBe(false);
+  });
+
+  it('B can trigger extract on own item (applyExtractStatus returns true)', async () => {
+    const ok = await items.applyExtractStatus('userB', bItemId, 'extracting');
+    expect(ok).toBe(true);
+    // restore
+    await items.applyExtractStatus('userB', bItemId, 'ready');
+  });
+
+  // ── Image isolation (via ItemRepo.findById ownership check) ──────────────
+
+  it('A cannot verify image ownership for B item (findById returns null)', async () => {
+    const item = await items.findById('userA', bItemId);
+    expect(item).toBeNull();
+  });
+
+  it('B can verify image ownership for own item', async () => {
+    const item = await items.findById('userB', bItemId);
+    expect(item).not.toBeNull();
+  });
+
+  // ── Highlights isolation — list ──────────────────────────────────────────
+
+  it('A cannot list B highlights (ItemNotFoundError)', async () => {
+    await expect(highlights.listForItem('userA', bItemId)).rejects.toBeInstanceOf(
+      ItemNotFoundError,
+    );
+  });
+
+  it('B can list own highlights', async () => {
+    const list = await highlights.listForItem('userB', bItemId);
+    expect(list).toHaveLength(1);
+    expect(list[0]?.id).toBe(bHighlightId);
+  });
+
+  // ── Highlights isolation — create ────────────────────────────────────────
+
+  it('A cannot create highlight on B item (ItemNotFoundError)', async () => {
+    await expect(
+      highlights.create('userA', bItemId, { quote: 'secret', color: 'red' }),
+    ).rejects.toBeInstanceOf(ItemNotFoundError);
+  });
+
+  // ── Highlights isolation — update ────────────────────────────────────────
+
+  it('A cannot update B highlight (HighlightNotFoundError)', async () => {
+    await expect(
+      highlights.update('userA', bHighlightId, { note: 'sneaky' }),
+    ).rejects.toBeInstanceOf(HighlightNotFoundError);
+  });
+
+  it('B can update own highlight', async () => {
+    const updated = await highlights.update('userB', bHighlightId, { note: 'my note' });
+    expect(updated.note).toBe('my note');
+    // restore
+    await highlights.update('userB', bHighlightId, { note: null });
+  });
+
+  // ── Highlights isolation — delete ────────────────────────────────────────
+
+  it('A cannot delete B highlight (HighlightNotFoundError)', async () => {
+    await expect(highlights.remove('userA', bHighlightId)).rejects.toBeInstanceOf(
+      HighlightNotFoundError,
+    );
+  });
+
+  // ── FTS isolation — A cannot find B unique phrase ────────────────────────
+
+  it('A FTS search for unique phrase returns zero items (body is userId-scoped)', async () => {
+    const result = await items.findMany({
+      userId: 'userA',
+      limit: 50,
+      q: UNIQUE_PHRASE,
+    });
+    const ids = result.items.map((i) => i.id);
+    expect(ids).not.toContain(bItemId);
+    expect(ids.length).toBe(0);
+  });
+
+  it('B FTS search for unique phrase returns B own item (positive FTS control)', async () => {
+    const result = await items.findMany({
+      userId: 'userB',
+      limit: 50,
+      q: UNIQUE_PHRASE,
+    });
+    const ids = result.items.map((i) => i.id);
+    expect(ids).toContain(bItemId);
+  });
+
+  // ── Positive control: A can access own article/highlight ─────────────────
+
+  it('A can read own article (positive control)', async () => {
+    const article = await articles.findByItem('userA', aItemId);
+    expect(article).not.toBeNull();
+    expect(article?.itemId).toBe(aItemId);
+  });
+
+  it('A can create, list, update, delete own highlight (positive control)', async () => {
+    const hl = await highlights.create('userA', aItemId, {
+      quote: 'Some article',
+      prefix: '',
+      suffix: '.',
+      color: 'blue',
+    });
+    expect(hl.id).toBeTruthy();
+    expect(hl.color).toBe('blue');
+
+    const list = await highlights.listForItem('userA', aItemId);
+    expect(list.some((h) => h.id === hl.id)).toBe(true);
+
+    const patched = await highlights.update('userA', hl.id, { note: 'noted' });
+    expect(patched.note).toBe('noted');
+
+    await expect(highlights.remove('userA', hl.id)).resolves.toBeUndefined();
+
+    const afterDelete = await highlights.listForItem('userA', aItemId);
+    expect(afterDelete.some((h) => h.id === hl.id)).toBe(false);
+  });
+});

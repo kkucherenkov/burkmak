@@ -8,9 +8,16 @@ part of 'serializers.dart';
 
 Serializers _$serializers = (Serializers().toBuilder()
       ..add(AddTagRequest.serializer)
+      ..add(Article.serializer)
+      ..add(CreateHighlightRequest.serializer)
       ..add(DependencyStatus.serializer)
+      ..add(ExtractAccepted.serializer)
+      ..add(ExtractStatus.serializer)
       ..add(HealthStatus.serializer)
       ..add(HealthStatusDependencies.serializer)
+      ..add(Highlight.serializer)
+      ..add(HighlightColor.serializer)
+      ..add(HighlightList.serializer)
       ..add(Item.serializer)
       ..add(ItemList.serializer)
       ..add(ItemStatus.serializer)
@@ -20,7 +27,11 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(SaveItemRequest.serializer)
       ..add(Tag.serializer)
       ..add(TagList.serializer)
+      ..add(UpdateHighlightRequest.serializer)
       ..add(UpdateItemRequest.serializer)
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(Highlight)]),
+          () => ListBuilder<Highlight>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(Item)]),
           () => ListBuilder<Item>())

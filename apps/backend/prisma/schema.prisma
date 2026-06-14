@@ -94,26 +94,57 @@ model Job {
 }
 
 model Item {
-  id           String    @id @default(cuid())
-  userId       String
-  url          String
-  canonicalUrl String?
-  title        String?
-  siteName     String?
-  excerpt      String?
-  leadImageUrl String?
-  faviconUrl   String?
-  status       String    @default("pending") // pending | ready | failed
-  readState    String    @default("unread")  // unread | read | archived
-  favorite     Boolean   @default(false)
-  savedAt      DateTime  @default(now())
-  readAt       DateTime?
-  updatedAt    DateTime  @updatedAt
-  tags         ItemTag[]
+  id            String      @id @default(cuid())
+  userId        String
+  url           String
+  canonicalUrl  String?
+  title         String?
+  siteName      String?
+  excerpt       String?
+  leadImageUrl  String?
+  faviconUrl    String?
+  status        String      @default("pending") // pending | ready | failed
+  readState     String      @default("unread")  // unread | read | archived
+  favorite      Boolean     @default(false)
+  savedAt       DateTime    @default(now())
+  readAt        DateTime?
+  updatedAt     DateTime    @updatedAt
+  extractStatus String      @default("none") // none | extracting | ready | failed
+  tags          ItemTag[]
+  article       Article?
+  highlights    Highlight[]
 
   @@index([userId, readState])
   @@index([userId, savedAt])
   @@map("item")
+}
+
+model Article {
+  itemId         String   @id
+  contentHtml    String
+  contentText    String
+  wordCount      Int
+  readingTimeMin Int
+  extractedAt    DateTime @default(now())
+  item           Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("article")
+}
+
+model Highlight {
+  id        String   @id @default(cuid())
+  itemId    String
+  userId    String
+  quote     String
+  prefix    String   @default("")
+  suffix    String   @default("")
+  note      String?
+  color     String   @default("yellow") // yellow | green | blue | pink
+  createdAt DateTime @default(now())
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId, userId])
+  @@map("highlight")
 }
 
 model Tag {

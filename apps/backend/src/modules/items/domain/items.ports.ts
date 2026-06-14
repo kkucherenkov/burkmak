@@ -2,6 +2,7 @@ export const ITEM_REPO = Symbol('ITEM_REPO');
 
 export type ItemStatus = 'pending' | 'ready' | 'failed';
 export type ReadState = 'unread' | 'read' | 'archived';
+export type ExtractStatus = 'none' | 'extracting' | 'ready' | 'failed';
 
 export interface ItemDetail {
   id: string;
@@ -13,6 +14,7 @@ export interface ItemDetail {
   leadImageUrl: string | null;
   faviconUrl: string | null;
   status: ItemStatus;
+  extractStatus: ExtractStatus;
   readState: ReadState;
   favorite: boolean;
   savedAt: string;
@@ -50,6 +52,17 @@ export interface IItemRepo {
     patch: { readState?: ReadState; favorite?: boolean },
   ): Promise<boolean>; // false = not found/owned
   applyMetadata(itemId: string, patch: ItemMetadataPatch): Promise<void>;
+  /**
+   * Set extractStatus on the item (unscoped — caller must have already verified
+   * ownership via findById). Used by the extract_article job handler.
+   */
+  setExtractStatus(itemId: string, status: ExtractStatus): Promise<void>;
+  /**
+   * Set extractStatus on the item owned by userId.
+   * Returns false if the item does not exist or is not owned by userId.
+   * Used by the ExtractArticle command handler to do an ownership-checked update.
+   */
+  applyExtractStatus(userId: string, itemId: string, status: ExtractStatus): Promise<boolean>;
   delete(userId: string, id: string): Promise<boolean>;
   addTag(userId: string, itemId: string, tag: string): Promise<boolean>;
   removeTag(userId: string, itemId: string, tagSlug: string): Promise<boolean>;

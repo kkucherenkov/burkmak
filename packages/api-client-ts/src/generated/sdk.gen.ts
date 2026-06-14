@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AddItemTagData, AddItemTagErrors, AddItemTagResponses, DeleteItemData, DeleteItemErrors, DeleteItemResponses, DeleteTagData, DeleteTagErrors, DeleteTagResponses, GetHealthData, GetHealthErrors, GetHealthResponses, GetItemData, GetItemErrors, GetItemResponses, ListItemsData, ListItemsErrors, ListItemsResponses, ListTagsData, ListTagsErrors, ListTagsResponses, RemoveItemTagData, RemoveItemTagErrors, RemoveItemTagResponses, RenameTagData, RenameTagErrors, RenameTagResponses, SaveItemData, SaveItemErrors, SaveItemResponses, StreamEventsData, StreamEventsErrors, StreamEventsResponse, StreamEventsResponses, UpdateItemData, UpdateItemErrors, UpdateItemResponses } from './types.gen';
+import type { AddItemTagData, AddItemTagErrors, AddItemTagResponses, CreateHighlightData, CreateHighlightErrors, CreateHighlightResponses, DeleteHighlightData, DeleteHighlightErrors, DeleteHighlightResponses, DeleteItemData, DeleteItemErrors, DeleteItemResponses, DeleteTagData, DeleteTagErrors, DeleteTagResponses, ExtractArticleData, ExtractArticleErrors, ExtractArticleResponses, GetArticleData, GetArticleErrors, GetArticleResponses, GetHealthData, GetHealthErrors, GetHealthResponses, GetItemData, GetItemErrors, GetItemImageData, GetItemImageErrors, GetItemImageResponses, GetItemResponses, ListHighlightsData, ListHighlightsErrors, ListHighlightsResponses, ListItemsData, ListItemsErrors, ListItemsResponses, ListTagsData, ListTagsErrors, ListTagsResponses, RemoveItemTagData, RemoveItemTagErrors, RemoveItemTagResponses, RenameTagData, RenameTagErrors, RenameTagResponses, SaveItemData, SaveItemErrors, SaveItemResponses, StreamEventsData, StreamEventsErrors, StreamEventsResponse, StreamEventsResponses, UpdateHighlightData, UpdateHighlightErrors, UpdateHighlightResponses, UpdateItemData, UpdateItemErrors, UpdateItemResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -160,6 +160,124 @@ export const removeItemTag = <ThrowOnError extends boolean = false>(options: Opt
         }, { scheme: 'bearer', type: 'http' }],
     url: '/api/v1/items/{id}/tags/{tagSlug}',
     ...options
+});
+
+/**
+ * Get extracted article content for an item
+ *
+ * Returns the full extracted article body (HTML and plain text) for the given item. Returns 404 if the article has not been extracted yet.
+ */
+export const getArticle = <ThrowOnError extends boolean = false>(options: Options<GetArticleData, ThrowOnError>) => (options.client ?? client).get<GetArticleResponses, GetArticleErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/items/{id}/article',
+    ...options
+});
+
+/**
+ * Trigger article content extraction for an item
+ *
+ * Idempotent: always returns 202 and (re)starts extraction, replacing any
+ * existing article. No request body. Safe to call in any `extractStatus`
+ * state (`none`, `failed`, or `ready`). The item's `extractStatus`
+ * transitions to `extracting` immediately and becomes `ready` or `failed`
+ * asynchronously.
+ *
+ */
+export const extractArticle = <ThrowOnError extends boolean = false>(options: Options<ExtractArticleData, ThrowOnError>) => (options.client ?? client).post<ExtractArticleResponses, ExtractArticleErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/items/{id}/extract',
+    ...options
+});
+
+/**
+ * List all highlights on an item
+ *
+ * Returns all highlights the authenticated user has created on the given item.
+ */
+export const listHighlights = <ThrowOnError extends boolean = false>(options: Options<ListHighlightsData, ThrowOnError>) => (options.client ?? client).get<ListHighlightsResponses, ListHighlightsErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/items/{id}/highlights',
+    ...options
+});
+
+/**
+ * Create a highlight on an item
+ *
+ * Saves a new text highlight (with optional note and color) on the given item.
+ */
+export const createHighlight = <ThrowOnError extends boolean = false>(options: Options<CreateHighlightData, ThrowOnError>) => (options.client ?? client).post<CreateHighlightResponses, CreateHighlightErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/items/{id}/highlights',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Retrieve a cached image associated with an item
+ *
+ * Streams a cached image file that was downloaded during article extraction. Returns 404 if the image key does not exist or is not owned by the authenticated user.
+ */
+export const getItemImage = <ThrowOnError extends boolean = false>(options: Options<GetItemImageData, ThrowOnError>) => (options.client ?? client).get<GetItemImageResponses, GetItemImageErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/items/{id}/image/{key}',
+    ...options
+});
+
+/**
+ * Delete a highlight
+ *
+ * Permanently removes the highlight. This operation cannot be undone.
+ */
+export const deleteHighlight = <ThrowOnError extends boolean = false>(options: Options<DeleteHighlightData, ThrowOnError>) => (options.client ?? client).delete<DeleteHighlightResponses, DeleteHighlightErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/highlights/{id}',
+    ...options
+});
+
+/**
+ * Update a highlight's note or color
+ *
+ * Partially updates a highlight. At least one of `note` or `color` must be provided.
+ */
+export const updateHighlight = <ThrowOnError extends boolean = false>(options: Options<UpdateHighlightData, ThrowOnError>) => (options.client ?? client).patch<UpdateHighlightResponses, UpdateHighlightErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/highlights/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });
 
 /**
