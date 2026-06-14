@@ -9,6 +9,7 @@ import 'package:app_mobile/shared/auth/token_storage.dart';
 import 'package:app_mobile/shared/config/app_config.dart';
 import 'package:app_mobile/shared/network/api_client.dart';
 import 'package:app_mobile/shared/network/api_factories.dart';
+import 'package:app_mobile/features/library/data/items_repository.dart';
 import 'package:app_mobile/shared/network/events_client.dart';
 
 /// Global service locator. All runtime dependencies register here; widgets
@@ -41,9 +42,13 @@ void configureDependencies() {
     ..registerLazySingleton<EventsClient>(() => EventsClient(getIt<Dio>()));
 
   // ── Domain repository singletons ────────────────────────────────────────
-  getIt.registerLazySingleton<AuthRepository>(
-    () => AuthApiImpl(dio: getIt<Dio>(), tokenStorage: getIt<TokenStorage>()),
-  );
+  getIt
+    ..registerLazySingleton<ItemsRepository>(
+      () => ItemsRepository(getIt<ItemsApi>(), getIt<TagsApi>()),
+    )
+    ..registerLazySingleton<AuthRepository>(
+      () => AuthApiImpl(dio: getIt<Dio>(), tokenStorage: getIt<TokenStorage>()),
+    );
 
   // ── Cubit factories ─────────────────────────────────────────────────────
   getIt.registerFactory<AuthCubit>(() => AuthCubit(getIt<AuthRepository>()));
