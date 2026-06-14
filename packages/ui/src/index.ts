@@ -17,3 +17,12 @@ export { AppItemCard } from './components/AppItemCard';
 export type { AppItemCardData } from './components/AppItemCard/AppItemCard.vue';
 export { AppFilterBar } from './components/AppFilterBar';
 export type { AppFilterSegment } from './components/AppFilterBar/AppFilterBar.vue';
+export { AppExtractState } from './components/AppExtractState';
+export { AppArticleReader } from './components/AppArticleReader';
+export type {
+  AppHighlightColor,
+  AppHighlightData,
+} from './components/AppArticleReader/AppArticleReader.vue';
+export { AppHighlightPopover } from './components/AppHighlightPopover';
+export { AppHighlightCard } from './components/AppHighlightCard';
+export type { AppHighlightCardHighlight } from './components/AppHighlightCard/AppHighlightCard.vue';
