@@ -15,7 +15,7 @@
   - [x] 3: useItems + useTags composables
   - [x] 4: useEvents SSE composable
   - [x] 5: AppAddBar + AddLinkModal + library.vue
-  - [ ] 6: items/[id].vue metadata detail
+  - [x] 6: items/[id].vue metadata detail
   - [ ] 7: settings.vue (theme + language)
   - [ ] 8: verification
 - Status: in-progress
