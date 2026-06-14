@@ -45,11 +45,11 @@ component library work.
 
 ## Architecture — the auth crux
 
-A `javascript:` bookmarklet executes in the context of *the page being saved*
+A `javascript:` bookmarklet executes in the context of _the page being saved_
 (e.g. `nytimes.com`) — cross-origin to burkmak, so it cannot read burkmak's
 HttpOnly session cookie or bearer. The fix sidesteps it entirely: the
 bookmarklet only `window.open()`s a **burkmak-origin** page (`/save?url=…`);
-that page is same-origin to the SPA, so the session cookie is present, and *it*
+that page is same-origin to the SPA, so the session cookie is present, and _it_
 performs the authenticated `POST`. Net backend change: zero.
 
 Mobile is simpler: the app already attaches a bearer token from
@@ -96,10 +96,15 @@ The snippet is built **at runtime from `window.location.origin`**, so it points
 at the right host with no extra config — `:3001` in dev, the real origin in prod:
 
 ```js
-javascript:(function(){window.open(
-  location.origin.replace(/\/$/,'') /* burkmak origin, injected */
-  + '/save?url=' + encodeURIComponent(location.href),
-  'burkmak','width=420,height=240');})();
+javascript: (function () {
+  window.open(
+    location.origin.replace(/\/$/, '') /* burkmak origin, injected */ +
+      '/save?url=' +
+      encodeURIComponent(location.href),
+    'burkmak',
+    'width=420,height=240',
+  );
+})();
 ```
 
 (The web app's own origin is the burkmak origin here, since the SPA and the
@@ -196,7 +201,7 @@ share-sheet **Android-only** now; log the iOS Share Extension as a follow-up.
   bookmarklet popup behaviour (open → save → close) is exercisable in a real
   browser locally.
 - **Mobile** OS share registration is **only device-verifiable** — `flutter
-  analyze` + unit tests cover the Dart logic; the actual share-sheet entry must
+analyze` + unit tests cover the Dart logic; the actual share-sheet entry must
   be confirmed on an Android device/emulator outside this sandbox.
 
 ## Follow-ups (not blocking, logged here)

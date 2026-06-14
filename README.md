@@ -1,39 +1,82 @@
-# Spec-first, agent-friendly monorepo boilerplate
+# burkmak
 
-A production-shaped greenfield starter for teams that plan to build with
-**Claude Design → Claude Code**. Ships with a working backend, web, mobile,
-a shared design-token pipeline, a single source of truth for every wire
-contract, and the drift guards that make an agentic workflow safe to run
-without a human hovering over each keystroke.
+**A quiet home for everything you mean to read.** Self-hosted, multi-user
+read-it-later: save a link from anywhere, read it in a clean reader, highlight
+what matters — then sync it to your Kobo and export your notes to Obsidian.
 
-Nothing here is a mock. The stack boots, the tests pass, the contracts
-validate, the tokens build, and every "this is protected from drift" claim
-below is a real CI job or pre-commit check.
+burkmak is an Omnivore-style core with two differentiators built in from the
+roadmap up: **native Kobo sync** and **Obsidian export**. It runs on a small
+stack — NestJS + SQLite + Nuxt + Flutter — so a single binary-shaped deployment
+serves the web app, the mobile app, and your e-reader.
 
-## Why this exists
+> Status: **P1 + P2 shipped** (save/organise + extraction/reader/highlights/
+> full-text search). **P3 (capture surfaces) in progress.** P4 (Kobo) and P5
+> (Obsidian) planned. See the [roadmap](#roadmap).
 
-Greenfield projects with AI coding assistants fail for predictable reasons:
-the agent renames a field in TypeScript but forgets the Dart client, changes
-an API route without updating the OpenAPI spec, drops a hex color into a
-component, or leaves the Flutter copy stub-only while the web side has three
-locales. By the time the human reviewer catches it, the diff is already tens
-of files deep.
+## Screenshots
 
-This repo codifies the guardrails that stop that drift at the source:
+|                                                                     |                                                                                      |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Welcome**                                                         | **Library**                                                                          |
+| ![Welcome](assets/screenshots/welcome.png)                          | ![Library — saved items, filters, tags, live status](assets/screenshots/library.png) |
+| **Reader**                                                          | **Save a link**                                                                      |
+| ![Clean reader view with highlights](assets/screenshots/reader.png) | ![Quick save](assets/screenshots/save.png)                                           |
 
-- One OpenAPI + one AsyncAPI file generate both the TypeScript and Dart
-  clients. CI fails the PR if the generated output is out of date.
-- `express-openapi-validator` rejects runtime requests that aren't in the
-  spec — the backend physically cannot serve an undocumented route.
-- Stylelint bans hex literals in brand components; every colour has to come
-  from a design token.
-- A task stack lives in the repo, not in a chat window: every feature is
-  pushed onto `specs/tasks/active.md`, checked off as it progresses, and
-  archived to `specs/tasks/done.md` with the PR link.
-- `.claude/` carries the project rules, subagent roster, and a handbook per
-  domain. A fresh Claude Code session picks them up automatically.
+<sub>Screens rendered from the design mockups in
+[`specs/design/mockups/`](specs/design/mockups) — the visual contract the
+shipped UI implements.</sub>
 
-## Architecture at a glance
+## Features
+
+### Save & organise — _shipped (S1)_
+
+- Save a URL from the web add-bar, the mobile app, or (soon) a share-sheet /
+  bookmarklet — every surface hits the same `POST /items`.
+- Live metadata: title, site, excerpt, favicon and lead image fill in **without
+  a refresh**, pushed over Server-Sent Events as a background job resolves them.
+- Tags, read-state (`unread` / `read` / `archived`), and favorites.
+- Filtered, searchable list. **Per-user libraries** — you never see another
+  user's data.
+
+### Read & highlight — _shipped (S2)_
+
+- **On-demand full-article extraction** (Readability + sanitisation) into a
+  clean, ad-free reader view — kept even if the original goes dark.
+- Locally-cached article images (SSRF-guarded), served from your own server.
+- **Full-text search (SQLite FTS5)** across title, URL, **and** article body —
+  same search box, now matches the text inside your saved pieces.
+- **Highlights & notes**: select text, pick a colour, attach a note. Authored
+  on web, rendered read-only on mobile.
+
+### Capture anywhere — _in progress (S3)_
+
+- Mobile **OS share-sheet** target — share a link from any app straight into
+  your library.
+- Desktop **browser bookmarklet** — one click to save the current page.
+- Spec: [`specs/features/2026-06-14-capture-surfaces.md`](specs/features/2026-06-14-capture-surfaces.md).
+
+### Sync & export — _planned (S4 · S5)_
+
+- **Kobo sync** (S4): generate EPUB/KEPUB, emulate the Kobo sync API so a paired
+  device pulls new articles over wifi and pushes read-state back.
+- **Obsidian export** (S5): an export API + plugin that writes one note per
+  article — source, metadata, highlights and notes — idempotently.
+
+## Roadmap
+
+Phase order: **S0 → S1 → S2**, then **S3 / S4 / S5** in parallel. Each phase is
+one spec → plan → build cycle. Full detail in [`specs/roadmap.md`](specs/roadmap.md)
+and the requirements in [`specs/PRD.md`](specs/PRD.md).
+
+| Phase  | Subsystem | Ships                                                         | Status         |
+| ------ | --------- | ------------------------------------------------------------- | -------------- |
+| **P1** | S0 + S1   | Foundation (SQLite, jobs + SSE spine) and core library        | ✅ shipped     |
+| **P2** | S2        | Article extraction, reader view, FTS5 body search, highlights | ✅ shipped     |
+| **P3** | S3        | Mobile share-sheet capture, browser bookmarklet               | 🚧 in progress |
+| **P4** | S4        | EPUB/KEPUB, Kobo sync emulation, device pairing, read-back    | 📋 planned     |
+| **P5** | S5        | Obsidian export API + Obsidian plugin                         | 📋 planned     |
+
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -42,139 +85,70 @@ flowchart LR
     mobile["mobile<br/><sub>Flutter 3.41</sub>"]
   end
 
-  subgraph backend_group[" "]
-    backend["backend<br/><sub>NestJS 11 · :3000/api/v1</sub>"]
-  end
-
-  subgraph infra["local stack · docker/compose.yml"]
-    postgres[("postgres<br/>:5432")]
-    redis[("redis<br/>:6379")]
-    centrifugo["centrifugo<br/>:8000"]
-    otel["grafana + otel-lgtm<br/>:3200"]
+  subgraph backend_group["apps/backend · :3000/api/v1"]
+    api["NestJS 11 + CQRS<br/>Better Auth"]
+    jobs["DB-backed job worker<br/><sub>fetch_metadata · extract_article</sub>"]
+    sqlite[("SQLite<br/>Prisma 7 + FTS5")]
   end
 
   subgraph contracts["packages/specs — single source of truth"]
     openapi["openapi.yaml"]
-    asyncapi["centrifugo.yaml"]
   end
 
-  web -->|"api-client-ts"| backend
-  mobile -->|"api-client-dart"| backend
-  web -.->|"ws subscribe"| centrifugo
-  mobile -.->|"ws subscribe"| centrifugo
-  backend --> postgres
-  backend --> redis
-  backend -->|"publish"| centrifugo
-  backend -->|"OTLP"| otel
-
+  web -->|"@app/api-client-ts"| api
+  mobile -->|"app_api_client (dart)"| api
+  api --> sqlite
+  api --> jobs
+  jobs --> sqlite
+  api -.->|"Server-Sent Events"| web
+  api -.->|"Server-Sent Events"| mobile
   openapi -. "codegen" .-> web
   openapi -. "codegen" .-> mobile
-  asyncapi -. "codegen" .-> web
-  asyncapi -. "codegen" .-> mobile
+  openapi -. "validates" .-> api
 ```
 
-Wire contracts (`packages/specs`) are the single source of truth. Generated
-clients (`packages/api-client-{ts,dart}`) are read-only — codegen owns them.
+- **Spec-first.** `packages/specs/openapi/openapi.yaml` is the source of truth.
+  It generates the TypeScript and Dart clients and is enforced at runtime by
+  `express-openapi-validator` — the backend physically cannot serve an
+  undocumented route.
+- **No external services for the core.** SQLite (with FTS5) is the database; a
+  DB-backed worker runs background jobs; realtime is plain SSE. The local stack
+  is just two containers (`backend`, `web`).
 
-## What's in the box
+### Stack
 
-### Backend — `apps/backend`
+| Layer         | Tech                                                                                              |
+| ------------- | ------------------------------------------------------------------------------------------------- |
+| **Backend**   | NestJS 11 · Prisma 7 (SQLite + FTS5) · CQRS · Better Auth · DB job worker + SSE · RFC 9457 errors |
+| **Web**       | Nuxt 4 (SPA, `ssr:false`) · Nuxt UI v4 · Tailwind 4 · `@app/ui` · `@nuxtjs/i18n` (en/ru)          |
+| **Mobile**    | Flutter 3.41 · flutter_bloc · get_it · Dio · flutter_secure_storage · slang (en/ru/uk/el)         |
+| **Contracts** | OpenAPI 3.1 + AsyncAPI 3.0 → generated `api-client-{ts,dart}` (read-only, codegen-owned)          |
+| **Design**    | W3C design tokens → CSS / TS / Dart · `@app/ui` Vue components + colocated Storybook              |
 
-- NestJS 11 with CQRS (`@nestjs/cqrs`) and strict URI versioning at `/api/v1/*`
-- Better Auth mounted under `/api/v1/auth/*`, backed by Prisma 7 tables
-- Centrifugo realtime token endpoint (`POST /api/v1/realtime/token`, TTL ≤ 5 min)
-- RFC 9457 `application/problem+json` error envelope via a global filter
-- `express-openapi-validator` rejects any request or response that drifts
-  from `packages/specs/openapi/openapi.yaml`
-- Config module (`AppConfig`) — direct `process.env` access is banned
-- Sentry + OpenTelemetry wired in `main.ts`
-- nestjs-i18n, @nestjs/throttler, health endpoint with db / redis /
-  centrifugo dependency status
-- Vitest suite (30 tests, includes mock SMS / email / storage adapters for
-  local dev)
+## Repository layout
 
-### Web — `apps/web`
-
-- Nuxt 4 in SPA mode (`ssr: false`), Nuxt UI v4, Tailwind v4
-- `@nuxtjs/i18n` with per-component `<i18n lang="json">` blocks, not global
-  message files (`useI18n({ useScope: 'local' })`)
-- All HTTP goes through the generated `@app/api-client-ts`
-- Auth state via Better Auth's `useSession()` + `AuthGate`-style layout
-- SCSS with BEM naming, design tokens as CSS custom properties
-
-### Mobile — `apps/mobile`
-
-- Flutter 3.41, feature-first layout (`domain/data/presentation`)
-- `flutter_bloc` for state, `get_it` for DI, Dio for HTTP
-- Ready-made auth vertical: welcome / sign-in / sign-up screens, `AuthCubit`,
-  `AuthGate`, token storage via `flutter_secure_storage`
-- Firebase Messaging push integration, Sentry Flutter
-- i18n via `slang`, four locales wired (en / ru / uk / el) across
-  `auth` / `common` / `settings` namespaces
-- Linked to the shared design system (`app_ui` = `packages/ui_flutter`) and
-  the generated Dart client (`app_api_client` = `packages/api-client-dart`)
-
-### Shared contracts — `packages/specs`
-
-- OpenAPI 3.1 (`openapi/openapi.yaml`) + AsyncAPI 3.0 (`asyncapi/centrifugo.yaml`)
-- `pnpm spec:validate` (Redocly + AsyncAPI CLI)
-- `pnpm spec:bundle` → `dist/openapi.json`
-- `pnpm spec:codegen` regenerates:
-  - `packages/api-client-ts/src/generated/` via `@hey-api/openapi-ts`
-  - `packages/specs/src/openapi-types.ts` via `openapi-typescript`
-  - `packages/api-client-dart/lib/generated/` via `openapi-generator-cli` (dart-dio)
-  - `packages/api-client-ts/src/realtime/channels.ts` from the AsyncAPI spec
-- CI compares the regenerated output against the committed tree — a drift
-  means the PR fails
-
-### Design system — `packages/ui` + `packages/ui_flutter` + `packages/design-tokens`
-
-- W3C Design Tokens (`specs/design/tokens/*.json`) → CSS custom properties,
-  TypeScript constants, Dart theme — generated by `pnpm design:build`
-- `@app/ui` (Vue) — 11 brand components, every one with a colocated
-  `*.stories.ts` (Storybook) and `*.spec.ts` (vitest, 181 tests)
-- `@app/ui_flutter` — shared Flutter widgets and theme binding
-- `pnpm design:audit` cross-checks `specs/design/README.md` inventory
-  against the actual component folders
-
-### Local stack — `docker/compose.yml`
-
-| Service    | Version        | Port | Notes                              |
-| ---------- | -------------- | ---- | ---------------------------------- |
-| postgres   | 18.1-alpine    | 5432 | init SQL in `postgres/init.sql`    |
-| redis      | 8.6-alpine     | 6379 | appendonly                         |
-| centrifugo | v6             | 8000 | config in `centrifugo/`            |
-| backend    | Dockerfile.dev | 3000 | waits on postgres/redis/centrifugo |
-| web        | Dockerfile.dev | 3001 | Nuxt dev server                    |
-| otel-lgtm  | grafana        | 3200 | local Grafana + LGTM stack         |
-
-Containers mount the repo as a volume, so edits reach the container without
-a rebuild. Matching `pnpm dev` and `docker compose up` at the same time
-would fight over host ports — pick one.
-
-### CI — `.github/workflows/ci.yml`
-
-- Backend: lint · typecheck · test (with coverage enforcement)
-- Web: lint · typecheck · test
-- Specs: OpenAPI + AsyncAPI validation, spec bundle
-- Codegen drift guard: regenerates every client and fails on `git diff`
-- UI audit: every `@app/ui` component must have both a story and a spec
-- Security: `pnpm audit`, TruffleHog secret scan, `license-checker` with an
-  allowlist of OSI-permissive licenses
-
-## Drift protections — at a glance
-
-| What could drift                       | What stops it                                            |
-| -------------------------------------- | -------------------------------------------------------- |
-| API route not in spec                  | `express-openapi-validator` rejects at runtime           |
-| Generated TS / Dart client out of sync | `codegen-drift` CI job runs `spec:codegen` and diffs     |
-| Hex colour snuck into a component      | Stylelint `color-no-hex: true` in `stylelint.config.mjs` |
-| Inline `style=""` / `!important`       | Stylelint rules                                          |
-| Component without story or spec        | `pnpm --filter @app/ui audit:components` in CI           |
-| Design token used but not documented   | `pnpm design:audit` cross-checks inventory               |
-| Missing translations in a locale       | `pnpm check:i18n` key-parity check                       |
-| Secret committed                       | TruffleHog on every PR                                   |
-| Unapproved license                     | `license-checker` allowlist                              |
+```
+apps/
+  backend/          NestJS 11 + Prisma 7 (SQLite) + CQRS + Better Auth
+  web/              Nuxt 4 (SPA) + Nuxt UI v4 + Tailwind v4 + @app/ui
+  mobile/           Flutter 3.41 + flutter_bloc + get_it + Dio
+packages/
+  specs/            OpenAPI 3.1 + AsyncAPI 3.0 — single source of API truth
+  api-client-ts/    generated TS client — never edit by hand
+  api-client-dart/  generated Dart client — never edit by hand
+  ui/               @app/ui Vue components + Storybook + specs
+  ui_flutter/       app_ui Flutter widgets + theme
+  design-tokens/    tokens pipeline: JSON → CSS / TS / Dart
+specs/
+  PRD.md            product requirements
+  roadmap.md        phase → subsystem map
+  HANDOFF.md        cold-start orientation
+  features/         per-feature specs + implementation plans
+  design/           tokens JSON + mockups + component inventory
+  tasks/            active.md (work stack) + done.md (archive)
+docker/             compose.yml (backend + web) + service configs
+.claude/            project rules (CLAUDE.md), domain handbook, subagent roster
+```
 
 ## Quick start
 
@@ -182,99 +156,59 @@ would fight over host ports — pick one.
 git clone <this-repo> burkmak
 cd burkmak
 pnpm install
-pnpm spec:codegen                # generate TS + Dart API clients from the spec
-pnpm design:build                # generate CSS / TS / Dart tokens
+pnpm spec:codegen                       # generate TS + Dart API clients from the spec
+pnpm design:build                       # generate CSS / TS / Dart design tokens
 docker compose -f docker/compose.yml up -d
-curl localhost:3000/api/v1/health
-# → {"status":"ok","dependencies":{"db":"ok"}}
+curl localhost:3000/api/v1/health       # → {"status":"ok",...}
 ```
 
-Open `http://localhost:3001` for the web app.
+Open **http://localhost:3001** for the web app. Containers mount the repo as a
+volume, so edits hot-reload — don't also run `pnpm dev` against the same ports.
 
-### Running in a Claude Code session
+For the mobile app: `cd apps/mobile && flutter run` (Flutter 3.41 + Dart 3.8).
 
-```
-Read .claude/CLAUDE.md. Push a new entry to specs/tasks/active.md and help me
-build <first feature>.
-```
+### Requirements
 
-`.claude/CLAUDE.md` is loaded automatically as project context.
-
-## Repository layout
-
-```
-apps/
-  backend/          NestJS 11 + Prisma 7 + CQRS + Better Auth
-  web/              Nuxt 4 (SPA) + Nuxt UI v4 + Tailwind v4
-  mobile/           Flutter 3.41 + flutter_bloc + get_it + Dio
-packages/
-  specs/            OpenAPI 3.1 + AsyncAPI 3.0 (source of truth)
-  api-client-ts/    generated TS client — never edit by hand
-  api-client-dart/  generated Dart client — never edit by hand
-  ui/               @app/ui Vue components + Storybook
-  ui_flutter/       app_ui Flutter widgets
-  design-tokens/    tokens pipeline: JSON → CSS / TS / Dart
-  eslint-config/    shared ESLint flat config
-  tsconfig/         shared TS configs
-specs/
-  tasks/            active.md (LIFO work stack) + done.md (archive)
-  design/           tokens JSON + component inventory
-docker/             compose.yml + service configs
-scripts/            cross-repo helpers
-.claude/            CLAUDE.md, docs/, subagents
-.github/            CI workflows, PR / issue templates
-```
-
-## Scripts reference
-
-| Command                   | What it does                                    |
-| ------------------------- | ----------------------------------------------- |
-| `pnpm spec:validate`      | Redocly + AsyncAPI lint                         |
-| `pnpm spec:bundle`        | Bundle OpenAPI to a single JSON                 |
-| `pnpm spec:codegen`       | Regenerate every client from the spec           |
-| `pnpm spec:contract-test` | Run Dredd/Prism-style contract tests            |
-| `pnpm design:build`       | Regenerate CSS / TS / Dart tokens               |
-| `pnpm design:audit`       | Inventory drift report                          |
-| `pnpm lint`               | Turbo — ESLint across every workspace           |
-| `pnpm typecheck`          | Turbo — tsc / nuxt typecheck                    |
-| `pnpm test`               | Turbo — vitest across every workspace           |
-| `pnpm build`              | Turbo — production build                        |
-| `pnpm storybook`          | `@app/ui` Storybook on :6006                    |
-| `pnpm check:i18n`         | Locale key-parity across backend / web / mobile |
-| `pnpm format`             | Prettier                                        |
-| `pnpm stylelint`          | Stylelint (SCSS + Vue)                          |
-
-## Requirements
-
-- Node.js ≥ 24
-- pnpm ≥ 10
+- Node.js ≥ 24 · pnpm ≥ 10
 - Docker + Docker Compose
-- Flutter 3.41 + Dart 3.8 (optional if you're not building mobile)
+- Flutter 3.41 + Dart 3.8 _(only if building mobile)_
+
+## How this project is built
+
+burkmak is developed spec-first with [Claude Code](https://claude.com/claude-code),
+and the repo carries the guardrails that keep an agentic workflow honest:
+
+- **Codegen drift guard** — CI regenerates every client from the spec and fails
+  on any diff. Generated clients are never hand-edited.
+- **Runtime contract validation** — `express-openapi-validator` rejects requests
+  that aren't in the OpenAPI spec.
+- **Migrations-only database** — every schema change is a committed Prisma
+  migration; `prisma db push` is prohibited.
+- **Design-token discipline** — Stylelint bans hex literals and inline styles in
+  brand components; every colour comes from a token.
+- **In-repo task stack** — work is pushed onto
+  [`specs/tasks/active.md`](specs/tasks/active.md) and archived to
+  [`done.md`](specs/tasks/done.md), not lost in a chat window.
 
 ## Documentation
 
-Shared handbook lives under [.claude/docs](.claude/docs):
+| Topic                                     | File                                                             |
+| ----------------------------------------- | ---------------------------------------------------------------- |
+| Product requirements                      | [`specs/PRD.md`](specs/PRD.md)                                   |
+| Roadmap (phases → subsystems)             | [`specs/roadmap.md`](specs/roadmap.md)                           |
+| Cold-start orientation                    | [`specs/HANDOFF.md`](specs/HANDOFF.md)                           |
+| Feature specs + implementation plans      | [`specs/features/`](specs/features)                              |
+| Design system, tokens, mockups            | [`specs/design/README.md`](specs/design/README.md)               |
+| Backend · CQRS · Prisma · API conventions | [`.claude/docs/handbook.md`](.claude/docs/handbook.md)           |
+| Design system · `@app/ui` · tokens · BEM  | [`.claude/docs/design-system.md`](.claude/docs/design-system.md) |
+| i18n (web + mobile + backend)             | [`.claude/docs/i18n.md`](.claude/docs/i18n.md)                   |
+| Testing pyramid · DoD · PR checklist      | [`.claude/docs/testing.md`](.claude/docs/testing.md)             |
+| Security · observability · a11y · perf    | [`.claude/docs/security.md`](.claude/docs/security.md)           |
+| Project rules (loaded by Claude Code)     | [`.claude/CLAUDE.md`](.claude/CLAUDE.md)                         |
 
-| Topic                                      | File                                                |
-| ------------------------------------------ | --------------------------------------------------- |
-| Backend, CQRS, Prisma, API conventions     | [`handbook.md`](.claude/docs/handbook.md)           |
-| Design system, @app/ui, tokens, BEM        | [`design-system.md`](.claude/docs/design-system.md) |
-| i18n (web + mobile + backend)              | [`i18n.md`](.claude/docs/i18n.md)                   |
-| Testing pyramid, DoD, PR checklist         | [`testing.md`](.claude/docs/testing.md)             |
-| Security, observability, a11y, performance | [`security.md`](.claude/docs/security.md)           |
-| Feature migration from another project     | [`migration.md`](.claude/docs/migration.md)         |
+## Contributing & security
 
-See also [specs/design/README.md](specs/design/README.md) for the design
-workflow and [.claude/CLAUDE.md](.claude/CLAUDE.md) for the full set of
-project rules.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Security
-
-See [SECURITY.md](SECURITY.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
 
 ## License
 
@@ -282,6 +216,7 @@ See [SECURITY.md](SECURITY.md).
 
 ## Acknowledgements
 
-Built on the shoulders of NestJS, Nuxt, Flutter, Prisma, Better Auth,
-Centrifugo, Redocly, AsyncAPI, slang, Tailwind, Storybook, Turbo, and pnpm.
-Workflow shaped for [Claude Code](https://claude.com/claude-code).
+Built on NestJS, Nuxt, Flutter, Prisma, Better Auth, Redocly, AsyncAPI, slang,
+Tailwind, Storybook, Turbo, and pnpm. Workflow shaped for
+[Claude Code](https://claude.com/claude-code).
+</content>
