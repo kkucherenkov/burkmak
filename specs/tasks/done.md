@@ -2,6 +2,18 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-14-007 — docker e2e validation + backend body-parser fix
+
+- Created: 2026-06-14
+- Completed: 2026-06-14
+- Owner: claude
+- Result: merged locally to `main` (branch `feat/s1-docker-e2e`: `7edfc22` backend fix + `e247bb2` e2e spec).
+- Brought up the docker stack (`docker compose -f docker/compose.yml up -d --build`) — backend + web both healthy (`200`); compose was already the simplified SQLite stack (no postgres/redis/centrifugo).
+- **Bug fixed (caught by the running stack):** the express-openapi-validator middleware (`app.use('/api', …)`) registered in `bootstrap` ran BEFORE Nest's built-in body parser, so POST/PATCH to API routes (`/items`, etc.) hit the validator with an empty `req.body` → `400 must have required property 'body'`. Auth routes worked only because they bypass the validator (`ignorePaths`) and reach the controller after Nest's parser. Fix: `bodyParser:false` + explicit `json()`/`urlencoded()` before the validator (`apps/backend/src/main.ts`). Integration tests missed it (in-process supertest, different parser order).
+- Verified live: sign-up `200` → save item `201` (`pending`) → `ready` ("Example Domain") via the job worker; web pages all serve + Nuxt mounts. 51 backend tests still pass.
+- e2e: backend-health smoke passes; added `tests/e2e/library-flow.spec.ts` (sign-up → guarded /library → save → SSE pending→ready). Browser tests run in CI — this sandbox can't extract the Playwright browser (hung unzip; no system chrome).
+- Note: the docker stack is left **running** (normal dev state).
+
 ## T-2026-06-14-006 — migrate web i18n to global .ts langDir locale files
 
 - Created: 2026-06-14
