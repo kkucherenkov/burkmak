@@ -11,6 +11,7 @@ abstract class AppRoutes {
   static const signIn = '/sign-in';
   static const signUp = '/sign-up';
   static const settings = '/settings';
+  static const library = '/library';
 }
 
 /// Route factory — maps route names to screen widgets.

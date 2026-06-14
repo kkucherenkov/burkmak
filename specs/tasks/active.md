@@ -20,7 +20,7 @@
   - [ ] W8: web verification
 - Sub-steps (mobile):
   - [x] M1: email sign-in i18n keys
-  - [ ] M2: sign_in_screen → email/password
+  - [x] M2: sign_in_screen → email/password
   - [ ] M3: sign_up_screen real form
   - [ ] M4: welcome_screen polish
   - [ ] M5: cubit tests (signIn/signUp)
