@@ -14,6 +14,7 @@ export interface ItemDetail {
   leadImageUrl: string | null;
   faviconUrl: string | null;
   status: ItemStatus;
+  extractStatus: ExtractStatus;
   readState: ReadState;
   favorite: boolean;
   savedAt: string;

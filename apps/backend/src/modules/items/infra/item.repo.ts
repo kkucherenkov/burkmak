@@ -29,6 +29,7 @@ function toDetail(row: Item & { tags?: { tag: { slug: string } }[] }): ItemDetai
     leadImageUrl: row.leadImageUrl,
     faviconUrl: row.faviconUrl,
     status: row.status as ItemDetail['status'],
+    extractStatus: row.extractStatus as ItemDetail['extractStatus'],
     readState: row.readState as ItemDetail['readState'],
     favorite: row.favorite,
     savedAt: row.savedAt.toISOString(),
