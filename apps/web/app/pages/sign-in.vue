@@ -6,7 +6,13 @@
 
   definePageMeta({ middleware: 'guest' });
   const { t } = useI18n();
+  const route = useRoute();
   const auth = useAuth();
+
+  function postSignInTarget(): string {
+    const r = route.query.redirect;
+    return typeof r === 'string' && r.startsWith('/') ? r : '/library';
+  }
 
   const email = ref('');
   const password = ref('');
@@ -31,7 +37,7 @@
             : t('signIn.errorGeneric');
         return;
       }
-      await navigateTo('/library');
+      await navigateTo(postSignInTarget());
     } catch {
       errorMsg.value = t('signIn.errorGeneric');
     } finally {
