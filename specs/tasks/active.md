@@ -14,7 +14,7 @@
   - [x] 2: ItemsApi/TagsApi factories + DI
   - [x] 3: EventsClient (SSE byte-stream → AppEvent)
   - [x] 4: ItemsRepository
-  - [ ] 5: LibraryState + LibraryCubit (TDD)
+  - [x] 5: LibraryState + LibraryCubit (TDD)
   - [ ] 6: LibraryScreen + item card + filter bar
   - [ ] 7: DetailCubit + state (TDD)
   - [ ] 8: ItemDetailScreen
