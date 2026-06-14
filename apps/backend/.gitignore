@@ -3,6 +3,9 @@
 *.db-wal
 *.db-shm
 
+# Local image cache (AppConfig.dataDir; written by the extraction job at runtime)
+data/
+
 # Environment
 .env
 
