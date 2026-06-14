@@ -5,9 +5,8 @@ import path from 'node:path';
 import { Injectable, Logger } from '@nestjs/common';
 
 import { AppConfig } from '../../../common/config/app-config';
+import { safeFetch } from '../../../common/net/safe-fetch';
 import type { IImageCache } from '../domain/article.ports';
-
-export { IMAGE_CACHE } from '../domain/article.ports';
 
 /** Maximum images to download per article. */
 const MAX_IMAGES = 20;
@@ -16,14 +15,13 @@ const IMAGE_TIMEOUT_MS = 8000;
 /** Per-image size cap in bytes (5 MB). */
 const IMAGE_SIZE_CAP = 5 * 1024 * 1024;
 
-/** Allowed image MIME types. */
+/** Allowed image MIME types. SVG excluded — it can embed <script> (stored-XSS risk). */
 const ALLOWED_MIME_TYPES = new Set([
   'image/jpeg',
   'image/png',
   'image/gif',
   'image/webp',
   'image/avif',
-  'image/svg+xml',
 ]);
 
 /**
@@ -101,7 +99,7 @@ export function sha1(input: string): string {
   return createHash('sha1').update(input).digest('hex');
 }
 
-/** Download an image with timeout + size cap. Returns raw buffer + ext. */
+/** Download an image with SSRF guard, timeout, and size cap. Returns raw buffer + ext. */
 async function downloadImage(url: string): Promise<{ data: Buffer; ext: string }> {
   const controller = new AbortController();
   const timer = setTimeout(() => {
@@ -109,7 +107,9 @@ async function downloadImage(url: string): Promise<{ data: Buffer; ext: string }
   }, IMAGE_TIMEOUT_MS);
 
   try {
-    const res = await fetch(url, {
+    // safeFetch validates scheme + resolves hostname against blocked ranges,
+    // and follows redirects manually (re-checking each hop).
+    const res = await safeFetch(url, {
       signal: controller.signal,
       headers: { 'user-agent': 'burkmak/1.0 (+self-hosted read-it-later)' },
     });
@@ -128,8 +128,12 @@ async function downloadImage(url: string): Promise<{ data: Buffer; ext: string }
       throw new Error(`Image too large: ${buffer.byteLength.toString()} bytes`);
     }
 
-    const rawExt = path.extname(new URL(url).pathname).slice(1);
-    const ext = extFromMime(contentType) ?? (rawExt || 'bin');
+    // Fix 3: ext comes ONLY from the MIME allowlist. Never fall back to the
+    // URL path (attacker-controlled text) — if the MIME is unknown, skip caching.
+    const ext = extFromMime(contentType);
+    if (!ext) {
+      throw new Error(`No known extension for MIME type: ${contentType}`);
+    }
     return { data: Buffer.from(buffer), ext };
   } finally {
     clearTimeout(timer);
@@ -143,7 +147,6 @@ function extFromMime(mime: string): string | null {
     'image/gif': 'gif',
     'image/webp': 'webp',
     'image/avif': 'avif',
-    'image/svg+xml': 'svg',
   };
   return map[mime] ?? null;
 }

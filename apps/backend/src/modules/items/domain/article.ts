@@ -12,14 +12,11 @@ export interface ParsedArticle {
 
 // Security-critical allowlist: only structural/semantic tags needed for reader view.
 // No script/style/form/iframe/object/embed — ever.
-const ALLOWED_TAGS = [
-  ...sanitizeHtml.defaults.allowedTags,
-  'img',
-  'figure',
-  'figcaption',
-  'h1',
-  'h2',
-].filter((t) => t !== 'script' && t !== 'style');
+// Note: h1/h2/figure/figcaption are already in sanitizeHtml.defaults.allowedTags;
+// 'img' is not, so we add only that.
+const ALLOWED_TAGS = [...sanitizeHtml.defaults.allowedTags, 'img'].filter(
+  (t) => t !== 'script' && t !== 'style',
+);
 
 export function parseArticle(html: string, _url: string, wpm = 200): ParsedArticle {
   // linkedom's parseHTML returns `Window & typeof globalThis` — untyped in tsconfig
