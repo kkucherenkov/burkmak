@@ -12,9 +12,9 @@
 - Sub-steps:
   - [x] 1: extend useApi with item/tag methods
   - [x] 2: pure items-store + to-card-data utils (TDD)
-  - [ ] 3: useItems + useTags composables
-  - [ ] 4: useEvents SSE composable
-  - [ ] 5: AppAddBar + AddLinkModal + library.vue
+  - [x] 3: useItems + useTags composables
+  - [x] 4: useEvents SSE composable
+  - [x] 5: AppAddBar + AddLinkModal + library.vue
   - [ ] 6: items/[id].vue metadata detail
   - [ ] 7: settings.vue (theme + language)
   - [ ] 8: verification
