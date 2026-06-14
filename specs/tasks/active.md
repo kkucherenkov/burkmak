@@ -17,6 +17,6 @@
 - Sub-steps:
   - [x] A — `@app/ui` highlight types → `.ts` barrel; restore web page imports from `@app/ui`
   - [x] B — add `@app/ui` build to CI + documented gates (CLAUDE.md/HANDOFF)
-  - [ ] C — reader UX polish: popover outside-click dismiss, optimistic tags, error feedback
+  - [x] C — reader UX polish: popover outside-click dismiss, optimistic tags, error feedback
 - Status: in-progress
 - Blockers: —

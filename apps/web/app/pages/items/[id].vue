@@ -24,7 +24,6 @@
 
   const { t } = useI18n();
   const route = useRoute();
-  const api = useApi();
   const { public: pub } = useRuntimeConfig();
   const id = route.params.id as string;
 
@@ -40,6 +39,19 @@
 
   const newTag = ref('');
   const editingId = ref<string | null>(null);
+
+  // ---- Inline action error feedback ---------------------------------------
+  // Page-local affordance (no global toast): user-triggered async handlers run
+  // through runAction, which surfaces a single dismissible banner on failure.
+  const actionError = ref<string | null>(null);
+  async function runAction(fn: () => Promise<void>): Promise<void> {
+    actionError.value = null;
+    try {
+      await fn();
+    } catch {
+      actionError.value = t('reader.actionFailed');
+    }
+  }
 
   onMounted(async () => {
     await store.refetchOne(id);
@@ -75,7 +87,7 @@
       quote: h.quote,
       prefix: h.prefix,
       suffix: h.suffix,
-      color: h.color as AppHighlightColor,
+      color: h.color,
     };
   }
   function toCardData(h: Highlight): AppHighlightCardHighlight {
@@ -96,6 +108,7 @@
   const popoverVisible = ref(false);
   const popoverX = ref(0);
   const popoverY = ref(0);
+  const popoverRef = ref<HTMLElement | null>(null);
 
   function hidePopover(): void {
     popoverVisible.value = false;
@@ -141,11 +154,22 @@
   function onScroll(): void {
     if (popoverVisible.value) hidePopover();
   }
+  // Dismiss the popover on an outside pointerdown; keep it open when the press
+  // lands inside (so swatches / add-note keep working). Capture phase mirrors
+  // the scroll listener so it sees the event before inner handlers.
+  function onPointerDown(event: PointerEvent): void {
+    if (!popoverVisible.value) return;
+    const target = event.target;
+    if (popoverRef.value && target instanceof Node && popoverRef.value.contains(target)) return;
+    hidePopover();
+  }
   onMounted(() => {
     globalThis.addEventListener('scroll', onScroll, true);
+    globalThis.addEventListener('pointerdown', onPointerDown, true);
   });
   onBeforeUnmount(() => {
     globalThis.removeEventListener('scroll', onScroll, true);
+    globalThis.removeEventListener('pointerdown', onPointerDown, true);
   });
 
   // ---- Metadata controls (route through the store; guard on item) ---------
@@ -159,14 +183,12 @@
   }
   async function addTag(): Promise<void> {
     if (!item.value || !newTag.value.trim()) return;
-    await api.addItemTag(id, newTag.value.trim());
-    await store.refetchOne(id);
+    await store.addTag(item.value, newTag.value.trim());
     newTag.value = '';
   }
   async function removeTag(slug: string): Promise<void> {
     if (!item.value) return;
-    await api.removeItemTag(id, slug);
-    await store.refetchOne(id);
+    await store.removeTag(item.value, slug);
   }
   async function remove(): Promise<void> {
     if (!item.value) return;
@@ -204,7 +226,7 @@
           size="sm"
           icon="i-lucide-archive"
           :label="t('itemDetail.archive')"
-          @click="setReadState('archived')"
+          @click="runAction(() => setReadState('archived'))"
         />
         <AppButton
           variant="ghost"
@@ -212,10 +234,22 @@
           size="sm"
           icon="i-lucide-trash-2"
           :label="t('itemDetail.delete')"
-          @click="remove"
+          @click="runAction(() => remove())"
         />
       </div>
     </header>
+
+    <p v-if="actionError" class="page-detail__error" role="alert">
+      <span class="page-detail__error-text">{{ actionError }}</span>
+      <button
+        type="button"
+        class="page-detail__error-dismiss"
+        :aria-label="t('reader.dismiss')"
+        @click="actionError = null"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </p>
 
     <h1 class="page-detail__title">
       {{ item.title ?? item.url }}
@@ -244,9 +278,9 @@
         :key="tag"
         :label="tag"
         removable
-        @remove="removeTag(tag)"
+        @remove="runAction(() => removeTag(tag))"
       />
-      <form class="page-detail__add-tag" @submit.prevent="addTag">
+      <form class="page-detail__add-tag" @submit.prevent="runAction(() => addTag())">
         <AppInput v-model="newTag" type="text" :placeholder="t('itemDetail.addTag')" size="sm" />
       </form>
     </div>
@@ -257,28 +291,28 @@
         variant="outline"
         color="neutral"
         :label="t('itemDetail.read.unread')"
-        @click="setReadState('unread')"
+        @click="runAction(() => setReadState('unread'))"
       />
       <AppButton
         size="sm"
         variant="outline"
         color="neutral"
         :label="t('itemDetail.read.read')"
-        @click="setReadState('read')"
+        @click="runAction(() => setReadState('read'))"
       />
       <AppButton
         size="sm"
         variant="outline"
         color="neutral"
         :label="t('itemDetail.read.archived')"
-        @click="setReadState('archived')"
+        @click="runAction(() => setReadState('archived'))"
       />
       <AppButton
         size="sm"
         :variant="item.favorite ? 'solid' : 'outline'"
         :color="item.favorite ? 'primary' : 'neutral'"
         :label="t('itemDetail.favorite')"
-        @click="toggleFavorite"
+        @click="runAction(() => toggleFavorite())"
       />
     </div>
 
@@ -287,7 +321,7 @@
       v-if="article.status.value !== 'ready'"
       :status="article.status.value"
       :labels="readerLabels"
-      @extract="article.extract()"
+      @extract="runAction(() => article.extract())"
     />
 
     <div v-else class="page-detail__reader">
@@ -314,8 +348,8 @@
               :labels="cardLabels"
               @edit="editingId = h.id"
               @cancel="editingId = null"
-              @delete="highlights.remove(h.id)"
-              @save="onSaveNote(h.id, $event)"
+              @delete="runAction(() => highlights.remove(h.id))"
+              @save="runAction(() => onSaveNote(h.id, $event))"
             />
           </li>
         </ul>
@@ -330,10 +364,15 @@
     -->
     <div
       v-if="popoverVisible"
+      ref="popoverRef"
       class="page-detail__popover"
       :style="{ '--popover-x': popoverX + 'px', '--popover-y': popoverY + 'px' }"
     >
-      <AppHighlightPopover :labels="popoverLabels" @pick="onPick" @add-note="onAddNote" />
+      <AppHighlightPopover
+        :labels="popoverLabels"
+        @pick="runAction(() => onPick($event))"
+        @add-note="runAction(() => onAddNote())"
+      />
     </div>
   </article>
 </template>
@@ -385,6 +424,52 @@
     &__bar-actions {
       display: flex;
       gap: var(--space-2);
+    }
+
+    &__error {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin: 0;
+      padding: var(--space-3) var(--space-4);
+      color: var(--status-error-fg);
+      background: var(--status-error-subtle);
+      border: 1px solid var(--status-error-fg);
+      border-radius: var(--radius-lg);
+      font-size: var(--text-sm);
+      font-weight: var(--fw-medium);
+    }
+
+    &__error-text {
+      min-width: 0;
+    }
+
+    &__error-dismiss {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--space-6);
+      height: var(--space-6);
+      flex: none;
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      border-radius: var(--radius-md);
+      font-size: var(--text-lg);
+      line-height: 1;
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease);
+
+      &:hover {
+        background: var(--surface-raised);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--status-error-fg);
+        outline-offset: 2px;
+      }
     }
 
     &__title {

@@ -105,6 +105,8 @@ export default {
     failed: 'Не удалось извлечь. Попробуйте ещё раз.',
     retry: 'Повторить',
     highlights: 'Выделения',
+    actionFailed: 'Что-то пошло не так. Попробуйте ещё раз.',
+    dismiss: 'Закрыть',
   },
 
   highlight: {
