@@ -21,7 +21,11 @@ function createInstance(
 ): ReturnType<typeof betterAuth> {
   const { basePath, secret, baseUrl } = config.betterAuth;
   const instance = betterAuth({
-    database: prismaAdapter(prisma, { provider: 'postgresql' }),
+    // MUST match the Prisma datasource dialect (schema.prisma `datasource db`).
+    // The datasource is SQLite (via @prisma/adapter-better-sqlite3); a mismatched
+    // provider makes the adapter emit SQL for the wrong dialect. 'postgresql' was a
+    // monorepo-template leftover that the "switch Prisma to SQLite" migration missed.
+    database: prismaAdapter(prisma, { provider: 'sqlite' }),
     secret,
     baseURL: baseUrl,
     basePath,
