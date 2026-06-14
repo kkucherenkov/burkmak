@@ -78,10 +78,29 @@ export default {
     },
   },
 
+  save: {
+    saving: 'Saving…',
+    saved: 'Saved to burkmak',
+    failed: "Couldn't save this page.",
+    retry: 'Retry',
+    viewInLibrary: 'View in library',
+    badUrl: 'No valid URL to save.',
+    signInPrompt: 'Redirecting you to sign in…',
+  },
+
   settings: {
     title: 'Settings',
     theme: 'Toggle theme',
     language: 'Language',
+    bookmarklet: {
+      title: 'Browser bookmarklet',
+      description:
+        "Save the page you're reading with one click. Drag the button to your bookmarks bar, or copy it.",
+      dragHint: 'Drag to your bookmarks bar →',
+      button: 'Save to burkmak',
+      copy: 'Copy',
+      copied: 'Copied',
+    },
   },
 
   itemDetail: {
