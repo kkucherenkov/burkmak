@@ -23,7 +23,7 @@
   - [x] M2: sign_in_screen → email/password
   - [x] M3: sign_up_screen real form
   - [x] M4: welcome_screen polish
-  - [ ] M5: cubit tests (signIn/signUp)
+  - [x] M5: cubit tests (signIn/signUp)
   - [ ] M6: mobile verification
 - Status: in-progress
 - Blockers: —

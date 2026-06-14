@@ -64,15 +64,11 @@ void main() {
       'emits authenticating then authenticated on success',
       build: () {
         when(
-          () => repository.signIn(
-            email: 'test@example.com',
-            password: 'pass',
-          ),
+          () => repository.signIn(email: 'test@example.com', password: 'pass'),
         ).thenAnswer((_) async => _user);
         return AuthCubit(repository);
       },
-      act: (cubit) =>
-          cubit.signIn(email: 'test@example.com', password: 'pass'),
+      act: (cubit) => cubit.signIn(email: 'test@example.com', password: 'pass'),
       expect: () => <AuthState>[
         const AuthState(status: AuthStatus.authenticating),
         const AuthState(status: AuthStatus.authenticated, user: _user),
@@ -90,13 +86,57 @@ void main() {
         ).thenThrow(Exception('bad credentials'));
         return AuthCubit(repository);
       },
-      act: (cubit) =>
-          cubit.signIn(email: 'x@x.com', password: 'wrong'),
+      act: (cubit) => cubit.signIn(email: 'x@x.com', password: 'wrong'),
       expect: () => <AuthState>[
         const AuthState(status: AuthStatus.authenticating),
         const AuthState(
           status: AuthStatus.error,
           errorMessage: 'Exception: bad credentials',
+        ),
+      ],
+    );
+  });
+
+  group('signUp', () {
+    blocTest<AuthCubit, AuthState>(
+      'emits authenticating then authenticated on success',
+      build: () {
+        when(
+          () => repository.signUp(
+            name: any(named: 'name'),
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          ),
+        ).thenAnswer((_) async => _user);
+        return AuthCubit(repository);
+      },
+      act: (cubit) =>
+          cubit.signUp(name: 'Ada', email: 'a@b.co', password: 'hunter22'),
+      expect: () => <AuthState>[
+        const AuthState(status: AuthStatus.authenticating),
+        const AuthState(status: AuthStatus.authenticated, user: _user),
+      ],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'emits authenticating then error on exception',
+      build: () {
+        when(
+          () => repository.signUp(
+            name: any(named: 'name'),
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          ),
+        ).thenThrow(Exception('email-taken'));
+        return AuthCubit(repository);
+      },
+      act: (cubit) =>
+          cubit.signUp(name: 'Ada', email: 'a@b.co', password: 'hunter22'),
+      expect: () => <AuthState>[
+        const AuthState(status: AuthStatus.authenticating),
+        const AuthState(
+          status: AuthStatus.error,
+          errorMessage: 'Exception: email-taken',
         ),
       ],
     );
@@ -109,10 +149,8 @@ void main() {
         when(() => repository.signOut()).thenAnswer((_) async {});
         return AuthCubit(repository);
       },
-      seed: () => const AuthState(
-        status: AuthStatus.authenticated,
-        user: _user,
-      ),
+      seed: () =>
+          const AuthState(status: AuthStatus.authenticated, user: _user),
       act: (cubit) => cubit.signOut(),
       expect: () => <AuthState>[
         const AuthState(status: AuthStatus.unauthenticated),
