@@ -21,7 +21,7 @@
   - [x] 9a: AddLinkCubit + state (TDD) — cubit done; screen pending (after step 10 i18n)
   - [x] 9b: AddLinkScreen (after i18n step 10)
   - [x] 10: slang namespaces (library/item_detail/add_link × en/ru/uk/el)
-  - [ ] 11: routes + cubit DI + app wiring
+  - [x] 11: routes + cubit DI + app wiring
   - [ ] 12: verification
 - Status: in-progress
 - Blockers: —
