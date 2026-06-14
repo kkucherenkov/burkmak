@@ -57,10 +57,7 @@ void configureDependencies() {
       () => ItemsRepository(getIt<ItemsApi>(), getIt<TagsApi>()),
     )
     ..registerLazySingleton<ArticleRepository>(
-      () => ArticleRepository(
-        getIt<ExtractionApi>(),
-        getIt<HighlightsApi>(),
-      ),
+      () => ArticleRepository(getIt<ExtractionApi>(), getIt<HighlightsApi>()),
     )
     ..registerLazySingleton<AuthRepository>(
       () => AuthApiImpl(dio: getIt<Dio>(), tokenStorage: getIt<TokenStorage>()),

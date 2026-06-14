@@ -131,9 +131,7 @@ void main() {
     build: () {
       when(
         () => itemsRepo.getItem('a'),
-      ).thenAnswer(
-        (_) async => _item('a', extractStatus: ExtractStatus.ready),
-      );
+      ).thenAnswer((_) async => _item('a', extractStatus: ExtractStatus.ready));
       when(
         () => articleRepo.getArticle('a'),
       ).thenAnswer((_) async => _article());
@@ -160,9 +158,7 @@ void main() {
   blocTest<DetailCubit, DetailState>(
     'extract() emits extractStatus=extracting',
     build: () {
-      when(
-        () => articleRepo.extract('a'),
-      ).thenAnswer((_) async {});
+      when(() => articleRepo.extract('a')).thenAnswer((_) async {});
       return _buildCubit(itemsRepo, articleRepo, events);
     },
     seed: () => DetailState(
@@ -185,9 +181,7 @@ void main() {
     build: () {
       when(
         () => itemsRepo.getItem('a'),
-      ).thenAnswer(
-        (_) async => _item('a', extractStatus: ExtractStatus.ready),
-      );
+      ).thenAnswer((_) async => _item('a', extractStatus: ExtractStatus.ready));
       when(
         () => articleRepo.getArticle('a'),
       ).thenAnswer((_) async => _article());

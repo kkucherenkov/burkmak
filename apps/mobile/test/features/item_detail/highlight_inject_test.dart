@@ -16,12 +16,7 @@ void main() {
 
   test('leaves html unchanged when the quote is absent', () {
     final out = injectHighlights('<p>nothing here</p>', [
-      const HlAnchor(
-        quote: 'zzz',
-        prefix: '',
-        suffix: '',
-        color: 'green',
-      ),
+      const HlAnchor(quote: 'zzz', prefix: '', suffix: '', color: 'green'),
     ]);
     expect(out, '<p>nothing here</p>');
   });
@@ -56,7 +51,12 @@ void main() {
   test('injects multiple highlights', () {
     final out = injectHighlights('<p>one two three</p>', [
       const HlAnchor(quote: 'one', prefix: '', suffix: ' two', color: 'pink'),
-      const HlAnchor(quote: 'three', prefix: 'two ', suffix: '', color: 'green'),
+      const HlAnchor(
+        quote: 'three',
+        prefix: 'two ',
+        suffix: '',
+        color: 'green',
+      ),
     ]);
     expect(out, contains('<mark class="hl-pink">one</mark>'));
     expect(out, contains('<mark class="hl-green">three</mark>'));

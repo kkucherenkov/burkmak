@@ -96,9 +96,7 @@ class DetailCubit extends Cubit<DetailState> {
           ),
         );
       } else {
-        emit(
-          state.copyWith(item: item, extractStatus: item.extractStatus),
-        );
+        emit(state.copyWith(item: item, extractStatus: item.extractStatus));
       }
     } on Object catch (e) {
       emit(
@@ -124,10 +122,7 @@ class DetailCubit extends Cubit<DetailState> {
     if (item == null) return;
     emit(
       state.copyWith(
-        item: await _itemsRepo.updateItem(
-          item.id,
-          favorite: !item.favorite,
-        ),
+        item: await _itemsRepo.updateItem(item.id, favorite: !item.favorite),
       ),
     );
   }

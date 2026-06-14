@@ -274,9 +274,7 @@ class _ArticleView extends StatelessWidget {
           lineHeight: LineHeight.number(1.75),
           fontSize: FontSize(17),
         ),
-        'p': Style(
-          margin: Margins.symmetric(vertical: 8),
-        ),
+        'p': Style(margin: Margins.symmetric(vertical: 8)),
         // Highlight mark colors.
         'mark.hl-yellow': Style(
           backgroundColor: const Color(0xFFFFF176), // yellow[200]
