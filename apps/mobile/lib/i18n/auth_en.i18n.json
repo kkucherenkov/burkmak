@@ -33,15 +33,15 @@
   },
   "signIn": {
     "title": "Welcome back",
+    "subtitle": "Sign in to your library",
     "emailLabel": "Email",
-    "emailHint": "you@example.com",
     "passwordLabel": "Password",
-    "passwordHint": "Your password",
     "submit": "Sign in",
-    "noAccount": "No account?",
-    "signUpLink": "Sign up",
-    "errorInvalidCredentials": "Invalid email or password.",
-    "errorGeneric": "Sign-in failed: {error}"
+    "noAccount": "New to burkmak?",
+    "signUpLink": "Create an account",
+    "errorInvalid": "Enter a valid email and an 8+ character password.",
+    "errorCredentials": "Wrong email or password.",
+    "errorGeneric": "Something went wrong. Please try again."
   },
   "signUp": {
     "title": "Create account",

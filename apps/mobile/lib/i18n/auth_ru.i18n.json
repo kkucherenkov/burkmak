@@ -33,15 +33,15 @@
   },
   "signIn": {
     "title": "С возвращением",
+    "subtitle": "Войдите в свою библиотеку",
     "emailLabel": "Электронная почта",
-    "emailHint": "you@example.com",
     "passwordLabel": "Пароль",
-    "passwordHint": "Ваш пароль",
     "submit": "Войти",
-    "noAccount": "Нет аккаунта?",
-    "signUpLink": "Зарегистрироваться",
-    "errorInvalidCredentials": "Неверный email или пароль.",
-    "errorGeneric": "Ошибка входа: {error}"
+    "noAccount": "Впервые в burkmak?",
+    "signUpLink": "Создать аккаунт",
+    "errorInvalid": "Введите корректный email и пароль от 8 символов.",
+    "errorCredentials": "Неверный email или пароль.",
+    "errorGeneric": "Что-то пошло не так. Пожалуйста, попробуйте снова."
   },
   "signUp": {
     "title": "Создать аккаунт",

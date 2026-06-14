@@ -15,11 +15,11 @@
   - [x] W3: app-local AppBrand/AppFormError/AppStrength
   - [x] W4: welcome.vue
   - [x] W5: sign-in.vue (replace login.vue)
-  - [ ] W6: sign-up.vue
+  - [x] W6: sign-up.vue
   - [x] W7: auth/guest middleware + index redirect
   - [ ] W8: web verification
 - Sub-steps (mobile):
-  - [ ] M1: email sign-in i18n keys
+  - [x] M1: email sign-in i18n keys
   - [ ] M2: sign_in_screen → email/password
   - [ ] M3: sign_up_screen real form
   - [ ] M4: welcome_screen polish

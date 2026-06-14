@@ -33,15 +33,15 @@
   },
   "signIn": {
     "title": "З поверненням",
+    "subtitle": "Увійдіть до своєї бібліотеки",
     "emailLabel": "Email",
-    "emailHint": "you@example.com",
     "passwordLabel": "Пароль",
-    "passwordHint": "Ваш пароль",
     "submit": "Увійти",
-    "noAccount": "Немає акаунту?",
-    "signUpLink": "Зареєструватись",
-    "errorInvalidCredentials": "Невірний email або пароль.",
-    "errorGeneric": "Вхід не вдався: {error}"
+    "noAccount": "Вперше в burkmak?",
+    "signUpLink": "Створити акаунт",
+    "errorInvalid": "Введіть дійсний email і пароль від 8 символів.",
+    "errorCredentials": "Невірний email або пароль.",
+    "errorGeneric": "Щось пішло не так. Будь ласка, спробуйте ще раз."
   },
   "signUp": {
     "title": "Створити акаунт",
