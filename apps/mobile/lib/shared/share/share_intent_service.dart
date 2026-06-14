@@ -41,7 +41,10 @@ class ShareIntentService {
     final token = await _tokens.read();
     final signedIn = token != null && token.isNotEmpty;
     if (signedIn) {
-      appNavigatorKey.currentState?.pushNamed(AppRoutes.quickSave, arguments: url);
+      appNavigatorKey.currentState?.pushNamed(
+        AppRoutes.quickSave,
+        arguments: url,
+      );
     } else {
       _pending.set(url);
     }

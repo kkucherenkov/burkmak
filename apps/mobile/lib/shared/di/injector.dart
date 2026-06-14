@@ -54,7 +54,8 @@ void configureDependencies() {
     ..registerLazySingleton<EventsClient>(() => EventsClient(getIt<Dio>()))
     ..registerLazySingleton<PendingShareStore>(PendingShareStore.new)
     ..registerLazySingleton<ShareIntentService>(
-      () => ShareIntentService(getIt<TokenStorage>(), getIt<PendingShareStore>()),
+      () =>
+          ShareIntentService(getIt<TokenStorage>(), getIt<PendingShareStore>()),
     );
 
   // ── Domain repository singletons ────────────────────────────────────────
