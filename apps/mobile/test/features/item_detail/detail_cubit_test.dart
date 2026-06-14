@@ -8,11 +8,12 @@ import 'package:mocktail/mocktail.dart';
 
 class _MockRepo extends Mock implements ItemsRepository {}
 
-Item _item(String id, {ItemStatus status = ItemStatus.ready}) => Item(
+Item _item(String id, {ItemStatus status = ItemStatus.ready, ExtractStatus extractStatus = ExtractStatus.none}) => Item(
   (b) => b
     ..id = id
     ..url = 'https://x/$id'
     ..status = status
+    ..extractStatus = extractStatus
     ..readState = ReadState.unread
     ..favorite = false
     ..savedAt = DateTime.utc(2026),

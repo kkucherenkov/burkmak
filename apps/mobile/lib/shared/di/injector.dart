@@ -6,6 +6,7 @@ import 'package:app_mobile/features/add_link/presentation/bloc/add_link_cubit.da
 import 'package:app_mobile/features/auth/data/auth_api.dart';
 import 'package:app_mobile/features/auth/domain/auth_repository.dart';
 import 'package:app_mobile/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:app_mobile/features/item_detail/data/article_repository.dart';
 import 'package:app_mobile/features/item_detail/presentation/bloc/detail_cubit.dart';
 import 'package:app_mobile/features/library/data/items_repository.dart';
 import 'package:app_mobile/features/library/presentation/bloc/library_cubit.dart';
@@ -42,12 +43,24 @@ void configureDependencies() {
     )
     ..registerLazySingleton<ItemsApi>(() => buildItemsApi(getIt<Dio>()))
     ..registerLazySingleton<TagsApi>(() => buildTagsApi(getIt<Dio>()))
+    ..registerLazySingleton<ExtractionApi>(
+      () => buildExtractionApi(getIt<Dio>()),
+    )
+    ..registerLazySingleton<HighlightsApi>(
+      () => buildHighlightsApi(getIt<Dio>()),
+    )
     ..registerLazySingleton<EventsClient>(() => EventsClient(getIt<Dio>()));
 
   // ── Domain repository singletons ────────────────────────────────────────
   getIt
     ..registerLazySingleton<ItemsRepository>(
       () => ItemsRepository(getIt<ItemsApi>(), getIt<TagsApi>()),
+    )
+    ..registerLazySingleton<ArticleRepository>(
+      () => ArticleRepository(
+        getIt<ExtractionApi>(),
+        getIt<HighlightsApi>(),
+      ),
     )
     ..registerLazySingleton<AuthRepository>(
       () => AuthApiImpl(dio: getIt<Dio>(), tokenStorage: getIt<TokenStorage>()),
