@@ -2,6 +2,39 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-14-012 — fix Better Auth ↔ SQLite provider mismatch
+
+- Created: 2026-06-14
+- Completed: 2026-06-14
+- Owner: claude
+- Result: merged locally to `main` (`--no-ff` merge `dd82d09`, branch `fix/auth-sqlite-provider`, 1 commit `92a048d`).
+- Spec: none (config bugfix) — see HANDOFF.md gotcha "Better Auth provider now matches the SQLite datasource".
+- Root cause: `prismaAdapter(prisma, { provider: 'postgresql' })` was a monorepo-template leftover (`9fbcbcf`) that the "switch Prisma to SQLite" migration (`b8ec7a3`) never updated. The documented "can't boot the full Nest app in vitest without Postgres" blocker was **stale** — the app boots fine because Prisma reaches SQLite via the `@prisma/adapter-better-sqlite3` driver adapter, so the wrong provider never crashed. A config lie that pushed the team into repo-layer-only tests for no live reason.
+- Fix: provider → `'sqlite'` (matches `schema.prisma` datasource, with a comment tying the two); added `test/auth-sqlite-boot.spec.ts` (boots the full `AppModule` over a migrated temp SQLite DB + email sign-up + bearer session round-trip — the integration test wrongly believed impossible); corrected the false "no app boot" claim in `s2.isolation.spec.ts` + `HANDOFF.md`.
+- Verification: full backend suite **132/132** (29 files); typecheck + lint clean. Not a `template-fixes.md` entry — local migration miss, not a universal template bug.
+
+## T-2026-06-14-011 — S2-mobile (reader + read-only highlights)
+
+- Created: 2026-06-14
+- Completed: 2026-06-14
+- Owner: claude
+- Result: merged locally to `main` (`--no-ff` merge `c602af4`, branch `feat/s2-mobile`, 6 commits `2d937c6`→`f8344b7`).
+- Spec: [specs/features/2026-06-14-s2-extraction-and-reading.md](../features/2026-06-14-s2-extraction-and-reading.md) · Plan: [specs/features/2026-06-14-s2-mobile.plan.md](../features/2026-06-14-s2-mobile.plan.md)
+- Delivered: item-detail reader — `ArticleRepository` over the generated `ExtractionApi`/`HighlightsApi`; pure tested `injectHighlights` util (read-only `<mark>` injection); `DetailCubit` with article/extract/SSE/highlights (live `extracting→ready` via the existing SSE `item.updated`); `flutter_html` reader screen with `mark.hl-{yellow,green,blue,pink}` theming + image-origin rewrite; new slang `reader` namespace (en/ru/uk/el). No mobile highlight authoring (S2 cut).
+- Reviews: spec-compliance ✅ (scope clean; baseline-fix for missing `extractStatus` confirmed legit; deviations type-safer than plan) → code-quality ✅ "merge-ready" → fixes `f8344b7` (negative-path SSE guard tests, non-destructive refetch error, `uri.origin`).
+- Verification: `flutter analyze` 0 issues; `flutter test` **26/26**. (Generated slang `strings.g.dart` is gitignored — run `dart run slang` after pulling i18n source changes.)
+
+## T-2026-06-14-010 — S2-ui (reader & highlight @app/ui composites)
+
+- Created: 2026-06-14
+- Completed: 2026-06-14
+- Owner: claude
+- Result: merged locally to `main` (`--no-ff` merge `9bc210d`, branch `feat/s2-ui`, 6 commits `e981604`→`2ecf26e`).
+- Spec: [specs/features/2026-06-14-s2-extraction-and-reading.md](../features/2026-06-14-s2-extraction-and-reading.md) · Plan: [specs/features/2026-06-14-s2-ui.plan.md](../features/2026-06-14-s2-ui.plan.md) · Mockup: `specs/design/mockups/reader-highlights.vue`
+- Delivered: four `@app/ui` composites — `AppExtractState` (status machine), `AppArticleReader` (server-sanitized `v-html` + DOM-range highlight marks + selection `select` emit), `AppHighlightPopover` (4-swatch selection popover), `AppHighlightCard` (view + inline `AppTextarea` note editor); `--highlight-{yellow,green,blue,pink}` (+ `*-rail`) tokens; barrel exports + `AppHighlightData`/`AppHighlightColor` types. Storybook story + colocated spec per component, tokens-only, strings-as-props.
+- Reviews: spec-compliance ✅ (extracting→`pending` badge justified) → code-quality "merge-with-fixes" → fixes `2ecf26e`: real anchoring bug fixed (`highlight-mark.ts` now anchors ALL quote occurrences per text node, not just the first — a short quote appearing twice was silently dropped), added the missing colocated `highlight-mark.spec.ts` (the two-in-one-node test failed pre-fix, passes post-fix), fixed the broken `WithHighlights` story, swapped native `<textarea>`→`AppTextarea`, lint cleanups.
+- Verification: **242 tests** (22 files), typecheck 0 errors, lint 0 errors. Unblocks S2-web.
+
 ## T-2026-06-14-009 — S2-backend (P2 extraction & reading)
 
 - Created: 2026-06-14
