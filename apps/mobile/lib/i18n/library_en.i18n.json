@@ -1,0 +1,17 @@
+{
+  "title": "Library",
+  "empty": "Nothing here yet",
+  "seg": {
+    "unread": "Unread",
+    "read": "Read",
+    "archived": "Archived",
+    "favorite": "Favorite"
+  },
+  "search": "Search library",
+  "allTags": "All tags",
+  "act": {
+    "favorite": "Favorite",
+    "archive": "Archive",
+    "delete": "Delete"
+  }
+}

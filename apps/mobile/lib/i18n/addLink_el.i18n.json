@@ -1,0 +1,9 @@
+{
+  "title": "Αποθήκευση συνδέσμου",
+  "urlLabel": "URL άρθρου",
+  "placeholder": "https://example.com/article",
+  "save": "Αποθήκευση στη βιβλιοθήκη",
+  "cancel": "Ακύρωση",
+  "errorInvalid": "Εισαγάγετε έγκυρο URL.",
+  "errorGeneric": "Αδυναμία αποθήκευσης. Δοκιμάστε ξανά."
+}

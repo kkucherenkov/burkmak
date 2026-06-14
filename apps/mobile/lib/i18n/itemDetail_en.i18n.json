@@ -1,0 +1,13 @@
+{
+  "back": "Library",
+  "addTag": "Add tag",
+  "delete": "Delete",
+  "archive": "Archive",
+  "favorite": "Favorite",
+  "status": "Pending",
+  "read": {
+    "unread": "Unread",
+    "read": "Read",
+    "archived": "Archived"
+  }
+}
