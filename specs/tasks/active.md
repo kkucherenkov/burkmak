@@ -11,7 +11,7 @@
 - Depends on: S1-ui + S1-auth (merged). Codegen impact: no.
 - Sub-steps:
   - [x] 1: extend useApi with item/tag methods
-  - [ ] 2: pure items-store + to-card-data utils (TDD)
+  - [x] 2: pure items-store + to-card-data utils (TDD)
   - [ ] 3: useItems + useTags composables
   - [ ] 4: useEvents SSE composable
   - [ ] 5: AppAddBar + AddLinkModal + library.vue
