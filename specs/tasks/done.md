@@ -2,6 +2,24 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-14-009 — S2-backend (P2 extraction & reading)
+
+- Created: 2026-06-14
+- Completed: 2026-06-14
+- Owner: claude
+- Branch: `feat/s2-backend`
+- Result: All phases A–E complete. 28 test files / 129 tests green. Typecheck clean.
+  Key commits: 6e7e29b (schema), 84b08eb (FTS), 85dea28 (spec+codegen),
+  2b4fc91 03161a8 76b0e1c dd02dad (extractor+repo), 19450dc 18f7d37 (job+controller),
+  highlights phases (ecefa5d e2ba7bc), de599a2 (isolation test), 526e9d3 (extractStatus fix).
+- Live smoke: Wikipedia article saved → extract → ready (2s); article 200 (wordCount=216,
+  readingTimeMin=2, 0 `<script` tags); image 200 + `X-Content-Type-Options: nosniff`;
+  FTS `?q=read-it-later` → item returned; highlight CRUD (201/200/200/204).
+- Concerns: `betterAuth` uses `provider: 'postgresql'` even on SQLite — prevents booting
+  full Nest app in test without a real Postgres. Isolation tests therefore use repo layer
+  directly (same pattern as items.isolation.spec.ts). Image HEAD returns 405 (OpenAPI
+  validator rejects it); GET works correctly.
+
 ## T-2026-06-14-008 — S2-design (reader + highlights/notes mockup)
 
 - Created: 2026-06-14
