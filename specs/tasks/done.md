@@ -2,6 +2,18 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-14-013 — fix AppArticleReader `:deep()` highlight-modifier SCSS
+
+- Created: 2026-06-14
+- Completed: 2026-06-14
+- Owner: claude
+- Result: merged locally to `main` (`--no-ff` merge `ba3a2d2`, branch `fix/ui-article-reader-deep-scss`, 1 commit `240c629`). Preflight fix discovered starting S2-web.
+- Spec: none (build bugfix) — see HANDOFF.md.
+- Root cause: `AppArticleReader.vue` nested the highlight color modifiers as `&--<color>` under `:deep(.app-highlight)`, which makes Dart Sass append the `--<color>` suffix to a selector ending in the `:deep(...)` pseudo — an error ("can't add a suffix to a pseudo-selector"). The library `vite build` failed. It shipped green in T-010 only because the `@app/ui` slice gate runs test/typecheck/lint and turbo's `dependsOn: ["^build"]` never builds the package itself; `vue-tsc`/vitest don't compile SCSS through Dart Sass. The break surfaces via `@app/web#typecheck` (`^build → @app/ui#build`), so it also blocked the S2-web `nuxt build` gate.
+- Fix: each modifier is now its own full `:deep(.app-highlight--<color>)` selector, matching the classes emitted by `highlight-mark.ts`.
+- Verification: `pnpm --filter @app/ui build` green (87 modules); 242 ui tests still pass; full `pnpm typecheck` green (with Dart on PATH for codegen).
+- Follow-up (not blocking): the `@app/ui` per-slice gate should include `build` (or a `vite build`-backed check) so library SCSS errors can't ship latent again.
+
 ## T-2026-06-14-012 — fix Better Auth ↔ SQLite provider mismatch
 
 - Created: 2026-06-14
