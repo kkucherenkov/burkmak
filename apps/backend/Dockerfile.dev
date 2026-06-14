@@ -17,6 +17,6 @@ CMD ["sh", "-lc", "\
   pnpm install --frozen-lockfile=false && \
   pnpm --filter @app/specs bundle && \
   pnpm --filter @app/backend prisma:generate && \
-  pnpm --filter @app/backend prisma:db:push && \
+  pnpm --filter @app/backend prisma:migrate:deploy && \
   pnpm --filter @app/backend dev \
 "]
