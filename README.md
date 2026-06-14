@@ -9,9 +9,9 @@ roadmap up: **native Kobo sync** and **Obsidian export**. It runs on a small
 stack — NestJS + SQLite + Nuxt + Flutter — so a single binary-shaped deployment
 serves the web app, the mobile app, and your e-reader.
 
-> Status: **P1 + P2 shipped** (save/organise + extraction/reader/highlights/
-> full-text search). **P3 (capture surfaces) in progress.** P4 (Kobo) and P5
-> (Obsidian) planned. See the [roadmap](#roadmap).
+> Status: **P1–P3 shipped** (save/organise, extraction/reader/highlights/
+> full-text search, and capture surfaces — bookmarklet + Android share-sheet).
+> P4 (Kobo) and P5 (Obsidian) planned. See the [roadmap](#roadmap).
 
 ## Screenshots
 
@@ -30,7 +30,7 @@ shipped UI implements.</sub>
 
 ### Save & organise — _shipped (S1)_
 
-- Save a URL from the web add-bar, the mobile app, or (soon) a share-sheet /
+- Save a URL from the web add-bar, the mobile app, a share-sheet, or a
   bookmarklet — every surface hits the same `POST /items`.
 - Live metadata: title, site, excerpt, favicon and lead image fill in **without
   a refresh**, pushed over Server-Sent Events as a background job resolves them.
@@ -48,11 +48,13 @@ shipped UI implements.</sub>
 - **Highlights & notes**: select text, pick a colour, attach a note. Authored
   on web, rendered read-only on mobile.
 
-### Capture anywhere — _in progress (S3)_
+### Capture anywhere — _shipped (S3)_
 
-- Mobile **OS share-sheet** target — share a link from any app straight into
-  your library.
-- Desktop **browser bookmarklet** — one click to save the current page.
+- **Android share-sheet** target — share a link from any app straight into your
+  library (auto-saves; signed-out shares are held and saved after login). iOS
+  share extension is a tracked follow-up.
+- Desktop **browser bookmarklet** — one click saves the current page via a
+  same-origin `/save` popup that reuses your session.
 - Spec: [`specs/features/2026-06-14-capture-surfaces.md`](specs/features/2026-06-14-capture-surfaces.md).
 
 ### Sync & export — _planned (S4 · S5)_
@@ -68,13 +70,13 @@ Phase order: **S0 → S1 → S2**, then **S3 / S4 / S5** in parallel. Each phase
 one spec → plan → build cycle. Full detail in [`specs/roadmap.md`](specs/roadmap.md)
 and the requirements in [`specs/PRD.md`](specs/PRD.md).
 
-| Phase  | Subsystem | Ships                                                         | Status         |
-| ------ | --------- | ------------------------------------------------------------- | -------------- |
-| **P1** | S0 + S1   | Foundation (SQLite, jobs + SSE spine) and core library        | ✅ shipped     |
-| **P2** | S2        | Article extraction, reader view, FTS5 body search, highlights | ✅ shipped     |
-| **P3** | S3        | Mobile share-sheet capture, browser bookmarklet               | 🚧 in progress |
-| **P4** | S4        | EPUB/KEPUB, Kobo sync emulation, device pairing, read-back    | 📋 planned     |
-| **P5** | S5        | Obsidian export API + Obsidian plugin                         | 📋 planned     |
+| Phase  | Subsystem | Ships                                                         | Status     |
+| ------ | --------- | ------------------------------------------------------------- | ---------- |
+| **P1** | S0 + S1   | Foundation (SQLite, jobs + SSE spine) and core library        | ✅ shipped |
+| **P2** | S2        | Article extraction, reader view, FTS5 body search, highlights | ✅ shipped |
+| **P3** | S3        | Android share-sheet capture, browser bookmarklet              | ✅ shipped |
+| **P4** | S4        | EPUB/KEPUB, Kobo sync emulation, device pairing, read-back    | 📋 planned |
+| **P5** | S5        | Obsidian export API + Obsidian plugin                         | 📋 planned |
 
 ## Architecture
 
