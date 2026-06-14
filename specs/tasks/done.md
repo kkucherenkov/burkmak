@@ -2,6 +2,22 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-15-001 — S3-web: Bookmarklet & /save Popup
+
+- Created: 2026-06-15
+- Completed: 2026-06-15
+- Owner: claude
+- Result: branch `feat/s3-web`, 6 commits, pending `--no-ff` merge to `main` by human.
+- Spec: [specs/features/2026-06-15-s3-web.plan.md](../features/2026-06-15-s3-web.plan.md)
+- Delivered:
+  - Task 1: `app/utils/bookmarklet.ts` + 3 unit tests (buildSaveUrl, buildBookmarkletHref)
+  - Task 2: `app/utils/save-action.ts` + 4 unit tests (resolveSaveAction, rejects non-http, redirect-aware)
+  - Task 3: `i18n/locales/en.ts` + `ru.ts` — `save.*` (7 keys) + `settings.bookmarklet.*` (6 keys)
+  - Task 4: `app/pages/save.vue` — popup page, no auth middleware, self-guards via resolveSaveAction
+  - Task 5: `app/pages/sign-in.vue` — honors safe `?redirect=` query param after sign-in
+  - Task 6: `app/pages/settings.vue` — bookmarklet install card, drag anchor + copy button
+- Gates: 24/24 unit tests; lint 0 errors; container typecheck EXIT:0; container production build EXIT:0; stylelint/format clean.
+
 ## T-2026-06-14-015 — S2-web follow-ups (type barrel · @app/ui build gate · reader UX polish)
 
 - Created: 2026-06-14
