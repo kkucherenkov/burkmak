@@ -7,8 +7,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Branch: `feat/s2-backend`
-- Result: All phases A–E complete. 28 test files / 129 tests green. Typecheck clean.
+- Result: merged locally to `main` (merge commit `d84737d`, branch `feat/s2-backend`, 21 commits). All phases A–E complete. 28 test files / 129 tests green. Typecheck clean. Live smoke passed.
   Key commits: 6e7e29b (schema), 84b08eb (FTS), 85dea28 (spec+codegen),
   2b4fc91 03161a8 76b0e1c dd02dad (extractor+repo), 19450dc 18f7d37 (job+controller),
   highlights phases (ecefa5d e2ba7bc), de599a2 (isolation test), 526e9d3 (extractStatus fix).
