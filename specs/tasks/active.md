@@ -19,7 +19,7 @@
   - [x] 7: DetailCubit + state (TDD)
   - [x] 8: ItemDetailScreen
   - [x] 9a: AddLinkCubit + state (TDD) — cubit done; screen pending (after step 10 i18n)
-  - [ ] 9b: AddLinkScreen (after i18n step 10)
+  - [x] 9b: AddLinkScreen (after i18n step 10)
   - [x] 10: slang namespaces (library/item_detail/add_link × en/ru/uk/el)
   - [ ] 11: routes + cubit DI + app wiring
   - [ ] 12: verification
