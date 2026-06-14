@@ -48,8 +48,12 @@ run(
 // `dart fix --apply` against the generated package so Dart itself strips
 // the unused directives — the source of truth stays the analyzer, no
 // in-repo suppressions, no template forks.
-console.warn('[codegen] post: dart fix --apply (strip generator-induced unused imports)');
+console.warn('[codegen] post: dart pub get + build_runner (built_value *.g.dart) + dart fix');
 run('dart pub get', dartOut);
+// The dart-dio models are built_value classes with `part '*.g.dart'`; build_runner
+// generates those part files (the *Builder classes + serializers). Without this the
+// generated client does not compile. Requires the Flutter/Dart SDK on PATH (CI has it).
+run('dart run build_runner build', dartOut);
 run('dart fix --apply', dartOut);
 
 console.warn('[codegen] post: prettier on openapi-types.ts (stable diff across versions)');
