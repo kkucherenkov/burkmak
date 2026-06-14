@@ -30,7 +30,7 @@ dependencies:
   app_ui:
     path: ../../packages/ui_flutter
   app_api_client:
-    path: ../../packages/api-client-dart
+    path: ../../packages/api-client-dart/lib/generated
 
 dev_dependencies:
   flutter_test:
