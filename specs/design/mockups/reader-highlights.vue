@@ -19,7 +19,12 @@
    *
    * Highlight swatch colors are CONTENT colors (the user's marks on the page),
    * not chrome — so raw warm-tuned hexes are acceptable here. Role → hex map:
-   *   yellow #FCEFA6 · green #CDEBC5 · blue #C9E2F2 · pink #F6D2DE  (light)
+   *   swatch fill (mark on paper, light): yellow #FCEFA6 · green #CDEBC5
+   *     · blue #C9E2F2 · pink #F6D2DE
+   *   card leading-rail (deeper, more-saturated variant of the swatch — kept as
+   *     a sibling content hex because color-mix toward --text-fg only mutes the
+   *     pale swatch, it cannot raise chroma to this vivid tone):
+   *     yellow #E8CF4E · green #84C178 · blue #6AABD6 · pink #E08AA6
    * TODO(S2-ui): if these marks are reused across components, promote them to
    *   --highlight-{yellow,green,blue,pink} tokens (one per theme). Not blocking
    *   for the mockup — kept inline so the mark styling is visible in isolation.
@@ -333,10 +338,15 @@
  * 1px hairline borders, 3px focus-ring spreads, and 6px/3px dots/separators
  * (the contract has no border-width / hairline / dot-size token).
  *
- * Highlight swatch hexes are CONTENT colors (the user's marks), warm-tuned to
- * sit on the paper surface. Role → hex (light): yellow #FCEFA6 · green #CDEBC5
- * · blue #C9E2F2 · pink #F6D2DE. See the script header TODO about promoting
- * these to --highlight-* tokens for S2-ui. */
+ * Highlight hexes are CONTENT colors (the user's marks), warm-tuned to sit on
+ * the paper surface. Role → hex (light):
+ *   swatch fill: yellow #FCEFA6 · green #CDEBC5 · blue #C9E2F2 · pink #F6D2DE
+ *   card leading-rail (deeper, more-saturated variant of the matching swatch;
+ *   not color-mix-derived — mixing the pale swatch toward --text-fg only mutes
+ *   it and cannot reach this chroma): yellow #E8CF4E · green #84C178
+ *   · blue #6AABD6 · pink #E08AA6
+ * See the script header TODO about promoting these to --highlight-* tokens for
+ * S2-ui. */
 
   .app-reading {
     min-height: 100dvh;
@@ -655,6 +665,9 @@
       box-shadow: var(--shadow-md);
     }
 
+    /* leading-rail = deeper, more-saturated variant of the matching swatch;
+       documented in the style header role→hex map (not color-mix-derived —
+       see note there). */
     &--yellow {
       border-inline-start-color: #e8cf4e;
     }
