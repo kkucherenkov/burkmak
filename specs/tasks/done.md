@@ -2,6 +2,20 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-14-015 — S2-web follow-ups (type barrel · @app/ui build gate · reader UX polish)
+
+- Created: 2026-06-14
+- Completed: 2026-06-14
+- Owner: claude
+- Result: merged locally to `main` (`--no-ff` merge `17265b1`, branch `chore/s2-web-followups`, 4 commits `b8928fc`→`6fa5c6e`). Cleanup — follow-ups carried from T-014 + the S2-web Task-4 review.
+- Spec: none.
+- Delivered:
+  - **A** (`325b9c9`) — `@app/ui` highlight types (`AppHighlightColor`/`AppHighlightData`/`AppHighlightCardHighlight`) moved out of `.vue` SFCs into `AppArticleReader/highlight-types.ts`; package barrel + components + stories/specs all import from it. The web reader page now imports these from `@app/ui` directly and the OpenAPI-derived workaround shapes/comment are gone. Retires the cross-package `.vue` type-import trap (typescript-eslint `projectService` resolved `.vue` type exports to `error`).
+  - **B** (`a0779a0`) — closed the latent library-Sass gap behind T-013: added a full `@app/ui` CI job (`design:build` → lint/typecheck/test/**build**/audit; `@app/ui` previously had only `audit:components` in CI), and made the documented gates include the library build (`CLAUDE.md` → `turbo run build lint test typecheck`; HANDOFF per-slice UI gate → `{build,test,typecheck,lint}`; `testing.md` PR checklist). Validated the full gate sequence locally.
+  - **C** (`6fa5c6e`) — reader UX polish: selection popover dismisses on outside-click (capture `pointerdown`, containment-guarded, symmetric `onMounted`/`onBeforeUnmount` cleanup); optimistic tag add/remove (new `useItems.addTag`/`removeTag` mirroring `toggleFavorite`, reconciled with the server item); failed actions surface a token-styled dismissible `role="alert"` error banner (`runAction` wrapper, `reader.actionFailed`/`reader.dismiss` en+ru); removed an unnecessary `as` cast.
+- Reviews: per-task verification + a consolidated final review (ready to merge — no Critical/Important/Minor).
+- Verification: `@app/ui` `design:build` → lint/typecheck/**242 tests**/build/audit green; web container `vue-tsc` typecheck, host **17/17**, production `nuxt build` green.
+
 ## T-2026-06-14-014 — S2-web (reader view & highlight authoring)
 
 - Created: 2026-06-14
