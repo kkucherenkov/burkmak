@@ -22,6 +22,6 @@
   - [x] 9b: AddLinkScreen (after i18n step 10)
   - [x] 10: slang namespaces (library/item_detail/add_link × en/ru/uk/el)
   - [x] 11: routes + cubit DI + app wiring
-  - [ ] 12: verification
+  - [x] 12: verification (analyze clean; 16 tests)
 - Status: in-progress
 - Blockers: —
