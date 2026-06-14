@@ -22,15 +22,17 @@ export default defineNuxtConfig({
     // Pending https://github.com/nuxt/nuxt — expected to clear in 4.5.
   },
 
-  // Translations live in per-component `<i18n lang="json">` blocks. We keep a
-  // global config only to enumerate locales + drive the switcher — no global
-  // message files. `useI18n({ useScope: 'local' })` on every component.
+  // Translations live in apps/web/i18n/locales/{en,ru}.ts (global langDir files).
+  // WHY: Vite 8 + @nuxtjs/i18n SFC <i18n lang="json"> blocks produce
+  // `?vue&type=i18n&lang.json` virtual modules that Vite 8 cannot parse at
+  // build time. .ts locale files avoid the virtual-module path entirely.
+  // Use `useI18n()` (global scope) with namespaced keys (e.g. `t('welcome.title')`).
   i18n: {
     strategy: 'no_prefix',
     defaultLocale: 'en',
     locales: [
-      { code: 'en', language: 'en-US', name: 'English' },
-      { code: 'ru', language: 'ru-RU', name: 'Русский' },
+      { code: 'en', language: 'en-US', name: 'English', file: 'en.ts' },
+      { code: 'ru', language: 'ru-RU', name: 'Русский', file: 'ru.ts' },
     ],
     detectBrowserLanguage: {
       useCookie: true,

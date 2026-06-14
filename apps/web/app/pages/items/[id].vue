@@ -5,7 +5,7 @@
   import type { components } from '@app/specs';
 
   definePageMeta({ middleware: 'auth' });
-  const { t } = useI18n({ useScope: 'local' });
+  const { t } = useI18n();
   const route = useRoute();
   const api = useApi();
   const id = route.params.id as string;
@@ -40,42 +40,11 @@
   }
 </script>
 
-<i18n lang="json">
-{
-  "en": {
-    "back": "Library",
-    "addTag": "Add tag",
-    "delete": "Delete",
-    "archive": "Archive",
-    "favorite": "Favorite",
-    "status": "Pending",
-    "read": {
-      "unread": "Unread",
-      "read": "Read",
-      "archived": "Archived"
-    }
-  },
-  "ru": {
-    "back": "Библиотека",
-    "addTag": "Добавить тег",
-    "delete": "Удалить",
-    "archive": "В архив",
-    "favorite": "В избранное",
-    "status": "В обработке",
-    "read": {
-      "unread": "Не прочитано",
-      "read": "Прочитано",
-      "archived": "В архиве"
-    }
-  }
-}
-</i18n>
-
 <template>
   <article v-if="item" class="page-detail">
     <header class="page-detail__bar">
       <NuxtLink to="/library" class="page-detail__back">
-        {{ t('back') }}
+        {{ t('itemDetail.back') }}
       </NuxtLink>
       <div class="page-detail__bar-actions">
         <AppButton
@@ -83,7 +52,7 @@
           color="neutral"
           size="sm"
           icon="i-lucide-archive"
-          :label="t('archive')"
+          :label="t('itemDetail.archive')"
           @click="setReadState('archived')"
         />
         <AppButton
@@ -91,7 +60,7 @@
           color="neutral"
           size="sm"
           icon="i-lucide-trash-2"
-          :label="t('delete')"
+          :label="t('itemDetail.delete')"
           @click="remove"
         />
       </div>
@@ -103,7 +72,11 @@
 
     <p class="page-detail__meta">
       <span>{{ item.siteName ?? item.url }}</span>
-      <AppStatusBadge v-if="item.status !== 'ready'" :status="item.status" :label="t('status')" />
+      <AppStatusBadge
+        v-if="item.status !== 'ready'"
+        :status="item.status"
+        :label="t('itemDetail.status')"
+      />
     </p>
 
     <figure v-if="item.leadImageUrl" class="page-detail__lead">
@@ -123,7 +96,7 @@
         @remove="removeTag(tag)"
       />
       <form class="page-detail__add-tag" @submit.prevent="addTag">
-        <AppInput v-model="newTag" type="text" :placeholder="t('addTag')" size="sm" />
+        <AppInput v-model="newTag" type="text" :placeholder="t('itemDetail.addTag')" size="sm" />
       </form>
     </div>
 
@@ -132,28 +105,28 @@
         size="sm"
         variant="outline"
         color="neutral"
-        :label="t('read.unread')"
+        :label="t('itemDetail.read.unread')"
         @click="setReadState('unread')"
       />
       <AppButton
         size="sm"
         variant="outline"
         color="neutral"
-        :label="t('read.read')"
+        :label="t('itemDetail.read.read')"
         @click="setReadState('read')"
       />
       <AppButton
         size="sm"
         variant="outline"
         color="neutral"
-        :label="t('read.archived')"
+        :label="t('itemDetail.read.archived')"
         @click="setReadState('archived')"
       />
       <AppButton
         size="sm"
         :variant="item.favorite ? 'solid' : 'outline'"
         :color="item.favorite ? 'primary' : 'neutral'"
-        :label="t('favorite')"
+        :label="t('itemDetail.favorite')"
         @click="toggleFavorite"
       />
     </div>

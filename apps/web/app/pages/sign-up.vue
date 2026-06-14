@@ -6,7 +6,7 @@
   import { passwordStrength } from '~/utils/password-strength';
 
   definePageMeta({ middleware: 'guest' });
-  const { t } = useI18n({ useScope: 'local' });
+  const { t } = useI18n();
   const auth = useAuth();
 
   const name = ref('');
@@ -16,7 +16,7 @@
   const errorMsg = ref('');
 
   const strength = computed(() => passwordStrength(password.value));
-  const strengthLabel = computed(() => t(`strength.${String(strength.value.score)}`));
+  const strengthLabel = computed(() => t(`signUp.strength.${String(strength.value.score)}`));
   const formValid = computed(
     () =>
       name.value.trim().length > 0 && isValidEmail(email.value) && isValidPassword(password.value),
@@ -25,7 +25,7 @@
   async function onSignUp(): Promise<void> {
     errorMsg.value = '';
     if (!formValid.value) {
-      errorMsg.value = t('errorInvalid');
+      errorMsg.value = t('signUp.errorInvalid');
       return;
     }
     loading.value = true;
@@ -38,83 +38,38 @@
       if (result.error) {
         const msg = result.error.message?.toLowerCase() ?? '';
         errorMsg.value =
-          msg.includes('exist') || msg.includes('taken') ? t('errorEmailTaken') : t('errorGeneric');
+          msg.includes('exist') || msg.includes('taken')
+            ? t('signUp.errorEmailTaken')
+            : t('signUp.errorGeneric');
         return;
       }
       await navigateTo('/library');
     } catch {
-      errorMsg.value = t('errorGeneric');
+      errorMsg.value = t('signUp.errorGeneric');
     } finally {
       loading.value = false;
     }
   }
 </script>
 
-<i18n lang="json">
-{
-  "en": {
-    "title": "Create your library",
-    "subtitle": "Start saving in seconds",
-    "name": "Name",
-    "email": "Email",
-    "password": "Password",
-    "passwordHint": "8+ characters, with a number or symbol.",
-    "submit": "Create account",
-    "hasAccount": "Already have a library?",
-    "signIn": "Sign in",
-    "errorInvalid": "Fill every field; password needs 8+ characters.",
-    "errorEmailTaken": "That email is already registered.",
-    "errorGeneric": "Something went wrong. Please try again.",
-    "strength": {
-      "0": "Too weak",
-      "1": "Too weak",
-      "2": "Getting there",
-      "3": "Good",
-      "4": "Strong"
-    }
-  },
-  "ru": {
-    "title": "Создайте библиотеку",
-    "subtitle": "Сохраняйте за секунды",
-    "name": "Имя",
-    "email": "Эл. почта",
-    "password": "Пароль",
-    "passwordHint": "8+ символов, с цифрой или символом.",
-    "submit": "Создать аккаунт",
-    "hasAccount": "Уже есть библиотека?",
-    "signIn": "Войти",
-    "errorInvalid": "Заполните все поля; пароль от 8 символов.",
-    "errorEmailTaken": "Этот email уже зарегистрирован.",
-    "errorGeneric": "Что-то пошло не так. Попробуйте ещё раз.",
-    "strength": {
-      "0": "Слишком слабый",
-      "1": "Слишком слабый",
-      "2": "Сойдёт",
-      "3": "Хороший",
-      "4": "Надёжный"
-    }
-  }
-}
-</i18n>
-
 <template>
   <div class="page-auth" data-testid="page-sign-up">
     <main class="page-auth__card">
       <AuthAppBrand />
       <h1 class="page-auth__title">
-        {{ t('title') }}
+        {{ t('signUp.title') }}
       </h1>
       <p class="page-auth__subtitle">
-        {{ t('subtitle') }}
+        {{ t('signUp.subtitle') }}
       </p>
       <AuthAppFormError :message="errorMsg" />
       <form class="page-auth__form" novalidate @submit.prevent="onSignUp">
-        <AppField :label="t('name')" required>
+        <AppField :label="t('signUp.name')" required>
           <template #default="slotAttrs">
             <AppInput v-bind="slotAttrs" v-model="name" type="text" autocomplete="name" />
           </template>
         </AppField>
-        <AppField :label="t('email')" required>
+        <AppField :label="t('signUp.email')" required>
           <template #default="slotAttrs">
             <AppInput
               v-bind="slotAttrs"
@@ -125,7 +80,7 @@
             />
           </template>
         </AppField>
-        <AppField :label="t('password')" :help="t('passwordHint')" required>
+        <AppField :label="t('signUp.password')" :help="t('signUp.passwordHint')" required>
           <template #default="slotAttrs">
             <AppInput
               v-bind="slotAttrs"
@@ -143,13 +98,13 @@
           color="primary"
           :loading="loading"
           :disabled="loading || !formValid"
-          :label="t('submit')"
+          :label="t('signUp.submit')"
         />
       </form>
       <p class="page-auth__meta">
-        {{ t('hasAccount') }}
+        {{ t('signUp.hasAccount') }}
         <NuxtLink to="/sign-in" class="page-auth__link">
-          {{ t('signIn') }}
+          {{ t('signUp.signIn') }}
         </NuxtLink>
       </p>
     </main>
