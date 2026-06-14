@@ -72,7 +72,13 @@ void configureDependencies() {
     ..registerFactory<LibraryCubit>(
       () => LibraryCubit(getIt<ItemsRepository>(), getIt<EventsClient>()),
     )
-    ..registerFactory<DetailCubit>(() => DetailCubit(getIt<ItemsRepository>()))
+    ..registerFactory<DetailCubit>(
+      () => DetailCubit(
+        getIt<ItemsRepository>(),
+        getIt<ArticleRepository>(),
+        getIt<EventsClient>(),
+      ),
+    )
     ..registerFactory<AddLinkCubit>(
       () => AddLinkCubit(getIt<ItemsRepository>()),
     );

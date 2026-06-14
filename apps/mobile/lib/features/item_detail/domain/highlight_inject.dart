@@ -1,7 +1,7 @@
-/// A pure utility for injecting `<mark>` tags into article HTML for highlights.
-///
-/// Limitation: works on single-text-run occurrences only. Highlights that span
-/// multiple HTML nodes are not supported and will be silently skipped.
+// A pure utility for injecting `<mark>` tags into article HTML for highlights.
+//
+// Limitation: works on single-text-run occurrences only. Highlights that span
+// multiple HTML nodes are not supported and will be silently skipped.
 
 /// Anchor data needed to locate and mark a highlight in HTML text.
 class HlAnchor {
