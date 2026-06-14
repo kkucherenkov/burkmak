@@ -1,0 +1,25 @@
+# Dev images mount the repo at runtime (compose `volumes: ..:/workspace`) and COPY
+# nothing at build time, so node_modules and build artifacts must stay out of the
+# build context — scanning them is slow and trips over root-owned cache files
+# (e.g. apps/web/node_modules/.tmp) the host user cannot read.
+**/node_modules
+**/dist
+**/build
+**/.output
+**/.nuxt
+**/.turbo
+**/coverage
+**/storybook-static
+**/.dart_tool
+apps/mobile/build
+apps/mobile/ios
+apps/mobile/android
+
+# Local SQLite dev DB (provisioned in-container by `prisma migrate deploy`)
+**/*.db
+**/*.db-shm
+**/*.db-wal
+
+# VCS + misc
+.git
+**/*.log
