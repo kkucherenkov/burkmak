@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { json, urlencoded } from 'express';
 import helmet from 'helmet';
 
 import { AppModule } from './app.module';
@@ -13,6 +14,11 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
+    // Register body parsers manually (below) so they precede the OpenAPI validator
+    // middleware. Nest's built-in parser registers AFTER manually-added `app.use()`
+    // middleware, which would leave `req.body` empty when the validator (and Better
+    // Auth's controller, which reads the parsed body) run.
+    bodyParser: false,
   });
 
   const config = app.get(AppConfig);
@@ -38,6 +44,11 @@ async function bootstrap(): Promise<void> {
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Body parsing must run before the OpenAPI validator (mounted as `app.use`
+  // middleware below) and before the controllers — see `bodyParser: false` above.
+  app.use(json());
+  app.use(urlencoded({ extended: true }));
 
   registerOpenApiValidator(app, nodeEnv);
 
