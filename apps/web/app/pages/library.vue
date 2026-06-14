@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { AppFilterBar, AppItemCard, AppEmptyState, AppSkeleton } from '@app/ui';
+  import { AppFilterBar, AppItemCard, AppEmptyState, AppSkeleton, AppButton } from '@app/ui';
   import { onMounted, ref, watch, computed } from 'vue';
 
   import AppAddBar from '~/components/library/AppAddBar.vue';
@@ -58,6 +58,7 @@
 {
   "en": {
     "title": "Library",
+    "saveLink": "Save a link",
     "empty": "Nothing here yet",
     "emptyHint": "Paste a link to begin.",
     "allTags": "All tags",
@@ -77,6 +78,7 @@
   },
   "ru": {
     "title": "Библиотека",
+    "saveLink": "Сохранить ссылку",
     "empty": "Пока пусто",
     "emptyHint": "Вставьте ссылку, чтобы начать.",
     "allTags": "Все теги",
@@ -103,6 +105,12 @@
       <h1 class="page-library__title">
         {{ t('title') }}
       </h1>
+      <AppButton
+        variant="ghost"
+        :label="t('saveLink')"
+        icon="i-lucide-plus"
+        @click="modalOpen = true"
+      />
     </header>
 
     <AppAddBar @save="store.save($event)" />
@@ -150,6 +158,12 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
+
+    &__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
     &__title {
       font-family: var(--font-display);
