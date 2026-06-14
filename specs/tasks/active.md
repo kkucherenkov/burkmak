@@ -17,13 +17,13 @@
   - [x] W5: sign-in.vue (replace login.vue)
   - [x] W6: sign-up.vue
   - [x] W7: auth/guest middleware + index redirect
-  - [ ] W8: web verification
+  - [x] W8: web verification
 - Sub-steps (mobile):
   - [x] M1: email sign-in i18n keys
   - [x] M2: sign_in_screen → email/password
   - [x] M3: sign_up_screen real form
   - [x] M4: welcome_screen polish
   - [x] M5: cubit tests (signIn/signUp)
-  - [ ] M6: mobile verification
+  - [x] M6: mobile verification
 - Status: in-progress
 - Blockers: —

@@ -2,7 +2,13 @@ import 'package:equatable/equatable.dart';
 
 import 'package:app_mobile/features/auth/domain/auth_user.dart';
 
-enum AuthStatus { unauthenticated, authenticating, authenticated, otpSent, error }
+enum AuthStatus {
+  unauthenticated,
+  authenticating,
+  authenticated,
+  otpSent,
+  error,
+}
 
 class AuthState extends Equatable {
   const AuthState({
