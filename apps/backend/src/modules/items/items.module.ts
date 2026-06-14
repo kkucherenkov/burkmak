@@ -9,10 +9,14 @@ import { SaveItemHandler } from './application/commands/save-item.handler';
 import { UpdateItemHandler } from './application/commands/update-item.handler';
 import { GetItemHandler } from './application/queries/get-item.handler';
 import { ListItemsHandler } from './application/queries/list-items.handler';
+import { ARTICLE_EXTRACTOR, ARTICLE_REPO, IMAGE_CACHE } from './domain/article.ports';
 import { ITEM_REPO } from './domain/items.ports';
+import { ArticleRepo } from './infra/article.repo';
 import { FetchMetadataHandler } from './infra/fetch-metadata.handler';
+import { LocalImageCache } from './infra/image-cache';
 import { ItemRepo } from './infra/item.repo';
 import { HttpMetadataFetcher, METADATA_FETCHER } from './infra/metadata.fetcher';
+import { ReadabilityExtractor } from './infra/readability.extractor';
 import { ItemsController } from './items.controller';
 
 @Module({
@@ -29,6 +33,9 @@ import { ItemsController } from './items.controller';
     FetchMetadataHandler,
     { provide: ITEM_REPO, useClass: ItemRepo },
     { provide: METADATA_FETCHER, useClass: HttpMetadataFetcher },
+    { provide: ARTICLE_REPO, useClass: ArticleRepo },
+    { provide: ARTICLE_EXTRACTOR, useClass: ReadabilityExtractor },
+    { provide: IMAGE_CACHE, useClass: LocalImageCache },
   ],
 })
 export class ItemsModule implements OnModuleInit {
