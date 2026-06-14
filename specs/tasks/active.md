@@ -17,7 +17,7 @@
 - Tests: unit (pure `highlight-anchor` util, TDD); typecheck + the production `nuxt build` gate; manual/e2e smoke (extract → highlight → reload → FTS).
 - Sub-steps:
   - [x] Task 1 — extend `useApi` with article + highlight methods
-  - [ ] Task 2 — pure `highlight-anchor` util (TDD)
+  - [x] Task 2 — pure `highlight-anchor` util (TDD)
   - [ ] Task 3 — `useArticle` + `useHighlights` composables
   - [ ] Task 4 — rewrite `pages/items/[id].vue` reader view + i18n (en/ru)
   - [ ] Task 5 — FTS search wiring confirm + full verify/smoke
