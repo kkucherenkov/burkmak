@@ -1,0 +1,7 @@
+{
+  "extract": "Extract article",
+  "extracting": "Extracting…",
+  "failed": "Extraction failed.",
+  "retry": "Retry",
+  "pitch": "Extract the full article to read it here."
+}
