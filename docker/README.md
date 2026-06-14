@@ -13,7 +13,7 @@ job worker, and native SSE. There is no Postgres / Redis / Centrifugo / Grafana.
 
 | Service | Image                         | Port | Notes                                                              |
 | ------- | ----------------------------- | ---- | ------------------------------------------------------------------ |
-| backend | `apps/backend/Dockerfile.dev` | 3000 | Mounts repo, `prisma db push` to SQLite, runs `nest start --watch` |
+| backend | `apps/backend/Dockerfile.dev` | 3000 | Mounts repo, `prisma migrate deploy` to SQLite, runs `nest start --watch` |
 | web     | `apps/web/Dockerfile.dev`     | 3001 | Mounts repo, runs `nuxt dev`                                       |
 
 The SQLite database lives at `apps/backend/burkmak.db` on the mounted repo
