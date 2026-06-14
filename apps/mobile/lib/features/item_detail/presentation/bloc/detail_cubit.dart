@@ -98,10 +98,10 @@ class DetailCubit extends Cubit<DetailState> {
       } else {
         emit(state.copyWith(item: item, extractStatus: item.extractStatus));
       }
-    } on Object catch (e) {
-      emit(
-        state.copyWith(status: DetailStatus.error, errorMessage: e.toString()),
-      );
+    } on Object catch (_) {
+      // Transient refetch failure during an SSE update: keep the article that
+      // is already on screen. Only the initial load() path should surface an
+      // error state to the UI.
     }
   }
 

@@ -252,7 +252,7 @@ class _ArticleView extends StatelessWidget {
     // Extract the origin from apiBaseUrl (scheme + host + port, no path).
     final uri = Uri.tryParse(config.apiBaseUrl);
     if (uri == null) return html;
-    final origin = '${uri.scheme}://${uri.host}:${uri.port}';
+    final origin = uri.origin;
     // Replace root-relative src="/..." with absolute origin-prefixed src.
     return html.replaceAllMapped(
       RegExp(r'src="(\/[^"]+)"'),

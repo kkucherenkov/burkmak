@@ -176,6 +176,24 @@ void main() {
     ],
   );
 
+  // ── SSE negative-path guards ───────────────────────────────────────────
+
+  blocTest<DetailCubit, DetailState>(
+    'applyEvent ignores item.updated for a different id',
+    build: () => _buildCubit(itemsRepo, articleRepo, events),
+    seed: () => DetailState(status: DetailStatus.ready, item: _item('a')),
+    act: (c) => c.applyEvent(const AppEvent(type: 'item.updated', id: 'b')),
+    expect: () => <DetailState>[],
+  );
+
+  blocTest<DetailCubit, DetailState>(
+    'applyEvent ignores non-update event type for the current id',
+    build: () => _buildCubit(itemsRepo, articleRepo, events),
+    seed: () => DetailState(status: DetailStatus.ready, item: _item('a')),
+    act: (c) => c.applyEvent(const AppEvent(type: 'item.created', id: 'a')),
+    expect: () => <DetailState>[],
+  );
+
   blocTest<DetailCubit, DetailState>(
     'applyEvent(item.updated) with ready status fetches article + highlights',
     build: () {
