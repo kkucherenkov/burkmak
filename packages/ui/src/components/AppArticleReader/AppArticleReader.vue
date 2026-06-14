@@ -185,21 +185,26 @@
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
     cursor: pointer;
+  }
 
-    &--yellow {
-      background: var(--highlight-yellow);
-    }
+  // WHY separate :deep() selectors per modifier (not `&--yellow` nested under
+  // the base): Dart Sass cannot append a BEM suffix to a parent whose last
+  // simple selector is the `:deep(...)` pseudo — it errors ("can't add a suffix
+  // to a pseudo-selector"). Each modifier must be its own full :deep() class.
+  // Classes match highlight-mark.ts: `app-highlight app-highlight--<color>`.
+  :deep(.app-highlight--yellow) {
+    background: var(--highlight-yellow);
+  }
 
-    &--green {
-      background: var(--highlight-green);
-    }
+  :deep(.app-highlight--green) {
+    background: var(--highlight-green);
+  }
 
-    &--blue {
-      background: var(--highlight-blue);
-    }
+  :deep(.app-highlight--blue) {
+    background: var(--highlight-blue);
+  }
 
-    &--pink {
-      background: var(--highlight-pink);
-    }
+  :deep(.app-highlight--pink) {
+    background: var(--highlight-pink);
   }
 </style>
