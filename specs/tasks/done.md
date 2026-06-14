@@ -8,7 +8,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Completed: 2026-06-15
 - Owner: claude
 - Spec: [specs/features/2026-06-15-s3-mobile.plan.md](../features/2026-06-15-s3-mobile.plan.md)
-- Result: merged to `main` via `--no-ff` (11 feature commits `22fddaa`→`95aa251`); branch deleted.
+- Result: merged to `main` via `--no-ff` as `652c912` (11 feature commits `22fddaa`→`95aa251`); branch deleted.
 - Delivered:
   - Task 1 (`22fddaa`) — `flutter create --platforms=android,ios` scaffolds `android/` + `ios/` inside `apps/mobile`; existing `lib/` untouched, package name stays `app_mobile`.
   - Task 2 (`c0ff7bd`) — `share_url_parser.dart` (`extractFirstUrl`) with TDD: 4 tests green.
