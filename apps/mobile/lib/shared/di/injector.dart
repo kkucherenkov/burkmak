@@ -15,6 +15,8 @@ import 'package:app_mobile/shared/config/app_config.dart';
 import 'package:app_mobile/shared/network/api_client.dart';
 import 'package:app_mobile/shared/network/api_factories.dart';
 import 'package:app_mobile/shared/network/events_client.dart';
+import 'package:app_mobile/shared/share/pending_share_store.dart';
+import 'package:app_mobile/shared/share/share_intent_service.dart';
 
 /// Global service locator. All runtime dependencies register here; widgets
 /// resolve blocs via `BlocProvider(create: (_) => getIt<FooBloc>())` and
@@ -49,7 +51,11 @@ void configureDependencies() {
     ..registerLazySingleton<HighlightsApi>(
       () => buildHighlightsApi(getIt<Dio>()),
     )
-    ..registerLazySingleton<EventsClient>(() => EventsClient(getIt<Dio>()));
+    ..registerLazySingleton<EventsClient>(() => EventsClient(getIt<Dio>()))
+    ..registerLazySingleton<PendingShareStore>(PendingShareStore.new)
+    ..registerLazySingleton<ShareIntentService>(
+      () => ShareIntentService(getIt<TokenStorage>(), getIt<PendingShareStore>()),
+    );
 
   // ── Domain repository singletons ────────────────────────────────────────
   getIt
