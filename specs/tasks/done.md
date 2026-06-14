@@ -2,6 +2,17 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-14-008 — S2-design (reader + highlights/notes mockup)
+
+- Created: 2026-06-14
+- Completed: 2026-06-14
+- Owner: claude
+- Result: merged locally to `main` (merge commit `bddc18b`, branch `feat/s2-design`, 2 commits `95068c8`+`a60247c`).
+- Spec: [specs/features/2026-06-14-s2-extraction-and-reading.md](../features/2026-06-14-s2-extraction-and-reading.md) §Mockups · Plan: [specs/features/2026-06-14-s2-design.plan.md](../features/2026-06-14-s2-design.plan.md)
+- Delivered: `specs/design/mockups/reader-highlights.vue` — one self-contained reader scene composing all three new S2 pieces (annotated for S2-ui): `ready`-state reader column (Literata `--font-reading`/`--leading-relaxed`, ~44rem measure) with 2 inline highlight marks → `AppArticleReader`; floating selection popover (4 color swatches + Add-note) → `AppHighlightPopover`; highlights side panel of 3 cards (colored quote + note + edit/delete + timestamp) → `AppHighlightCard`; inline note editor (textarea + save/cancel) → `AppHighlightCard (editing)`. Tokens-only, responsive collapse at 56rem.
+- Verification: spec-compliance review (subagent) = GO after one fix — caught 4 undocumented card-rail hexes; all 8 content hexes (4 swatch fills + 4 rails) now documented in hex→role comments (rails kept as a sibling content-color set since `color-mix` toward `--text-fg` only mutes the pale swatch, can't reach the vivid tone). 59 `var(--…)` tokens all validated against `tokens.generated.css`; no forbidden/removed names; self-contained (only imports `vue`).
+- Note: swatch/rail hexes carry a `TODO(S2-ui)` to promote to `--highlight-*` tokens if reused. No tests/Storybook (mockup, per plan).
+
 ## T-2026-06-14-007 — docker e2e validation + backend body-parser fix
 
 - Created: 2026-06-14
