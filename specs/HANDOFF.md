@@ -1,6 +1,6 @@
 # Handoff — start here
 
-_Last updated: 2026-06-14 (S2-ui + S2-mobile + Better-Auth/SQLite fix shipped). Orientation for a cold-start session (Claude or human). Read this, then `specs/tasks/active.md` and `.claude/CLAUDE.md`. Don't re-derive — the durable records below already capture it._
+_Last updated: 2026-06-14 (S2-web shipped — **P2/S2 complete**). Orientation for a cold-start session (Claude or human). Read this, then `specs/tasks/active.md` and `.claude/CLAUDE.md`. Don't re-derive — the durable records below already capture it._
 
 ## Where the project is
 
@@ -9,20 +9,19 @@ _Last updated: 2026-06-14 (S2-ui + S2-mobile + Better-Auth/SQLite fix shipped). 
 **Shipped (all on `main`):**
 
 - **P1 = S0 + S1** — foundation + core library (save → live metadata via SSE → tags → read-state/favorite → filtered list → delete), web + mobile + backend. Full per-slice ledger in `specs/tasks/done.md`.
-- **P2 = S2 — Extraction & Reading, four of five slices done (web remains):**
+- **P2 = S2 — Extraction & Reading, COMPLETE (all five slices shipped):**
   - **S2-design** (`bddc18b`) — `specs/design/mockups/reader-highlights.vue` (reader marks + selection popover + highlights panel + note editor; tokens-only). The visual source of truth for S2-ui.
   - **S2-backend** (`d84737d`, 21 commits) — `extract_article` job (Readability + sanitize-html + linkedom), `Article` read model, **FTS5** body search (`item_fts` + triggers + bootstrap), local **raster image cache** (SSRF-guarded), per-user **highlights** CRUD, extract/article/image endpoints. 129 backend tests green; security-reviewed; live smoke passed (extract→ready, sanitized article, image served w/ `nosniff`, FTS hit, highlight CRUD).
   - **S2-ui** (`9bc210d`, 6 commits) — four `@app/ui` composites (`AppExtractState`; `AppArticleReader` w/ DOM-range highlight marks + `select` emit; `AppHighlightPopover`; `AppHighlightCard` w/ `AppTextarea` note editor), `--highlight-*` tokens, barrel + `AppHighlightData`/`AppHighlightColor` types. 242 ui tests. **Consumed by S2-web.**
   - **S2-mobile** (`c602af4`, 6 commits) — `flutter_html` reader, extract + live `extracting→ready` (SSE), read-only highlight marks, `reader` slang namespace (en/ru/uk/el). `flutter analyze` 0 issues; 26 tests.
+  - **S2-web** (`3531f94`, 7 commits) — `/items/[id]` full web reader: `useApi` article+highlight methods, `useArticle`/`useHighlights` composables (SSE-decoupled; in-flight guard), page composing the four S2-ui composites with live `extracting→ready` over the existing `useItems`+`useEvents` rail, selection popover positioned via a `:style` CSS-var binding, cross-origin image-src rewrite, note add/edit/clear, `reader`/`highlight` i18n (en/ru). Container vue-tsc + host 17 tests + production `nuxt build` green. Removed the redundant `highlight-anchor` util (the shipped `AppArticleReader.select` already emits the anchor); page derives highlight prop shapes from the OpenAPI contract to dodge the cross-package `.vue` type-import lint trap (see follow-ups). **Consumes S2-ui + S2-backend; FTS `q` transparent.**
   - Plus repo-wide fixes this session: **prettier** root-cause (`openapi-types.ts` is generated → now in `.prettierignore`; killed a phantom 1624-line churn), the **migrations-only policy** (see below), and **Better Auth ↔ SQLite provider** (`dd82d09` — provider is now `'sqlite'`; the full Nest app boots in vitest, see the auth gotcha below).
 
-**Next to build: S2-web** — now unblocked (consumes the shipped S2-ui composites + the S2-backend contract).
+**Next to build: P3 / S3 — Mobile share-sheet capture + browser bookmarklet** (see `specs/roadmap.md`). Per the dependency shape **S0 → S1 → S2, then S3 / S4 / S5 in parallel**, S2 being done unblocks P3 (S3), P4 (S4 — Kobo, depends on S2's article body), and P5 (S5 — Obsidian, depends on S2's highlights). Each is its own spec → plan → build cycle; none has a spec yet (`_tbd_` in the roadmap).
 
-- Spec: `specs/features/2026-06-14-s2-extraction-and-reading.md` (approved).
-- Plan: `specs/features/2026-06-14-s2-web.plan.md` (TDD, checkbox steps, mirror S1). It maps the OpenAPI `Highlight` → `AppHighlightData` and composes the four shipped `@app/ui` composites into the reader page.
-- **Dependencies:** S2-web needs S2-ui ✓ + S2-backend ✓ → **unblocked**. (S2-design ✓, S2-ui ✓, S2-mobile ✓, S2-backend ✓ all shipped — only web remains.)
-- The OpenAPI contract + generated `@app/api-client-{ts,dart}` clients for all S2 endpoints are **already committed** — web consumes them directly (no further codegen needed unless the contract changes).
+- The OpenAPI contract + generated `@app/api-client-{ts,dart}` clients for all S2 endpoints are committed — frontends consume them directly (no further codegen unless the contract changes).
 - **After pulling / on a fresh worktree:** run `pnpm design:build` (web tokens `tokens.generated.css`) and `dart run slang` in `apps/mobile` (generated `strings.g.dart`) before building — both are gitignored codegen. A merge that adds i18n/token sources will leave the app non-compiling until these run (caught S2-mobile post-merge).
+- **S2 follow-ups carried forward (non-blocking):** (a) `@app/ui` should re-export `AppHighlightColor`/`AppHighlightData`/`AppHighlightCardHighlight` from a `.ts` barrel, not only inside `.vue` SFCs — cross-package `.vue` type imports trip typescript-eslint's `projectService` (S2-web had to derive those shapes from the OpenAPI contract instead). (b) The `@app/ui` per-slice gate should include the library `vite build` — `test/typecheck/lint` never runs it (turbo `dependsOn: ["^build"]` builds deps, not self), so a Dart-Sass error shipped latent in S2-ui and only surfaced starting S2-web (T-013).
 
 ## How to continue (the proven workflow)
 

@@ -2,6 +2,18 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-14-014 — S2-web (reader view & highlight authoring)
+
+- Created: 2026-06-14
+- Completed: 2026-06-14
+- Owner: claude
+- Result: merged locally to `main` (`--no-ff` merge `3531f94`, branch `feat/s2-web`, 7 commits `404446f`→`342147f`). **Completes S2 (P2 Extraction & Reading) — all five slices shipped.**
+- Spec: [specs/features/2026-06-14-s2-extraction-and-reading.md](../features/2026-06-14-s2-extraction-and-reading.md) · Plan: [specs/features/2026-06-14-s2-web.plan.md](../features/2026-06-14-s2-web.plan.md)
+- Delivered: `/items/[id]` is now a full web reader. `useApi` article+highlight methods (over `@app/specs` types); `useArticle` (article + extractStatus state, SSE-decoupled — page feeds `syncStatus`, in-flight guard against double-fetch) + `useHighlights` (CRUD, optimistic remove) composables; page rewrite composing the four shipped `@app/ui` composites (`AppExtractState`, `AppArticleReader`, `AppHighlightPopover`, `AppHighlightCard`) with live `extracting→ready` over the existing `useItems`+`useEvents` SSE rail, selection popover positioned from the live `Selection` rect via a `:style` CSS-var binding, cross-origin image-src rewrite, note add/edit/clear (PATCH `note:null`), `reader`/`highlight` i18n (en/ru). Metadata controls re-routed through the shared store.
+- Reviews: per-task spec-compliance ✅ + code-quality ✅ (Tasks 1–4), final holistic review ✅ "ready to merge". Code-review fixes applied: `loadArticle` 404-scoped catch + `extract()` stuck-state guard (Task 3), `loadArticle` concurrent-double-fetch guard (Task 4 race), variable-shadow cleanup.
+- Verification: container `vue-tsc` typecheck clean; host unit 17/17; production `nuxt build` green (the integration gate); backend routes probed live (`GET article`/`GET highlights`/`POST extract` → 401 = mounted+auth-guarded). FTS body search transparent through the existing library `q` (no web change). Interactive browser smoke (SSE flip, highlight persist, FTS-in-UI) deferred to manual/CI e2e — no local Playwright in this sandbox.
+- Notes / deviations: (1) Removed the Task-2 `highlight-anchor` util — the shipped `AppArticleReader.select` already emits the `{quote,prefix,suffix}` anchor, making a page-side util redundant + unwireable (the plan predated the composite's final emit). (2) Cross-package `.vue` type-export limitation: importing `AppHighlightData`/`AppHighlightColor` from `@app/ui` (declared inside `.vue` SFCs) trips typescript-eslint's `projectService` (resolves to `any`/error → CI lint fail). Worked around by deriving the prop shapes structurally from the OpenAPI `Highlight` contract (verified byte-identical to the composite's union). **Follow-up:** `@app/ui` should re-export these types from a `.ts` barrel so consumers can import them directly. (3) Follow-up: the `@app/ui` per-slice gate should include `build` (see T-013) so library SCSS errors can't ship latent.
+
 ## T-2026-06-14-013 — fix AppArticleReader `:deep()` highlight-modifier SCSS
 
 - Created: 2026-06-14
