@@ -31,6 +31,7 @@ dependencies:
     path: ../../packages/ui_flutter
   app_api_client:
     path: ../../packages/api-client-dart/lib/generated
+  flutter_html: ^3.0.0
 
 dev_dependencies:
   flutter_test:

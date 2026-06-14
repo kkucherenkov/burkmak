@@ -11,11 +11,16 @@ class _MockRepo extends Mock implements ItemsRepository {}
 
 class _MockEvents extends Mock implements EventsClient {}
 
-Item _item(String id, {ItemStatus status = ItemStatus.pending}) => Item(
+Item _item(
+  String id, {
+  ItemStatus status = ItemStatus.pending,
+  ExtractStatus extractStatus = ExtractStatus.none,
+}) => Item(
   (b) => b
     ..id = id
     ..url = 'https://x/$id'
     ..status = status
+    ..extractStatus = extractStatus
     ..readState = ReadState.unread
     ..favorite = false
     ..savedAt = DateTime.utc(2026),

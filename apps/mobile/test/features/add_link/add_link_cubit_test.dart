@@ -13,6 +13,7 @@ Item _item(String id) => Item(
     ..id = id
     ..url = 'https://x/$id'
     ..status = ItemStatus.pending
+    ..extractStatus = ExtractStatus.none
     ..readState = ReadState.unread
     ..favorite = false
     ..savedAt = DateTime.utc(2026),

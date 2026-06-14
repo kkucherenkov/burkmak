@@ -9,3 +9,9 @@ import 'package:dio/dio.dart';
 ItemsApi buildItemsApi(Dio dio) => ItemsApi(dio, standardSerializers);
 
 TagsApi buildTagsApi(Dio dio) => TagsApi(dio, standardSerializers);
+
+ExtractionApi buildExtractionApi(Dio dio) =>
+    ExtractionApi(dio, standardSerializers);
+
+HighlightsApi buildHighlightsApi(Dio dio) =>
+    HighlightsApi(dio, standardSerializers);
