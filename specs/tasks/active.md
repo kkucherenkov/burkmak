@@ -1,5 +1,27 @@
 # Active tasks
 
+## T-2026-06-14-012 — fix Better Auth ↔ SQLite provider mismatch
+
+- Created: 2026-06-14
+- Owner: claude (branch `fix/auth-sqlite-provider`)
+- Spec: none (config bugfix) — see HANDOFF.md gotcha "betterAuth binds provider: 'postgresql' even on the SQLite stack"
+- Goal: the NestJS app boots in vitest against SQLite so auth-backed integration/e2e tests can run without a real Postgres.
+- Acceptance:
+  - the full app (or AuthModule + real PrismaService) boots in a vitest test against a temp SQLite DB
+  - an email/password sign-up + session round-trips through Better Auth against SQLite (no "mode insensitive"/dialect error)
+  - all existing backend tests stay green
+- Spec diff: none
+- Codegen impact: no
+- Design impact: none
+- Tests: new auth-over-SQLite reproduction → regression-guard spec; full-suite regression
+- Sub-steps:
+  - [ ] reproduce the exact failure (provider='postgresql' vs SQLite) with a one-variable test
+  - [ ] fix: Better Auth provider tracks the SQLite datasource
+  - [ ] regression-guard: real boot + auth round-trip over SQLite
+  - [ ] verify: full backend suite green; live docker smoke
+- Status: in-progress
+- Blockers: —
+
 ## T-2026-06-14-011 — S2-mobile (reader + read-only highlights)
 
 - Created: 2026-06-14
