@@ -11,7 +11,7 @@
 - Codegen impact: no (Better Auth mounts /api/v1/auth/\* outside OpenAPI)
 - Sub-steps (web):
   - [x] W1: auth-validation + password-strength utils (TDD)
-  - [ ] W2: extend useAuth with signUp.email
+  - [x] W2: extend useAuth with signUp.email
   - [ ] W3: app-local AppBrand/AppFormError/AppStrength
   - [ ] W4: welcome.vue
   - [ ] W5: sign-in.vue (replace login.vue)
