@@ -65,7 +65,7 @@ class _DetailViewState extends State<_DetailView> {
             return const Center(child: CircularProgressIndicator());
           }
           if (state.status == DetailStatus.error) {
-            return Center(child: Text(t.status));
+            return Center(child: Text(t.error));
           }
           final item = state.item!;
           final cubit = context.read<DetailCubit>();

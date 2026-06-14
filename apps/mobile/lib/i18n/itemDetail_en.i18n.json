@@ -5,6 +5,7 @@
   "archive": "Archive",
   "favorite": "Favorite",
   "status": "Pending",
+  "error": "Couldn't load this item.",
   "read": {
     "unread": "Unread",
     "read": "Read",

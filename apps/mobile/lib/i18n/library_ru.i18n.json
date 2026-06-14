@@ -13,5 +13,8 @@
     "favorite": "В избранное",
     "archive": "В архив",
     "delete": "Удалить"
-  }
+  },
+  "retry": "Повторить",
+  "statusPending": "В ожидании",
+  "statusFailed": "Ошибка"
 }

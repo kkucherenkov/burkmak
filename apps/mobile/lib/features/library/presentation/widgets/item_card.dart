@@ -233,7 +233,9 @@ class _StatusChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        pending ? 'Pending' : 'Failed',
+        pending
+            ? context.t.library.statusPending
+            : context.t.library.statusFailed,
         style: theme.textTheme.labelSmall?.copyWith(
           color: pending
               ? theme.colorScheme.onSecondaryContainer
