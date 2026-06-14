@@ -12,7 +12,7 @@
 - Sub-steps:
   - [x] 1: codegen + fix app_api_client path + pub get
   - [x] 2: ItemsApi/TagsApi factories + DI
-  - [ ] 3: EventsClient (SSE byte-stream → AppEvent)
+  - [x] 3: EventsClient (SSE byte-stream → AppEvent)
   - [ ] 4: ItemsRepository
   - [ ] 5: LibraryState + LibraryCubit (TDD)
   - [ ] 6: LibraryScreen + item card + filter bar

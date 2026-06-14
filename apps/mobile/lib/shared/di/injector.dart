@@ -9,6 +9,7 @@ import 'package:app_mobile/shared/auth/token_storage.dart';
 import 'package:app_mobile/shared/config/app_config.dart';
 import 'package:app_mobile/shared/network/api_client.dart';
 import 'package:app_mobile/shared/network/api_factories.dart';
+import 'package:app_mobile/shared/network/events_client.dart';
 
 /// Global service locator. All runtime dependencies register here; widgets
 /// resolve blocs via `BlocProvider(create: (_) => getIt<FooBloc>())` and
@@ -36,7 +37,8 @@ void configureDependencies() {
       ),
     )
     ..registerLazySingleton<ItemsApi>(() => buildItemsApi(getIt<Dio>()))
-    ..registerLazySingleton<TagsApi>(() => buildTagsApi(getIt<Dio>()));
+    ..registerLazySingleton<TagsApi>(() => buildTagsApi(getIt<Dio>()))
+    ..registerLazySingleton<EventsClient>(() => EventsClient(getIt<Dio>()));
 
   // ── Domain repository singletons ────────────────────────────────────────
   getIt.registerLazySingleton<AuthRepository>(
