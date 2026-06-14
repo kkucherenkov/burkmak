@@ -3,14 +3,10 @@
 
   import type {
     AppHighlightColor,
-    AppHighlightData,
-  } from '../AppArticleReader/AppArticleReader.vue';
+    AppHighlightCardHighlight,
+  } from '../AppArticleReader/highlight-types';
   import AppButton from '../AppButton/AppButton.vue';
   import AppTextarea from '../AppTextarea/AppTextarea.vue';
-
-  export interface AppHighlightCardHighlight extends AppHighlightData {
-    note?: string | null;
-  }
 
   const props = withDefaults(
     defineProps<{

@@ -9,6 +9,7 @@
     AppHighlightPopover,
     AppHighlightCard,
   } from '@app/ui';
+  import type { AppHighlightColor, AppHighlightData, AppHighlightCardHighlight } from '@app/ui';
   import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 
   import { useArticle } from '~/composables/useArticle';
@@ -20,17 +21,6 @@
 
   type Item = components['schemas']['Item'];
   type Highlight = components['schemas']['Highlight'];
-  type HighlightColor = components['schemas']['HighlightColor'];
-
-  // The @app/ui composites expose AppHighlightData / AppHighlightColor /
-  // AppHighlightCardHighlight, but those types originate inside .vue SFCs and
-  // typescript-eslint's projectService resolves cross-package .vue type exports
-  // to an `error` type (vue-tsc resolves them fine — the production typecheck
-  // passes). We derive the same structural shapes from the OpenAPI Highlight
-  // instead, so no .vue-origin type crosses the package boundary. The component
-  // props still validate structurally under vue-tsc.
-  type ReaderHighlight = Pick<Highlight, 'id' | 'quote' | 'prefix' | 'suffix' | 'color'>;
-  type CardHighlight = ReaderHighlight & { note: Highlight['note'] };
 
   const { t } = useI18n();
   const route = useRoute();
@@ -79,19 +69,19 @@
   });
 
   // ---- Highlight mapping (OpenAPI Highlight -> reader/card shapes) ---------
-  function toReaderHighlight(h: Highlight): ReaderHighlight {
+  function toReaderHighlight(h: Highlight): AppHighlightData {
     return {
       id: h.id,
       quote: h.quote,
       prefix: h.prefix,
       suffix: h.suffix,
-      color: h.color,
+      color: h.color as AppHighlightColor,
     };
   }
-  function toCardData(h: Highlight): CardHighlight {
+  function toCardData(h: Highlight): AppHighlightCardHighlight {
     return { ...toReaderHighlight(h), note: h.note };
   }
-  const readerHighlights = computed<ReaderHighlight[]>(() => {
+  const readerHighlights = computed<AppHighlightData[]>(() => {
     const hs: readonly Highlight[] = highlights.list.value;
     return hs.map((h) => toReaderHighlight(h));
   });
@@ -123,7 +113,7 @@
     popoverVisible.value = true;
   }
 
-  async function onPick(color: HighlightColor): Promise<void> {
+  async function onPick(color: AppHighlightColor): Promise<void> {
     if (!pendingAnchor.value) return;
     await highlights.add({ ...pendingAnchor.value, color });
     hidePopover();

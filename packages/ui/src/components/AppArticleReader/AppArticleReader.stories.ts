@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
-import AppArticleReader, { type AppHighlightData } from './AppArticleReader.vue';
+import type { AppHighlightData } from './highlight-types';
+
+import AppArticleReader from './AppArticleReader.vue';
 
 const meta: Meta<typeof AppArticleReader> = {
   title: 'Compositions/AppArticleReader',

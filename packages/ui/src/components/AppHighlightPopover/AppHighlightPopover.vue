@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import type { AppHighlightColor } from '../AppArticleReader/AppArticleReader.vue';
+  import type { AppHighlightColor } from '../AppArticleReader/highlight-types';
 
   const props = withDefaults(
     defineProps<{
