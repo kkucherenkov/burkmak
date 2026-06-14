@@ -7,7 +7,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-15
 - Completed: 2026-06-15
 - Owner: claude
-- Result: branch `feat/s3-web`, 6 commits, pending `--no-ff` merge to `main` by human.
+- Result: merged to `main` via `--no-ff` as `c5cd9d7` (6 feature commits); branch deleted.
 - Spec: [specs/features/2026-06-15-s3-web.plan.md](../features/2026-06-15-s3-web.plan.md)
 - Delivered:
   - Task 1: `app/utils/bookmarklet.ts` + 3 unit tests (buildSaveUrl, buildBookmarkletHref)
