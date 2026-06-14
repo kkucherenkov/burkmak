@@ -16,7 +16,7 @@
 - Tests: `@app/ui` {build,test,typecheck,lint}; web typecheck (container) + lint + production build; existing 17 unit tests stay green.
 - Sub-steps:
   - [x] A — `@app/ui` highlight types → `.ts` barrel; restore web page imports from `@app/ui`
-  - [ ] B — add `@app/ui` build to CI + documented gates (CLAUDE.md/HANDOFF)
+  - [x] B — add `@app/ui` build to CI + documented gates (CLAUDE.md/HANDOFF)
   - [ ] C — reader UX polish: popover outside-click dismiss, optimistic tags, error feedback
 - Status: in-progress
 - Blockers: —

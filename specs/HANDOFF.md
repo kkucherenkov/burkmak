@@ -29,7 +29,7 @@ Execute each S2 plan with **superpowers:subagent-driven-development**, exactly a
 
 - One **per-slice branch** off `main` (`feat/s2-<plan>`), fresh subagent per task (`frontend-engineer` for web + `@app/ui`, `flutter-engineer` for mobile), spec/quality review per phase, then `--no-ff` merge to `main` and archive `active.md` → `done.md` (with the merge commit SHA).
 - **Spec-first loop** for any API change: edit `packages/specs/openapi/openapi.yaml` → `pnpm spec:validate && pnpm spec:bundle && pnpm spec:codegen` → commit codegen artifacts separately. (S2 frontends shouldn't need this — contract is done.)
-- **Per-task gates:** ui `pnpm --filter @app/ui {test,typecheck,lint}`; web `pnpm --filter @app/web {test,typecheck,lint}` + production `nuxt build` (a real gate); mobile `flutter analyze && flutter test`; repo `pnpm stylelint:fix && pnpm format`.
+- **Per-task gates:** ui `pnpm --filter @app/ui {build,test,typecheck,lint}` (**build is required** — it's the only step that compiles component SCSS through Dart Sass; T-013 shipped a broken stylesheet because the old gate omitted it); web `pnpm --filter @app/web {test,typecheck,lint}` + production `nuxt build` (a real gate); mobile `flutter analyze && flutter test`; repo `pnpm stylelint:fix && pnpm format`.
 
 ## Environment gotchas (non-obvious — these will trip you up)
 

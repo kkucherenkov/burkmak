@@ -135,9 +135,9 @@ jobs:
           git diff --exit-code -- packages/api-client-ts packages/api-client-dart \
             || (echo '::error::Generated clients are out of date. Run `pnpm spec:codegen` locally and commit the diff.' && exit 1)
 
-  # ── UI quality (component audit) ──────────────────────────────────────────
-  ui-quality:
-    name: UI component audit (story + spec parity)
+  # ── UI library (lint · typecheck · test · build · audit) ───────────────────
+  ui:
+    name: UI library (lint · typecheck · test · build · audit)
     runs-on: ubuntu-latest
 
     steps:
@@ -152,6 +152,25 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # @app/ui imports tokens.generated.{css,ts}; these are gitignored codegen.
+      - name: Build design tokens
+        run: pnpm design:build
+
+      - name: Lint
+        run: pnpm --filter @app/ui lint
+
+      - name: Typecheck
+        run: pnpm --filter @app/ui typecheck
+
+      - name: Test
+        run: pnpm --filter @app/ui test
+
+      # WHY build: vue-tsc/vitest don't compile component SCSS through Dart Sass;
+      # only `vite build` does. The other steps would pass on a broken stylesheet
+      # (see T-2026-06-14-013), so the build is a required gate, not optional.
+      - name: Build (compiles SCSS via Dart Sass — catches library style errors)
+        run: pnpm --filter @app/ui build
 
       - name: Audit components (story + spec completeness)
         run: pnpm --filter @app/ui audit:components

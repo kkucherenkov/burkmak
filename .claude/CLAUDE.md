@@ -70,7 +70,7 @@ Containers mount the repo as a volume — edits reach the running container auto
 ```sh
 pnpm spec:validate && pnpm spec:bundle && pnpm spec:codegen
 pnpm --filter @app/ui storybook          # :6006
-turbo run lint test typecheck
+turbo run build lint test typecheck   # build first: it compiles @app/ui SCSS (vue-tsc/vitest don't)
 docker compose -f docker/compose.yml up -d
 docker compose -f docker/compose.yml logs -f web --tail=100
 docker compose -f docker/compose.yml restart backend
