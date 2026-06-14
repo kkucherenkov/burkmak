@@ -9,6 +9,10 @@
 packages/api-client-ts/src/generated
 packages/api-client-dart/lib/generated
 packages/specs/dist
+# openapi-typescript output — generated artifact, emitted raw by `spec:codegen`.
+# Lives in src/ (not a generated/ dir) so it must be listed explicitly, else the
+# `**/*.ts` format glob churns its 4-space output to 2-space on every run.
+packages/specs/src/openapi-types.ts
 apps/mobile/.dart_tool
 apps/mobile/build
 apps/mobile/ios

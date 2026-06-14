@@ -56,7 +56,10 @@ run('dart pub get', dartOut);
 run('dart run build_runner build', dartOut);
 run('dart fix --apply', dartOut);
 
-console.warn('[codegen] post: prettier on openapi-types.ts (stable diff across versions)');
-run(`pnpm exec prettier --write "${openapiTypesOut}"`, packagesRoot);
+// openapi-types.ts is emitted raw and is listed in `.prettierignore` (generated
+// artifact). We do NOT run prettier on it: it lives under src/ but is not
+// hand-edited, and formatting it would only fight the `**/*.ts` format glob.
+// openapi-typescript's own output is deterministic, so the committed diff stays
+// stable without a post-format pass.
 
 console.warn('\n✓ Codegen complete.');
