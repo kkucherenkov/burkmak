@@ -4,8 +4,9 @@ import 'package:app_mobile/features/auth/domain/auth_repository.dart';
 import 'package:app_mobile/features/auth/presentation/bloc/auth_state.dart';
 
 /// Manages sign-in / sign-up / session-restore flows.
-/// Presentation calls `requestOtp`, `verifyOtp`, `signOut`, `checkSession`.
-/// `signIn` / `signUp` (email+password) remain for dev tooling only.
+/// Presentation calls `signIn` / `signUp` (email+password), `signOut`,
+/// `checkSession`. The phone-OTP path (`requestOtp` / `verifyOtp`) is retained
+/// but no longer surfaced in the UI (S1 moved auth to email/password).
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit(this._repository) : super(const AuthState());
 
@@ -31,17 +32,17 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(status: AuthStatus.authenticating, errorMessage: null));
     try {
       await _repository.requestOtp(phone: phone);
-      emit(state.copyWith(devCode: '', status: AuthStatus.otpSent, phone: phone));
+      emit(
+        state.copyWith(devCode: '', status: AuthStatus.otpSent, phone: phone),
+      );
     } on OtpError {
-      emit(state.copyWith(
-        status: AuthStatus.error,
-        errorMessage: 'invalid-phone',
-      ));
+      emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: 'invalid-phone'),
+      );
     } on Object catch (e) {
-      emit(state.copyWith(
-        status: AuthStatus.error,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: e.toString()),
+      );
     }
   }
 
@@ -59,16 +60,17 @@ class AuthCubit extends Cubit<AuthState> {
       );
       emit(AuthState(status: AuthStatus.authenticated, user: result.user));
     } on OtpError catch (e) {
-      emit(state.copyWith(
-        status: AuthStatus.otpSent,
-        errorMessage: 'otp-${e.kind.name}',
-        phone: phone,
-      ));
+      emit(
+        state.copyWith(
+          status: AuthStatus.otpSent,
+          errorMessage: 'otp-${e.kind.name}',
+          phone: phone,
+        ),
+      );
     } on Object catch (e) {
-      emit(state.copyWith(
-        status: AuthStatus.error,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: e.toString()),
+      );
     }
   }
 
@@ -77,19 +79,15 @@ class AuthCubit extends Cubit<AuthState> {
     emit(const AuthState());
   }
 
-  Future<void> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> signIn({required String email, required String password}) async {
     emit(state.copyWith(status: AuthStatus.authenticating, errorMessage: null));
     try {
       final user = await _repository.signIn(email: email, password: password);
       emit(AuthState(status: AuthStatus.authenticated, user: user));
     } on Object catch (e) {
-      emit(state.copyWith(
-        status: AuthStatus.error,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: e.toString()),
+      );
     }
   }
 
@@ -107,10 +105,9 @@ class AuthCubit extends Cubit<AuthState> {
       );
       emit(AuthState(status: AuthStatus.authenticated, user: user));
     } on Object catch (e) {
-      emit(state.copyWith(
-        status: AuthStatus.error,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: e.toString()),
+      );
     }
   }
 

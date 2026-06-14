@@ -17,8 +17,8 @@ import 'package:app_mobile/shared/auth/token_storage.dart';
 ///   POST /api/v1/auth/phone-number/verify-otp — validates code, returns token
 class AuthApiImpl implements AuthRepository {
   AuthApiImpl({required Dio dio, required TokenStorage tokenStorage})
-      : _dio = dio,
-        _tokenStorage = tokenStorage;
+    : _dio = dio,
+      _tokenStorage = tokenStorage;
 
   final Dio _dio;
   final TokenStorage _tokenStorage;

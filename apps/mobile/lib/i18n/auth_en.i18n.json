@@ -1,7 +1,10 @@
 {
   "welcome": {
-    "headline": "Book anything, anytime",
-    "subtitle": "Find and book appointments with top-rated professionals.",
+    "eyebrow": "Read-it-later, kept warm",
+    "headline": "A quiet home for everything you mean to read.",
+    "subtitle": "Save anything from the web, read it clean, and keep your library truly yours.",
+    "getStarted": "Get started",
+    "signIn": "Sign in",
     "continueWithPhone": "Continue with phone",
     "legalFootnote": "By continuing, you agree to our Terms and Privacy Policy."
   },
@@ -33,15 +36,15 @@
   },
   "signIn": {
     "title": "Welcome back",
+    "subtitle": "Sign in to your library",
     "emailLabel": "Email",
-    "emailHint": "you@example.com",
     "passwordLabel": "Password",
-    "passwordHint": "Your password",
     "submit": "Sign in",
-    "noAccount": "No account?",
-    "signUpLink": "Sign up",
-    "errorInvalidCredentials": "Invalid email or password.",
-    "errorGeneric": "Sign-in failed: {error}"
+    "noAccount": "New to burkmak?",
+    "signUpLink": "Create an account",
+    "errorInvalid": "Enter a valid email and an 8+ character password.",
+    "errorCredentials": "Wrong email or password.",
+    "errorGeneric": "Something went wrong. Please try again."
   },
   "signUp": {
     "title": "Create account",

@@ -23,6 +23,13 @@ interface AuthClientLike {
       password: string;
     }): Promise<{ data: unknown; error: { message?: string } | null }>;
   };
+  signUp: {
+    email(opts: {
+      email: string;
+      password: string;
+      name: string;
+    }): Promise<{ data: unknown; error: { message?: string } | null }>;
+  };
   changePassword(opts: {
     newPassword: string;
     currentPassword?: string;
