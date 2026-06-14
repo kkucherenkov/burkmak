@@ -27,8 +27,7 @@ class ItemsRepository {
   Future<Item> getItem(String id) async => (await _items.getItem(id: id)).data!;
 
   Future<Item> saveItem(String url) async {
-    // ignore: avoid_dynamic_calls
-    final req = SaveItemRequest((b) => (b as dynamic)..url = url);
+    final req = SaveItemRequest((b) => b..url = url);
     return (await _items.saveItem(saveItemRequest: req)).data!;
   }
 
@@ -38,9 +37,8 @@ class ItemsRepository {
     bool? favorite,
   }) async {
     final req = UpdateItemRequest((b) {
-      final d = b as dynamic; // ignore: avoid_dynamic_calls
-      if (readState != null) d.readState = readState;
-      if (favorite != null) d.favorite = favorite;
+      if (readState != null) b.readState = readState;
+      if (favorite != null) b.favorite = favorite;
     });
     return (await _items.updateItem(id: id, updateItemRequest: req)).data!;
   }
@@ -50,8 +48,7 @@ class ItemsRepository {
   }
 
   Future<Item> addTag(String id, String tag) async {
-    // ignore: avoid_dynamic_calls
-    final req = AddTagRequest((b) => (b as dynamic)..tag = tag);
+    final req = AddTagRequest((b) => b..tag = tag);
     return (await _items.addItemTag(id: id, addTagRequest: req)).data!;
   }
 
