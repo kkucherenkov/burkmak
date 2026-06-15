@@ -10,7 +10,10 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(AddTagRequest.serializer)
       ..add(Article.serializer)
       ..add(CreateHighlightRequest.serializer)
+      ..add(CreateTokenRequest.serializer)
       ..add(DependencyStatus.serializer)
+      ..add(ExportBundle.serializer)
+      ..add(ExportedNote.serializer)
       ..add(ExtractAccepted.serializer)
       ..add(ExtractStatus.serializer)
       ..add(HealthStatus.serializer)
@@ -21,20 +24,30 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(Item.serializer)
       ..add(ItemList.serializer)
       ..add(ItemStatus.serializer)
+      ..add(PersonalAccessToken.serializer)
+      ..add(PersonalAccessTokenCreated.serializer)
       ..add(Problem.serializer)
       ..add(ReadState.serializer)
       ..add(RenameTagRequest.serializer)
       ..add(SaveItemRequest.serializer)
       ..add(Tag.serializer)
       ..add(TagList.serializer)
+      ..add(TokenList.serializer)
       ..add(UpdateHighlightRequest.serializer)
       ..add(UpdateItemRequest.serializer)
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(ExportedNote)]),
+          () => ListBuilder<ExportedNote>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(Highlight)]),
           () => ListBuilder<Highlight>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(Item)]),
           () => ListBuilder<Item>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(PersonalAccessToken)]),
+          () => ListBuilder<PersonalAccessToken>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())

@@ -200,6 +200,36 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/items/{id}/epub": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * Download an EPUB/KEPUB for a saved item
+         * @description Builds (or returns a cached) EPUB3/KEPUB for the item's extracted
+         *     article and streams it as `application/epub+zip`. The file is a
+         *     `.kepub.epub` for optimal on-device progress tracking on Kobo.
+         *
+         *     Requires a ready article (`extractStatus = ready`). Returns `409` if
+         *     the article has not been extracted yet. Accepts session cookie, Better
+         *     Auth bearer, **and** PAT HTTP Basic (password = `burk_pat_…`) so that
+         *     OPDS/Kobo acquisition links work without an interactive session.
+         */
+        get: operations["getItemEpub"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/items/{id}/highlights": {
         parameters: {
             query?: never;
@@ -330,6 +360,149 @@ export interface paths {
          * @description Updates the display name of a tag. The slug is automatically re-derived from the new name server-side.
          */
         patch: operations["renameTag"];
+        trace?: never;
+    };
+    "/api/v1/export/markdown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export all matching items as Obsidian-ready markdown notes
+         * @description Returns a JSON bundle of markdown-rendered notes for the authenticated
+         *     user's items. By default only items with at least one highlight are
+         *     included. Use `?includeEmpty=true` to include items without highlights.
+         *     Supports filtering by read state and a `since` cursor (items whose
+         *     metadata or highlights changed after that timestamp). Results are
+         *     ordered newest-first.
+         *
+         *     Designed to be consumed by the Obsidian plugin; each `ExportedNote`
+         *     contains a stable `filename` and a YAML-frontmatter block whose
+         *     `burkmakId` is the idempotency key for vault writes.
+         */
+        get: operations["exportMarkdownBundle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/items/{id}/export/markdown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * Export a single item as a raw markdown note
+         * @description Returns the Obsidian-ready markdown for a single item as `text/markdown`.
+         *     Useful for manual copy-paste or testing the renderer. The markdown
+         *     format is identical to entries returned by `GET /api/v1/export/markdown`.
+         *     Returns `404` if the item does not exist or is not owned by the caller.
+         */
+        get: operations["exportItemMarkdown"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * OPDS 1.2 acquisition feed of extracted articles
+         * @description Returns an OPDS 1.2 Atom acquisition feed listing the authenticated
+         *     user's extracted articles (newest first; `extractStatus = ready`;
+         *     excludes archived items by default). Each `<entry>` carries an
+         *     acquisition link pointing at `GET /api/v1/items/{id}/epub`.
+         *
+         *     Kobo and other OPDS readers should be pointed at this URL with HTTP
+         *     Basic authentication — any non-empty username, PAT as the password.
+         *     The response content-type is
+         *     `application/atom+xml;profile=opds-catalog;kind=acquisition`.
+         */
+        get: operations["getOpdsFeed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the authenticated user's personal access tokens
+         * @description Returns all non-revoked personal access tokens for the authenticated
+         *     user. The secret and hash are **never** returned; only the display
+         *     prefix is included for identification.
+         */
+        get: operations["listTokens"];
+        put?: never;
+        /**
+         * Create a personal access token
+         * @description Creates a new personal access token for the authenticated user and
+         *     returns the **full plaintext secret exactly once** — it is not stored
+         *     and cannot be retrieved again. The caller must copy it immediately.
+         *
+         *     The token string has the format `burk_pat_` followed by 43 base64url
+         *     characters (32 random bytes). It can be used as:
+         *     - `Authorization: Bearer <token>` (Obsidian, REST clients)
+         *     - HTTP Basic password, any username (OPDS/Kobo clients)
+         */
+        post: operations["createToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tokens/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Personal access token ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke a personal access token
+         * @description Permanently revokes the token by recording a `revokedAt` timestamp.
+         *     Returns `404` if the token does not exist or is not owned by the
+         *     authenticated user. Immediately invalidates the token; in-flight
+         *     requests using the token may still succeed if they passed the auth
+         *     check before revocation.
+         */
+        delete: operations["revokeToken"];
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
@@ -537,6 +710,78 @@ export interface components {
             /** @description Updated reader note; set to null to clear */
             note?: string | null;
             color?: components["schemas"]["HighlightColor"];
+        };
+        CreateTokenRequest: {
+            /** @description Human-readable label for this token (e.g. "Kobo e-reader") */
+            name: string;
+        };
+        /** @description A personal access token record (secret and hash are never returned). */
+        PersonalAccessToken: {
+            /** @description Unique token ID (cuid) */
+            id: string;
+            /** @description Human-readable label assigned at creation */
+            name: string;
+            /** @description First ~12 characters of the token for visual identification (e.g. "burk_pat_ab12") */
+            prefix: string;
+            /**
+             * Format: date-time
+             * @description ISO-8601 timestamp of the most recent successful use; null if never used
+             */
+            lastUsedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description ISO-8601 timestamp when the token was created
+             */
+            createdAt: string;
+        };
+        /**
+         * @description Response body returned when a personal access token is created (201).
+         *     The `token` field contains the full plaintext secret — it is returned
+         *     exactly once and cannot be retrieved again.
+         */
+        PersonalAccessTokenCreated: {
+            /** @description Unique token ID (cuid) */
+            id: string;
+            /** @description Human-readable label */
+            name: string;
+            /** @description First ~12 characters for visual identification */
+            prefix: string;
+            /**
+             * @description Full plaintext token (`burk_pat_` + 43 base64url chars).
+             *     Store this value securely — it will not be shown again.
+             */
+            token: string;
+            /**
+             * Format: date-time
+             * @description ISO-8601 timestamp when the token was created
+             */
+            createdAt: string;
+        };
+        TokenList: {
+            tokens: components["schemas"]["PersonalAccessToken"][];
+        };
+        /** @description A single item rendered as an Obsidian-ready markdown note. */
+        ExportedNote: {
+            /** @description ID of the source item (cuid); also the `burkmakId` in the note's YAML frontmatter */
+            itemId: string;
+            /** @description Item title (may be null if metadata extraction is not yet complete) */
+            title: string | null;
+            /**
+             * @description Stable, filesystem-safe filename including the `.md` extension
+             *     (e.g. `the-case-for-reading-slowly-cmqd.md`). Derived from the
+             *     slugified title + a short id suffix; stable for a given item so
+             *     the Obsidian plugin can overwrite the same file on re-sync.
+             */
+            filename: string;
+            /**
+             * @description Full markdown content including YAML frontmatter, article
+             *     metadata, excerpt, and highlight blockquotes.
+             */
+            markdown: string;
+        };
+        /** @description Collection of markdown-rendered notes returned by the bulk export endpoint. */
+        ExportBundle: {
+            notes: components["schemas"]["ExportedNote"][];
         };
     };
     responses: never;
@@ -1000,6 +1245,63 @@ export interface operations {
             };
         };
     };
+    getItemEpub: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description Raw EPUB bytes. `Content-Disposition: attachment; filename="<slug>.kepub.epub"`.
+             *     No example is representable for binary content.
+             */
+            200: {
+                headers: {
+                    /** @description attachment; filename="<slug>.kepub.epub" */
+                    "Content-Disposition"?: string;
+                    /** @description nosniff */
+                    "X-Content-Type-Options"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/epub+zip": string;
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Item not found or not owned by the authenticated user */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Article has not been extracted yet — trigger extraction first */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     listHighlights: {
         parameters: {
             query?: never;
@@ -1354,6 +1656,240 @@ export interface operations {
                 };
             };
             /** @description Tag not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    exportMarkdownBundle: {
+        parameters: {
+            query?: {
+                /** @description Filter by read state */
+                readState?: components["schemas"]["ReadState"];
+                /**
+                 * @description ISO-8601 timestamp; only items updated at or after this instant
+                 *     are returned. Useful for incremental sync.
+                 */
+                since?: string;
+                /**
+                 * @description When `false` (default) only items with at least one highlight are
+                 *     returned. Set to `true` to include items without highlights.
+                 */
+                includeEmpty?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Bundle of markdown notes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportBundle"];
+                };
+            };
+            /** @description Invalid query parameters */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    exportItemMarkdown: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Raw markdown text for the item */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/markdown": string;
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Item not found or not owned by the authenticated user */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getOpdsFeed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OPDS 1.2 Atom acquisition feed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/atom+xml": string;
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listTokens: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of personal access tokens (secrets not included) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenList"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    createToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTokenRequest"];
+            };
+        };
+        responses: {
+            /**
+             * @description Token created. The `token` field contains the full plaintext secret
+             *     — this is the only time it is returned.
+             */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalAccessTokenCreated"];
+                };
+            };
+            /** @description Request body invalid */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    revokeToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Personal access token ID (cuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Token revoked successfully */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Token not found or not owned by the authenticated user */
             404: {
                 headers: {
                     [name: string]: unknown;

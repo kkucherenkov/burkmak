@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: App API
-  version: 0.3.0
+  version: 0.4.0
   description: |
     Spec-first HTTP API. Paths include the versioned prefix (`/api/v1`) so
     generated clients can be used without additional base-URL rewriting.
@@ -33,6 +33,12 @@ tags:
     description: Article content extraction and cached images
   - name: highlights
     description: Reader highlights on saved items
+  - name: tokens
+    description: Personal access tokens for headless client authentication (Kobo, Obsidian)
+  - name: kobo
+    description: OPDS catalog feed and EPUB download for Kobo and other OPDS readers
+  - name: export
+    description: Obsidian-compatible markdown export of items and highlights
 
 paths:
   /api/v1/health:
@@ -728,6 +734,93 @@ paths:
                     detail: "Item clxabc123 does not exist"
                     code: item-not-found
 
+  /api/v1/items/{id}/epub:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Item ID (cuid)
+
+    get:
+      operationId: getItemEpub
+      summary: Download an EPUB/KEPUB for a saved item
+      description: |
+        Builds (or returns a cached) EPUB3/KEPUB for the item's extracted
+        article and streams it as `application/epub+zip`. The file is a
+        `.kepub.epub` for optimal on-device progress tracking on Kobo.
+
+        Requires a ready article (`extractStatus = ready`). Returns `409` if
+        the article has not been extracted yet. Accepts session cookie, Better
+        Auth bearer, **and** PAT HTTP Basic (password = `burk_pat_…`) so that
+        OPDS/Kobo acquisition links work without an interactive session.
+      tags: [kobo]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+        - patBasicAuth: []
+      responses:
+        "200":
+          description: |
+            Raw EPUB bytes. `Content-Disposition: attachment; filename="<slug>.kepub.epub"`.
+            No example is representable for binary content.
+          headers:
+            Content-Disposition:
+              description: attachment; filename="<slug>.kepub.epub"
+              schema:
+                type: string
+            X-Content-Type-Options:
+              description: nosniff
+              schema:
+                type: string
+          content:
+            application/epub+zip:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Item not found or not owned by the authenticated user
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Item clxabc123 does not exist"
+                    code: item-not-found
+        "409":
+          description: Article has not been extracted yet — trigger extraction first
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notReady:
+                  value:
+                    type: about:blank
+                    title: Conflict
+                    status: 409
+                    detail: "Article for item clxabc123 is not yet extracted"
+                    code: article-not-ready
+
   /api/v1/items/{id}/highlights:
     parameters:
       - name: id
@@ -1238,6 +1331,423 @@ paths:
                     detail: "Tag clxtag001 does not exist"
                     code: tag-not-found
 
+  /api/v1/export/markdown:
+    get:
+      operationId: exportMarkdownBundle
+      summary: Export all matching items as Obsidian-ready markdown notes
+      description: |
+        Returns a JSON bundle of markdown-rendered notes for the authenticated
+        user's items. By default only items with at least one highlight are
+        included. Use `?includeEmpty=true` to include items without highlights.
+        Supports filtering by read state and a `since` cursor (items whose
+        metadata or highlights changed after that timestamp). Results are
+        ordered newest-first.
+
+        Designed to be consumed by the Obsidian plugin; each `ExportedNote`
+        contains a stable `filename` and a YAML-frontmatter block whose
+        `burkmakId` is the idempotency key for vault writes.
+      tags: [export]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      parameters:
+        - name: readState
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/ReadState"
+          description: Filter by read state
+        - name: since
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: |
+            ISO-8601 timestamp; only items updated at or after this instant
+            are returned. Useful for incremental sync.
+        - name: includeEmpty
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: |
+            When `false` (default) only items with at least one highlight are
+            returned. Set to `true` to include items without highlights.
+      responses:
+        "200":
+          description: Bundle of markdown notes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportBundle"
+              examples:
+                bundle:
+                  value:
+                    notes:
+                      - itemId: clxabc123
+                        title: "The Case for Reading Slowly"
+                        filename: "the-case-for-reading-slowly-cmqd.md"
+                        markdown: |
+                          ---
+                          burkmakId: clxabc123
+                          title: "The Case for Reading Slowly"
+                          url: https://example.com/reading-slowly
+                          source: "Example Blog"
+                          savedAt: "2026-06-15T08:00:00Z"
+                          tags: ["reading"]
+                          readingTimeMin: 4
+                          ---
+                          # [The Case for Reading Slowly](https://example.com/reading-slowly)
+
+                          Example Blog · 2026-06-15 · 4 min read
+
+                          > A short excerpt from the article.
+
+                          ## Highlights
+
+                          > The depth of understanding grows with the pace of reading.
+                          > — yellow
+
+                          Important insight to revisit.
+        "400":
+          description: Invalid query parameters
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                badParams:
+                  value:
+                    type: about:blank
+                    title: Bad Request
+                    status: 400
+                    detail: "since must be a valid ISO-8601 date-time"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+
+  /api/v1/items/{id}/export/markdown:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Item ID (cuid)
+
+    get:
+      operationId: exportItemMarkdown
+      summary: Export a single item as a raw markdown note
+      description: |
+        Returns the Obsidian-ready markdown for a single item as `text/markdown`.
+        Useful for manual copy-paste or testing the renderer. The markdown
+        format is identical to entries returned by `GET /api/v1/export/markdown`.
+        Returns `404` if the item does not exist or is not owned by the caller.
+      tags: [export]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Raw markdown text for the item
+          content:
+            text/markdown:
+              schema:
+                type: string
+              examples:
+                note:
+                  value: |
+                    ---
+                    burkmakId: clxabc123
+                    title: "The Case for Reading Slowly"
+                    url: https://example.com/reading-slowly
+                    source: "Example Blog"
+                    savedAt: "2026-06-15T08:00:00Z"
+                    tags: ["reading"]
+                    readingTimeMin: 4
+                    ---
+                    # [The Case for Reading Slowly](https://example.com/reading-slowly)
+
+                    Example Blog · 2026-06-15 · 4 min read
+
+                    > A short excerpt from the article.
+
+                    ## Highlights
+
+                    > The depth of understanding grows with the pace of reading.
+                    > — yellow
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Item not found or not owned by the authenticated user
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Item clxabc123 does not exist"
+                    code: item-not-found
+
+  /api/v1/opds:
+    get:
+      operationId: getOpdsFeed
+      summary: OPDS 1.2 acquisition feed of extracted articles
+      description: |
+        Returns an OPDS 1.2 Atom acquisition feed listing the authenticated
+        user's extracted articles (newest first; `extractStatus = ready`;
+        excludes archived items by default). Each `<entry>` carries an
+        acquisition link pointing at `GET /api/v1/items/{id}/epub`.
+
+        Kobo and other OPDS readers should be pointed at this URL with HTTP
+        Basic authentication — any non-empty username, PAT as the password.
+        The response content-type is
+        `application/atom+xml;profile=opds-catalog;kind=acquisition`.
+      tags: [kobo]
+      security:
+        - patBasicAuth: []
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OPDS 1.2 Atom acquisition feed
+          content:
+            application/atom+xml:
+              schema:
+                type: string
+              examples:
+                feed:
+                  value: |
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <feed xmlns="http://www.w3.org/2005/Atom"
+                          xmlns:opds="http://opds-spec.org/2010/catalog">
+                      <id>urn:burkmak:opds:user:clxusr001</id>
+                      <title>burkmak — My Reading List</title>
+                      <updated>2026-06-15T09:00:00Z</updated>
+                      <entry>
+                        <id>urn:burkmak:item:clxabc123</id>
+                        <title>The Case for Reading Slowly</title>
+                        <author><name>Example Blog</name></author>
+                        <summary>A short excerpt from the article.</summary>
+                        <updated>2026-06-15T08:00:00Z</updated>
+                        <link rel="http://opds-spec.org/acquisition"
+                              type="application/epub+zip"
+                              href="/api/v1/items/clxabc123/epub"/>
+                      </entry>
+                    </feed>
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+
+  /api/v1/tokens:
+    get:
+      operationId: listTokens
+      summary: List the authenticated user's personal access tokens
+      description: |
+        Returns all non-revoked personal access tokens for the authenticated
+        user. The secret and hash are **never** returned; only the display
+        prefix is included for identification.
+      tags: [tokens]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of personal access tokens (secrets not included)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenList"
+              examples:
+                list:
+                  value:
+                    tokens:
+                      - id: clxtok001
+                        name: "Kobo e-reader"
+                        prefix: "burk_pat_ab12"
+                        lastUsedAt: "2026-06-14T22:00:00Z"
+                        createdAt: "2026-06-01T12:00:00Z"
+                      - id: clxtok002
+                        name: "Obsidian plugin"
+                        prefix: "burk_pat_cd34"
+                        lastUsedAt: null
+                        createdAt: "2026-06-10T09:00:00Z"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+
+    post:
+      operationId: createToken
+      summary: Create a personal access token
+      description: |
+        Creates a new personal access token for the authenticated user and
+        returns the **full plaintext secret exactly once** — it is not stored
+        and cannot be retrieved again. The caller must copy it immediately.
+
+        The token string has the format `burk_pat_` followed by 43 base64url
+        characters (32 random bytes). It can be used as:
+        - `Authorization: Bearer <token>` (Obsidian, REST clients)
+        - HTTP Basic password, any username (OPDS/Kobo clients)
+      tags: [tokens]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTokenRequest"
+            examples:
+              kobo:
+                value:
+                  name: "Kobo e-reader"
+              obsidian:
+                value:
+                  name: "Obsidian plugin"
+      responses:
+        "201":
+          description: |
+            Token created. The `token` field contains the full plaintext secret
+            — this is the only time it is returned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersonalAccessTokenCreated"
+              examples:
+                created:
+                  value:
+                    id: clxtok001
+                    name: "Kobo e-reader"
+                    prefix: "burk_pat_ab12"
+                    token: "burk_pat_ab12XyZ9-kQmNpRvWsLtUeHjFdCgIoBnAcEl"
+                    createdAt: "2026-06-15T10:00:00Z"
+        "400":
+          description: Request body invalid
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                badBody:
+                  value:
+                    type: about:blank
+                    title: Bad Request
+                    status: 400
+                    detail: "name must be between 1 and 100 characters"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+
+  /api/v1/tokens/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Personal access token ID (cuid)
+
+    delete:
+      operationId: revokeToken
+      summary: Revoke a personal access token
+      description: |
+        Permanently revokes the token by recording a `revokedAt` timestamp.
+        Returns `404` if the token does not exist or is not owned by the
+        authenticated user. Immediately invalidates the token; in-flight
+        requests using the token may still succeed if they passed the auth
+        check before revocation.
+      tags: [tokens]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Token revoked successfully
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+        "404":
+          description: Token not found or not owned by the authenticated user
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: about:blank
+                    title: Not Found
+                    status: 404
+                    detail: "Token clxtok001 does not exist"
+                    code: token-not-found
+
 components:
   securitySchemes:
     cookieAuth:
@@ -1248,6 +1758,13 @@ components:
       type: http
       scheme: bearer
       bearerFormat: Better Auth bearer token
+    patBasicAuth:
+      type: http
+      scheme: basic
+      description: |
+        Personal access token as the HTTP Basic password (username ignored) —
+        used by OPDS/Kobo clients. Send any non-empty string as the username
+        and the full `burk_pat_…` token as the password.
   schemas:
     DependencyStatus:
       type: ["string", "null"]
@@ -1556,3 +2073,106 @@ components:
           description: Updated reader note; set to null to clear
         color:
           $ref: "#/components/schemas/HighlightColor"
+
+    CreateTokenRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Human-readable label for this token (e.g. "Kobo e-reader")
+
+    PersonalAccessToken:
+      type: object
+      description: A personal access token record (secret and hash are never returned).
+      required: [id, name, prefix, createdAt]
+      properties:
+        id:
+          type: string
+          description: Unique token ID (cuid)
+        name:
+          type: string
+          description: Human-readable label assigned at creation
+        prefix:
+          type: string
+          description: First ~12 characters of the token for visual identification (e.g. "burk_pat_ab12")
+        lastUsedAt:
+          type: ["string", "null"]
+          format: date-time
+          description: ISO-8601 timestamp of the most recent successful use; null if never used
+        createdAt:
+          type: string
+          format: date-time
+          description: ISO-8601 timestamp when the token was created
+
+    PersonalAccessTokenCreated:
+      type: object
+      description: |
+        Response body returned when a personal access token is created (201).
+        The `token` field contains the full plaintext secret — it is returned
+        exactly once and cannot be retrieved again.
+      required: [id, name, prefix, token, createdAt]
+      properties:
+        id:
+          type: string
+          description: Unique token ID (cuid)
+        name:
+          type: string
+          description: Human-readable label
+        prefix:
+          type: string
+          description: First ~12 characters for visual identification
+        token:
+          type: string
+          description: |
+            Full plaintext token (`burk_pat_` + 43 base64url chars).
+            Store this value securely — it will not be shown again.
+        createdAt:
+          type: string
+          format: date-time
+          description: ISO-8601 timestamp when the token was created
+
+    TokenList:
+      type: object
+      required: [tokens]
+      properties:
+        tokens:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonalAccessToken"
+
+    ExportedNote:
+      type: object
+      description: A single item rendered as an Obsidian-ready markdown note.
+      required: [itemId, title, filename, markdown]
+      properties:
+        itemId:
+          type: string
+          description: ID of the source item (cuid); also the `burkmakId` in the note's YAML frontmatter
+        title:
+          type: ["string", "null"]
+          description: Item title (may be null if metadata extraction is not yet complete)
+        filename:
+          type: string
+          description: |
+            Stable, filesystem-safe filename including the `.md` extension
+            (e.g. `the-case-for-reading-slowly-cmqd.md`). Derived from the
+            slugified title + a short id suffix; stable for a given item so
+            the Obsidian plugin can overwrite the same file on re-sync.
+        markdown:
+          type: string
+          description: |
+            Full markdown content including YAML frontmatter, article
+            metadata, excerpt, and highlight blockquotes.
+
+    ExportBundle:
+      type: object
+      description: Collection of markdown-rendered notes returned by the bulk export endpoint.
+      required: [notes]
+      properties:
+        notes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExportedNote"

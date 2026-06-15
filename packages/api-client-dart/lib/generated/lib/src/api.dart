@@ -10,11 +10,14 @@ import 'package:app_api_client/src/auth/basic_auth.dart';
 import 'package:app_api_client/src/auth/bearer_auth.dart';
 import 'package:app_api_client/src/auth/oauth.dart';
 import 'package:app_api_client/src/api/events_api.dart';
+import 'package:app_api_client/src/api/export_api.dart';
 import 'package:app_api_client/src/api/extraction_api.dart';
 import 'package:app_api_client/src/api/highlights_api.dart';
 import 'package:app_api_client/src/api/items_api.dart';
+import 'package:app_api_client/src/api/kobo_api.dart';
 import 'package:app_api_client/src/api/system_api.dart';
 import 'package:app_api_client/src/api/tags_api.dart';
+import 'package:app_api_client/src/api/tokens_api.dart';
 
 class AppApiClient {
   static const String basePath = r'http://localhost:3000';
@@ -76,6 +79,12 @@ class AppApiClient {
     return EventsApi(dio, serializers);
   }
 
+  /// Get ExportApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  ExportApi getExportApi() {
+    return ExportApi(dio, serializers);
+  }
+
   /// Get ExtractionApi instance, base route and serializer can be overridden by a given but be careful,
   /// by doing that all interceptors will not be executed
   ExtractionApi getExtractionApi() {
@@ -94,6 +103,12 @@ class AppApiClient {
     return ItemsApi(dio, serializers);
   }
 
+  /// Get KoboApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  KoboApi getKoboApi() {
+    return KoboApi(dio, serializers);
+  }
+
   /// Get SystemApi instance, base route and serializer can be overridden by a given but be careful,
   /// by doing that all interceptors will not be executed
   SystemApi getSystemApi() {
@@ -104,5 +119,11 @@ class AppApiClient {
   /// by doing that all interceptors will not be executed
   TagsApi getTagsApi() {
     return TagsApi(dio, serializers);
+  }
+
+  /// Get TokensApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  TokensApi getTokensApi() {
+    return TokensApi(dio, serializers);
   }
 }

@@ -17,7 +17,10 @@ import 'package:app_api_client/src/model/date.dart';
 import 'package:app_api_client/src/model/add_tag_request.dart';
 import 'package:app_api_client/src/model/article.dart';
 import 'package:app_api_client/src/model/create_highlight_request.dart';
+import 'package:app_api_client/src/model/create_token_request.dart';
 import 'package:app_api_client/src/model/dependency_status.dart';
+import 'package:app_api_client/src/model/export_bundle.dart';
+import 'package:app_api_client/src/model/exported_note.dart';
 import 'package:app_api_client/src/model/extract_accepted.dart';
 import 'package:app_api_client/src/model/extract_status.dart';
 import 'package:app_api_client/src/model/health_status.dart';
@@ -28,12 +31,15 @@ import 'package:app_api_client/src/model/highlight_list.dart';
 import 'package:app_api_client/src/model/item.dart';
 import 'package:app_api_client/src/model/item_list.dart';
 import 'package:app_api_client/src/model/item_status.dart';
+import 'package:app_api_client/src/model/personal_access_token.dart';
+import 'package:app_api_client/src/model/personal_access_token_created.dart';
 import 'package:app_api_client/src/model/problem.dart';
 import 'package:app_api_client/src/model/read_state.dart';
 import 'package:app_api_client/src/model/rename_tag_request.dart';
 import 'package:app_api_client/src/model/save_item_request.dart';
 import 'package:app_api_client/src/model/tag.dart';
 import 'package:app_api_client/src/model/tag_list.dart';
+import 'package:app_api_client/src/model/token_list.dart';
 import 'package:app_api_client/src/model/update_highlight_request.dart';
 import 'package:app_api_client/src/model/update_item_request.dart';
 
@@ -43,7 +49,10 @@ part 'serializers.g.dart';
   AddTagRequest,
   Article,
   CreateHighlightRequest,
+  CreateTokenRequest,
   DependencyStatus,
+  ExportBundle,
+  ExportedNote,
   ExtractAccepted,
   ExtractStatus,
   HealthStatus,
@@ -54,12 +63,15 @@ part 'serializers.g.dart';
   Item,
   ItemList,
   ItemStatus,
+  PersonalAccessToken,
+  PersonalAccessTokenCreated,
   Problem,
   ReadState,
   RenameTagRequest,
   SaveItemRequest,
   Tag,
   TagList,
+  TokenList,
   UpdateHighlightRequest,
   UpdateItemRequest,
 ])

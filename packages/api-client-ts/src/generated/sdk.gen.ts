@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AddItemTagData, AddItemTagErrors, AddItemTagResponses, CreateHighlightData, CreateHighlightErrors, CreateHighlightResponses, DeleteHighlightData, DeleteHighlightErrors, DeleteHighlightResponses, DeleteItemData, DeleteItemErrors, DeleteItemResponses, DeleteTagData, DeleteTagErrors, DeleteTagResponses, ExtractArticleData, ExtractArticleErrors, ExtractArticleResponses, GetArticleData, GetArticleErrors, GetArticleResponses, GetHealthData, GetHealthErrors, GetHealthResponses, GetItemData, GetItemErrors, GetItemImageData, GetItemImageErrors, GetItemImageResponses, GetItemResponses, ListHighlightsData, ListHighlightsErrors, ListHighlightsResponses, ListItemsData, ListItemsErrors, ListItemsResponses, ListTagsData, ListTagsErrors, ListTagsResponses, RemoveItemTagData, RemoveItemTagErrors, RemoveItemTagResponses, RenameTagData, RenameTagErrors, RenameTagResponses, SaveItemData, SaveItemErrors, SaveItemResponses, StreamEventsData, StreamEventsErrors, StreamEventsResponse, StreamEventsResponses, UpdateHighlightData, UpdateHighlightErrors, UpdateHighlightResponses, UpdateItemData, UpdateItemErrors, UpdateItemResponses } from './types.gen';
+import type { AddItemTagData, AddItemTagErrors, AddItemTagResponses, CreateHighlightData, CreateHighlightErrors, CreateHighlightResponses, CreateTokenData, CreateTokenErrors, CreateTokenResponses, DeleteHighlightData, DeleteHighlightErrors, DeleteHighlightResponses, DeleteItemData, DeleteItemErrors, DeleteItemResponses, DeleteTagData, DeleteTagErrors, DeleteTagResponses, ExportItemMarkdownData, ExportItemMarkdownErrors, ExportItemMarkdownResponses, ExportMarkdownBundleData, ExportMarkdownBundleErrors, ExportMarkdownBundleResponses, ExtractArticleData, ExtractArticleErrors, ExtractArticleResponses, GetArticleData, GetArticleErrors, GetArticleResponses, GetHealthData, GetHealthErrors, GetHealthResponses, GetItemData, GetItemEpubData, GetItemEpubErrors, GetItemEpubResponses, GetItemErrors, GetItemImageData, GetItemImageErrors, GetItemImageResponses, GetItemResponses, GetOpdsFeedData, GetOpdsFeedErrors, GetOpdsFeedResponses, ListHighlightsData, ListHighlightsErrors, ListHighlightsResponses, ListItemsData, ListItemsErrors, ListItemsResponses, ListTagsData, ListTagsErrors, ListTagsResponses, ListTokensData, ListTokensErrors, ListTokensResponses, RemoveItemTagData, RemoveItemTagErrors, RemoveItemTagResponses, RenameTagData, RenameTagErrors, RenameTagResponses, RevokeTokenData, RevokeTokenErrors, RevokeTokenResponses, SaveItemData, SaveItemErrors, SaveItemResponses, StreamEventsData, StreamEventsErrors, StreamEventsResponse, StreamEventsResponses, UpdateHighlightData, UpdateHighlightErrors, UpdateHighlightResponses, UpdateItemData, UpdateItemErrors, UpdateItemResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -198,6 +198,33 @@ export const extractArticle = <ThrowOnError extends boolean = false>(options: Op
 });
 
 /**
+ * Download an EPUB/KEPUB for a saved item
+ *
+ * Builds (or returns a cached) EPUB3/KEPUB for the item's extracted
+ * article and streams it as `application/epub+zip`. The file is a
+ * `.kepub.epub` for optimal on-device progress tracking on Kobo.
+ *
+ * Requires a ready article (`extractStatus = ready`). Returns `409` if
+ * the article has not been extracted yet. Accepts session cookie, Better
+ * Auth bearer, **and** PAT HTTP Basic (password = `burk_pat_…`) so that
+ * OPDS/Kobo acquisition links work without an interactive session.
+ *
+ */
+export const getItemEpub = <ThrowOnError extends boolean = false>(options: Options<GetItemEpubData, ThrowOnError>) => (options.client ?? client).get<GetItemEpubResponses, GetItemEpubErrors, ThrowOnError>({
+    security: [
+        {
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        },
+        { scheme: 'bearer', type: 'http' },
+        { scheme: 'basic', type: 'http' }
+    ],
+    url: '/api/v1/items/{id}/epub',
+    ...options
+});
+
+/**
  * List all highlights on an item
  *
  * Returns all highlights the authenticated user has created on the given item.
@@ -327,4 +354,133 @@ export const renameTag = <ThrowOnError extends boolean = false>(options: Options
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * Export all matching items as Obsidian-ready markdown notes
+ *
+ * Returns a JSON bundle of markdown-rendered notes for the authenticated
+ * user's items. By default only items with at least one highlight are
+ * included. Use `?includeEmpty=true` to include items without highlights.
+ * Supports filtering by read state and a `since` cursor (items whose
+ * metadata or highlights changed after that timestamp). Results are
+ * ordered newest-first.
+ *
+ * Designed to be consumed by the Obsidian plugin; each `ExportedNote`
+ * contains a stable `filename` and a YAML-frontmatter block whose
+ * `burkmakId` is the idempotency key for vault writes.
+ *
+ */
+export const exportMarkdownBundle = <ThrowOnError extends boolean = false>(options?: Options<ExportMarkdownBundleData, ThrowOnError>) => (options?.client ?? client).get<ExportMarkdownBundleResponses, ExportMarkdownBundleErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/export/markdown',
+    ...options
+});
+
+/**
+ * Export a single item as a raw markdown note
+ *
+ * Returns the Obsidian-ready markdown for a single item as `text/markdown`.
+ * Useful for manual copy-paste or testing the renderer. The markdown
+ * format is identical to entries returned by `GET /api/v1/export/markdown`.
+ * Returns `404` if the item does not exist or is not owned by the caller.
+ *
+ */
+export const exportItemMarkdown = <ThrowOnError extends boolean = false>(options: Options<ExportItemMarkdownData, ThrowOnError>) => (options.client ?? client).get<ExportItemMarkdownResponses, ExportItemMarkdownErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/items/{id}/export/markdown',
+    ...options
+});
+
+/**
+ * OPDS 1.2 acquisition feed of extracted articles
+ *
+ * Returns an OPDS 1.2 Atom acquisition feed listing the authenticated
+ * user's extracted articles (newest first; `extractStatus = ready`;
+ * excludes archived items by default). Each `<entry>` carries an
+ * acquisition link pointing at `GET /api/v1/items/{id}/epub`.
+ *
+ * Kobo and other OPDS readers should be pointed at this URL with HTTP
+ * Basic authentication — any non-empty username, PAT as the password.
+ * The response content-type is
+ * `application/atom+xml;profile=opds-catalog;kind=acquisition`.
+ *
+ */
+export const getOpdsFeed = <ThrowOnError extends boolean = false>(options?: Options<GetOpdsFeedData, ThrowOnError>) => (options?.client ?? client).get<GetOpdsFeedResponses, GetOpdsFeedErrors, ThrowOnError>({
+    security: [{ scheme: 'basic', type: 'http' }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/opds',
+    ...options
+});
+
+/**
+ * List the authenticated user's personal access tokens
+ *
+ * Returns all non-revoked personal access tokens for the authenticated
+ * user. The secret and hash are **never** returned; only the display
+ * prefix is included for identification.
+ *
+ */
+export const listTokens = <ThrowOnError extends boolean = false>(options?: Options<ListTokensData, ThrowOnError>) => (options?.client ?? client).get<ListTokensResponses, ListTokensErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/tokens',
+    ...options
+});
+
+/**
+ * Create a personal access token
+ *
+ * Creates a new personal access token for the authenticated user and
+ * returns the **full plaintext secret exactly once** — it is not stored
+ * and cannot be retrieved again. The caller must copy it immediately.
+ *
+ * The token string has the format `burk_pat_` followed by 43 base64url
+ * characters (32 random bytes). It can be used as:
+ * - `Authorization: Bearer <token>` (Obsidian, REST clients)
+ * - HTTP Basic password, any username (OPDS/Kobo clients)
+ *
+ */
+export const createToken = <ThrowOnError extends boolean = false>(options: Options<CreateTokenData, ThrowOnError>) => (options.client ?? client).post<CreateTokenResponses, CreateTokenErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/tokens',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Revoke a personal access token
+ *
+ * Permanently revokes the token by recording a `revokedAt` timestamp.
+ * Returns `404` if the token does not exist or is not owned by the
+ * authenticated user. Immediately invalidates the token; in-flight
+ * requests using the token may still succeed if they passed the auth
+ * check before revocation.
+ *
+ */
+export const revokeToken = <ThrowOnError extends boolean = false>(options: Options<RevokeTokenData, ThrowOnError>) => (options.client ?? client).delete<RevokeTokenResponses, RevokeTokenErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/tokens/{id}',
+    ...options
 });

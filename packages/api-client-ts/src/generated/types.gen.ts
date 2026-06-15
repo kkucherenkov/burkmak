@@ -274,6 +274,109 @@ export type UpdateHighlightRequest = {
     color?: HighlightColor;
 };
 
+export type CreateTokenRequest = {
+    /**
+     * Human-readable label for this token (e.g. "Kobo e-reader")
+     */
+    name: string;
+};
+
+/**
+ * A personal access token record (secret and hash are never returned).
+ */
+export type PersonalAccessToken = {
+    /**
+     * Unique token ID (cuid)
+     */
+    id: string;
+    /**
+     * Human-readable label assigned at creation
+     */
+    name: string;
+    /**
+     * First ~12 characters of the token for visual identification (e.g. "burk_pat_ab12")
+     */
+    prefix: string;
+    /**
+     * ISO-8601 timestamp of the most recent successful use; null if never used
+     */
+    lastUsedAt?: string | null;
+    /**
+     * ISO-8601 timestamp when the token was created
+     */
+    createdAt: string;
+};
+
+/**
+ * Response body returned when a personal access token is created (201).
+ * The `token` field contains the full plaintext secret — it is returned
+ * exactly once and cannot be retrieved again.
+ *
+ */
+export type PersonalAccessTokenCreated = {
+    /**
+     * Unique token ID (cuid)
+     */
+    id: string;
+    /**
+     * Human-readable label
+     */
+    name: string;
+    /**
+     * First ~12 characters for visual identification
+     */
+    prefix: string;
+    /**
+     * Full plaintext token (`burk_pat_` + 43 base64url chars).
+     * Store this value securely — it will not be shown again.
+     *
+     */
+    token: string;
+    /**
+     * ISO-8601 timestamp when the token was created
+     */
+    createdAt: string;
+};
+
+export type TokenList = {
+    tokens: Array<PersonalAccessToken>;
+};
+
+/**
+ * A single item rendered as an Obsidian-ready markdown note.
+ */
+export type ExportedNote = {
+    /**
+     * ID of the source item (cuid); also the `burkmakId` in the note's YAML frontmatter
+     */
+    itemId: string;
+    /**
+     * Item title (may be null if metadata extraction is not yet complete)
+     */
+    title: string | null;
+    /**
+     * Stable, filesystem-safe filename including the `.md` extension
+     * (e.g. `the-case-for-reading-slowly-cmqd.md`). Derived from the
+     * slugified title + a short id suffix; stable for a given item so
+     * the Obsidian plugin can overwrite the same file on re-sync.
+     *
+     */
+    filename: string;
+    /**
+     * Full markdown content including YAML frontmatter, article
+     * metadata, excerpt, and highlight blockquotes.
+     *
+     */
+    markdown: string;
+};
+
+/**
+ * Collection of markdown-rendered notes returned by the bulk export endpoint.
+ */
+export type ExportBundle = {
+    notes: Array<ExportedNote>;
+};
+
 export type GetHealthData = {
     body?: never;
     path?: never;
@@ -653,6 +756,46 @@ export type ExtractArticleResponses = {
 
 export type ExtractArticleResponse = ExtractArticleResponses[keyof ExtractArticleResponses];
 
+export type GetItemEpubData = {
+    body?: never;
+    path: {
+        /**
+         * Item ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/items/{id}/epub';
+};
+
+export type GetItemEpubErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Item not found or not owned by the authenticated user
+     */
+    404: Problem;
+    /**
+     * Article has not been extracted yet — trigger extraction first
+     */
+    409: Problem;
+};
+
+export type GetItemEpubError = GetItemEpubErrors[keyof GetItemEpubErrors];
+
+export type GetItemEpubResponses = {
+    /**
+     * Raw EPUB bytes. `Content-Disposition: attachment; filename="<slug>.kepub.epub"`.
+     * No example is representable for binary content.
+     *
+     */
+    200: Blob | File;
+};
+
+export type GetItemEpubResponse = GetItemEpubResponses[keyof GetItemEpubResponses];
+
 export type ListHighlightsData = {
     body?: never;
     path: {
@@ -939,3 +1082,198 @@ export type RenameTagResponses = {
 };
 
 export type RenameTagResponse = RenameTagResponses[keyof RenameTagResponses];
+
+export type ExportMarkdownBundleData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Filter by read state
+         */
+        readState?: ReadState;
+        /**
+         * ISO-8601 timestamp; only items updated at or after this instant
+         * are returned. Useful for incremental sync.
+         *
+         */
+        since?: string;
+        /**
+         * When `false` (default) only items with at least one highlight are
+         * returned. Set to `true` to include items without highlights.
+         *
+         */
+        includeEmpty?: boolean;
+    };
+    url: '/api/v1/export/markdown';
+};
+
+export type ExportMarkdownBundleErrors = {
+    /**
+     * Invalid query parameters
+     */
+    400: Problem;
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+};
+
+export type ExportMarkdownBundleError = ExportMarkdownBundleErrors[keyof ExportMarkdownBundleErrors];
+
+export type ExportMarkdownBundleResponses = {
+    /**
+     * Bundle of markdown notes
+     */
+    200: ExportBundle;
+};
+
+export type ExportMarkdownBundleResponse = ExportMarkdownBundleResponses[keyof ExportMarkdownBundleResponses];
+
+export type ExportItemMarkdownData = {
+    body?: never;
+    path: {
+        /**
+         * Item ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/items/{id}/export/markdown';
+};
+
+export type ExportItemMarkdownErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Item not found or not owned by the authenticated user
+     */
+    404: Problem;
+};
+
+export type ExportItemMarkdownError = ExportItemMarkdownErrors[keyof ExportItemMarkdownErrors];
+
+export type ExportItemMarkdownResponses = {
+    /**
+     * Raw markdown text for the item
+     */
+    200: string;
+};
+
+export type ExportItemMarkdownResponse = ExportItemMarkdownResponses[keyof ExportItemMarkdownResponses];
+
+export type GetOpdsFeedData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/opds';
+};
+
+export type GetOpdsFeedErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+};
+
+export type GetOpdsFeedError = GetOpdsFeedErrors[keyof GetOpdsFeedErrors];
+
+export type GetOpdsFeedResponses = {
+    /**
+     * OPDS 1.2 Atom acquisition feed
+     */
+    200: string;
+};
+
+export type GetOpdsFeedResponse = GetOpdsFeedResponses[keyof GetOpdsFeedResponses];
+
+export type ListTokensData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/tokens';
+};
+
+export type ListTokensErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+};
+
+export type ListTokensError = ListTokensErrors[keyof ListTokensErrors];
+
+export type ListTokensResponses = {
+    /**
+     * List of personal access tokens (secrets not included)
+     */
+    200: TokenList;
+};
+
+export type ListTokensResponse = ListTokensResponses[keyof ListTokensResponses];
+
+export type CreateTokenData = {
+    body: CreateTokenRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/tokens';
+};
+
+export type CreateTokenErrors = {
+    /**
+     * Request body invalid
+     */
+    400: Problem;
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+};
+
+export type CreateTokenError = CreateTokenErrors[keyof CreateTokenErrors];
+
+export type CreateTokenResponses = {
+    /**
+     * Token created. The `token` field contains the full plaintext secret
+     * — this is the only time it is returned.
+     *
+     */
+    201: PersonalAccessTokenCreated;
+};
+
+export type CreateTokenResponse = CreateTokenResponses[keyof CreateTokenResponses];
+
+export type RevokeTokenData = {
+    body?: never;
+    path: {
+        /**
+         * Personal access token ID (cuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/tokens/{id}';
+};
+
+export type RevokeTokenErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Token not found or not owned by the authenticated user
+     */
+    404: Problem;
+};
+
+export type RevokeTokenError = RevokeTokenErrors[keyof RevokeTokenErrors];
+
+export type RevokeTokenResponses = {
+    /**
+     * Token revoked successfully
+     */
+    204: void;
+};
+
+export type RevokeTokenResponse = RevokeTokenResponses[keyof RevokeTokenResponses];
