@@ -2,6 +2,38 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-15-002 — Personal Access Tokens web (Task 6)
+
+- Created: 2026-06-15
+- Completed: 2026-06-15
+- Owner: claude
+- Spec: [specs/features/2026-06-15-personal-access-tokens.md](../features/2026-06-15-personal-access-tokens.md)
+- Plan: [specs/features/2026-06-15-pat.plan.md](../features/2026-06-15-pat.plan.md) (Task 6)
+- Files:
+  - `apps/web/app/composables/useApi.ts` — createToken/listTokens/revokeToken
+  - `apps/web/app/utils/token-view.ts` — formatLastUsed, tokenRows (pure utils)
+  - `apps/web/tests/unit/token-view.spec.ts` — TDD unit tests (7 cases)
+  - `apps/web/app/pages/settings.vue` — Personal access tokens card
+  - `apps/web/i18n/locales/en.ts` / `ru.ts` — settings.tokens.\* namespace
+- Gates: test ✓ typecheck ✓ build ✓ lint ✓ stylelint ✓ format ✓
+
+## T-2026-06-15-001 — Personal Access Tokens backend (Tasks 1–5)
+
+- Created: 2026-06-15
+- Completed: 2026-06-15
+- Owner: claude
+- Spec: [specs/features/2026-06-15-personal-access-tokens.md](../features/2026-06-15-personal-access-tokens.md)
+- Plan: [specs/features/2026-06-15-pat.plan.md](../features/2026-06-15-pat.plan.md)
+- Result: 5 commits on branch `feat/pat` (not yet merged — waiting for Task 6 web slice).
+- Delivered:
+  - T1 (`feat(backend): PersonalAccessToken model + migration (pat)`) — `PersonalAccessToken` Prisma model + `User.personalAccessTokens` back-relation; migration `20260615101952_personal_access_tokens`; verified with `prisma migrate diff` (empty diff); `prisma generate` + typecheck green. WAL lock from running container required offline diff fallback.
+  - T2 (`feat(backend): PAT token crypto (pat)`) — `pat.crypto.ts`: `PAT_PREFIX`, `hashToken`, `generateToken` (sha256, base64url, prefix slice); 2 unit tests TDD.
+  - T3 (`feat(backend): PAT repo + ports (pat)`) — `tokens.ports.ts` (PAT_REPO symbol, PatRecord, PatRepo interface); `prisma-tokens.repo.ts` (create/listForUser/revoke/findActiveByHash/touch, with expiry + revokedAt filter); 5 repo isolation tests via `migrate deploy` temp SQLite.
+  - T4 (`feat(backend): tokens CRUD endpoints (pat)`) — CQRS: `CreateTokenCommand/Handler`, `RevokeTokenCommand/Handler` (throws `TokenNotFoundError`), `ListTokensQuery/Handler`; `CreateTokenDto` (1..100 name); `TokensController` (`POST /api/v1/tokens` 201, `GET /` 200, `DELETE /:id` 204); `TokensModule`; registered in `AppModule`; typecheck + lint green.
+  - T5 (`feat(backend): guard accepts PAT via Bearer + Basic (pat)`) — `PatService.resolve(req)`: extracts `burk_pat_` secret from `Bearer` or `Basic` header, looks up hash, fires non-blocking `touch`; `SessionGuard` updated (session-first, PAT second, no throw until both fail); `PatService` provided in `AuthModule` (`@Global`) with `TokensModule` imported via `forwardRef`; 5 PatService tests (bearer, basic, session-bearer rejection, revoked, unknown); all 30 backend test files / 144 tests green.
+- Gates: `pnpm --filter @app/backend lint` clean; `pnpm --filter @app/backend typecheck` clean; `pnpm --filter @app/backend test` 144/144 green.
+- Notes: `items.isolation.spec.ts` uses `db push` (pre-existing, not changed). New tokens test uses `migrate deploy` consistent with `auth-sqlite-boot.spec.ts`. Session-first ordering verified in `SessionGuard.canActivate`.
+
 ## T-2026-06-15-002 — S3-mobile: Android share-sheet capture
 
 - Created: 2026-06-15

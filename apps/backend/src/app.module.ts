@@ -27,6 +27,7 @@ import { HealthModule } from './modules/health/health.module';
 import { ItemsModule } from './modules/items/items.module';
 import { HighlightsModule } from './modules/highlights/highlights.module';
 import { TagsModule } from './modules/tags/tags.module';
+import { TokensModule } from './modules/tokens/tokens.module';
 
 type ImportableModule = DynamicModule | (new (...args: unknown[]) => unknown);
 
@@ -66,6 +67,7 @@ const devOnlyModules: ImportableModule[] = [];
     ItemsModule,
     TagsModule,
     HighlightsModule,
+    TokensModule,
     ...devOnlyModules,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

@@ -63,19 +63,31 @@
       </p>
 
       <template v-else-if="view === 'saved'">
-        <p class="page-save__status page-save__status--ok">{{ t('save.saved') }}</p>
-        <NuxtLink class="page-save__link" to="/library">{{ t('save.viewInLibrary') }}</NuxtLink>
+        <p class="page-save__status page-save__status--ok">
+          {{ t('save.saved') }}
+        </p>
+        <NuxtLink class="page-save__link" to="/library">
+          {{ t('save.viewInLibrary') }}
+        </NuxtLink>
       </template>
 
       <template v-else-if="view === 'failed'">
-        <p class="page-save__status page-save__status--err">{{ t('save.failed') }}</p>
+        <p class="page-save__status page-save__status--err">
+          {{ t('save.failed') }}
+        </p>
         <AppButton variant="solid" color="primary" :label="t('save.retry')" @click="retry" />
-        <NuxtLink class="page-save__link" to="/library">{{ t('save.viewInLibrary') }}</NuxtLink>
+        <NuxtLink class="page-save__link" to="/library">
+          {{ t('save.viewInLibrary') }}
+        </NuxtLink>
       </template>
 
       <template v-else>
-        <p class="page-save__status page-save__status--err">{{ t('save.badUrl') }}</p>
-        <NuxtLink class="page-save__link" to="/library">{{ t('save.viewInLibrary') }}</NuxtLink>
+        <p class="page-save__status page-save__status--err">
+          {{ t('save.badUrl') }}
+        </p>
+        <NuxtLink class="page-save__link" to="/library">
+          {{ t('save.viewInLibrary') }}
+        </NuxtLink>
       </template>
     </div>
   </div>
