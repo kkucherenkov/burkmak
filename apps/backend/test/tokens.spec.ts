@@ -94,8 +94,8 @@ describe('PrismaTokensRepo', () => {
     const list = await repo.listForUser(USER_A);
     expect(list.some((t) => t.id === rec.id)).toBe(true);
     // No hash/secret on the record shape
-    expect((rec as Record<string, unknown>)['tokenHash']).toBeUndefined();
-    expect((rec as Record<string, unknown>)['secret']).toBeUndefined();
+    expect((rec as unknown as Record<string, unknown>)['tokenHash']).toBeUndefined();
+    expect((rec as unknown as Record<string, unknown>)['secret']).toBeUndefined();
     // cleanup ref for next tests
     void secret; // used to derive hash above
   });
