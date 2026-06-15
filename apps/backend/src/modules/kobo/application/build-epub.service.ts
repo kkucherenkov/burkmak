@@ -109,8 +109,8 @@ export class BuildEpubService {
       try {
         const buf = await readFile(path.join(imageDir, file));
         results.push({ name: file, mediaType, data: new Uint8Array(buf) });
-      } catch (err) {
-        this.logger.warn(`BuildEpubService: skipped image ${file} for item ${itemId}: ${String(err)}`);
+      } catch (error) {
+        this.logger.warn(`BuildEpubService: skipped image ${file} for item ${itemId}: ${String(error)}`);
       }
     }
     return results;
