@@ -1,8 +1,13 @@
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
 import JSZip from 'jszip';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { buildEpub } from '../src/modules/kobo/infra/epub.builder';
 import { toKepubXhtml } from '../src/modules/kobo/infra/kepub.transform';
 import { buildOpdsFeed } from '../src/modules/kobo/infra/opds.feed';
+import { EpubCache } from '../src/modules/kobo/infra/epub.cache';
+import { BuildEpubService } from '../src/modules/kobo/application/build-epub.service';
 
 const base = {
   item: { id: 'it1', title: 'Reading Slowly', url: 'https://x.com/a', siteName: 'x.com' },
@@ -83,5 +88,98 @@ describe('buildOpdsFeed', () => {
     });
     expect(xml).toContain('<feed');
     expect(xml).not.toContain('<entry');
+  });
+});
+
+describe('BuildEpubService', () => {
+  function makeService(
+    itemOverride: Partial<Parameters<typeof makeService>[0]> & { item?: unknown; article?: unknown } = {},
+  ) {
+    const dataDir = tmpdir();
+    const mockConfig = { dataDir } as unknown as import('../src/common/config/app-config').AppConfig;
+    const epubCache = new EpubCache(mockConfig);
+
+    const defaultItem = {
+      id: 'it1',
+      url: 'https://x.com/a',
+      canonicalUrl: null,
+      title: 'Test',
+      siteName: 'x.com',
+      excerpt: null,
+      leadImageUrl: null,
+      faviconUrl: null,
+      status: 'ready' as const,
+      extractStatus: 'ready' as const,
+      readState: 'unread' as const,
+      favorite: false,
+      savedAt: '2026-06-15T00:00:00Z',
+      readAt: null,
+      tags: [],
+    };
+
+    const defaultArticle = {
+      itemId: 'it1',
+      contentHtml: '<p>Hello</p>',
+      contentText: 'Hello',
+      wordCount: 1,
+      readingTimeMin: 1,
+      extractedAt: '2026-06-15T00:00:00Z',
+    };
+
+    const mockItemRepo = {
+      findById: vi.fn().mockResolvedValue(itemOverride['item'] !== undefined ? itemOverride['item'] : defaultItem),
+    };
+    const mockArticleRepo = {
+      findByItem: vi.fn().mockResolvedValue(itemOverride['article'] !== undefined ? itemOverride['article'] : defaultArticle),
+    };
+
+    const service = new BuildEpubService(
+      mockConfig,
+      epubCache,
+      mockItemRepo as unknown as import('../src/modules/items/domain/items.ports').IItemRepo,
+      mockArticleRepo as unknown as import('../src/modules/items/domain/article.ports').IArticleRepo,
+    );
+
+    return service;
+  }
+
+  it('returns not_found when item does not exist', async () => {
+    const service = makeService({ item: null });
+    const result = await service.getEpub('user1', 'it1', 'epub');
+    expect(result).toEqual({ error: 'not_found' });
+  });
+
+  it('returns not_ready when extractStatus is not ready', async () => {
+    const service = makeService({
+      item: {
+        id: 'it1',
+        url: 'https://x.com/a',
+        canonicalUrl: null,
+        title: 'Test',
+        siteName: 'x.com',
+        excerpt: null,
+        leadImageUrl: null,
+        faviconUrl: null,
+        status: 'pending',
+        extractStatus: 'extracting',
+        readState: 'unread',
+        favorite: false,
+        savedAt: '2026-06-15T00:00:00Z',
+        readAt: null,
+        tags: [],
+      },
+    });
+    const result = await service.getEpub('user1', 'it1', 'epub');
+    expect(result).toEqual({ error: 'not_ready' });
+  });
+
+  it('returns a path for a ready item with article', async () => {
+    const service = makeService({});
+    const result = await service.getEpub('user1', 'it1', 'epub');
+    expect(result).toHaveProperty('path');
+    if ('path' in result) {
+      expect(result.path).toContain('epub');
+      expect(result.path.endsWith('.epub')).toBe(true);
+    }
   });
 });
