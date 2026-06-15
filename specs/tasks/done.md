@@ -2,6 +2,23 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-15-001 — packages/obsidian-plugin scaffold + implementation
+
+- Created: 2026-06-15
+- Completed: 2026-06-15
+- Owner: claude
+- Spec: [specs/features/2026-06-15-obsidian-plugin.plan.md](../features/2026-06-15-obsidian-plugin.plan.md)
+- Result: 6 commits on `feat/obsidian-plugin`; pending merge.
+- Delivered:
+  - T1 (`chore(obsidian-plugin): scaffold package`) — package.json, manifest.json, tsconfig.json, esbuild.config.mjs, vitest.config.ts, eslint.config.mjs, stub main.ts, .gitignore; pnpm install picks up workspace package.
+  - T2 (`feat(obsidian-plugin): export-url builder`) — `src/lib/export-url.ts`: `buildExportUrl(base, filters)` trims trailing slash, appends `/export/markdown`, adds URLSearchParams only when filters set. 2 TDD tests.
+  - T3 (`feat(obsidian-plugin): frontmatter parser`) — `src/lib/frontmatter.ts`: `parseBurkmakId(content)` extracts `burkmakId` from leading YAML frontmatter block. 3 TDD tests.
+  - T4 (`feat(obsidian-plugin): settings tab`) — `src/settings.ts`: `BurkmakSettings` type + `DEFAULT_SETTINGS`; `BurkmakSettingTab` with Setting rows for baseUrl, token (password), folder, readState dropdown, includeEmpty toggle.
+  - T5 (`feat(obsidian-plugin): sync command`) — `src/main.ts`: full `BurkmakPlugin` with `loadSettings/saveSettings`, "Sync from burkmak" command; `requestUrl` HTTP (CORS-safe); idempotent write by `burkmakId` frontmatter; per-note error continue; Notice summary.
+  - T6 (`docs(obsidian-plugin): README + gitignore`) — README (manual install, BRAT, setup, usage); `.gitignore` for `main.js`/`*.map`.
+- Gates: test 4/4 green; typecheck clean; lint clean; build emits main.js (23.3 kb CJS); main.js gitignored.
+- Deviations: `exactOptionalPropertyTypes` from base.json required conditional spread for `readState` filter (`...(readState ? { readState } : {})`); `noImplicitOverride` required `override` on `settings` property and `display()`.
+
 ## T-2026-06-15-004 — Obsidian Export Backend API
 
 - Created: 2026-06-15
