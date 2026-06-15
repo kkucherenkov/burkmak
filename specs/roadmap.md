@@ -11,8 +11,8 @@ Dependency shape: **S0 → S1 → S2**, then **S3 / S4 / S5** in parallel.
 | P1    | S0 + S1   | Foundation (SQLite, stripped stack, jobs+SSE spine) **and** core library (save/organise) | [features/2026-06-13-foundation-and-core.md](./features/2026-06-13-foundation-and-core.md) |
 | P2    | S2        | On-demand article extraction, reader view, FTS5 body search, highlights & notes          | _tbd_                                                                                      |
 | P3    | S3        | Mobile share-sheet capture, browser bookmarklet                                          | [features/2026-06-14-capture-surfaces.md](./features/2026-06-14-capture-surfaces.md)       |
-| P4    | S4        | EPUB/KEPUB generation, native Kobo sync emulation, device pairing, read-state sync-back  | _tbd_                                                                                      |
-| P5    | S5        | Obsidian export API + Obsidian plugin                                                    | _tbd_                                                                                      |
+| P4    | S4        | EPUB/KEPUB generation, native Kobo sync emulation, device pairing, read-state sync-back  | [features/2026-06-15-kobo-sync.md](./features/2026-06-15-kobo-sync.md)                     |
+| P5    | S5        | Obsidian export API + Obsidian plugin                                                    | [features/2026-06-15-obsidian-export.md](./features/2026-06-15-obsidian-export.md)         |
 
 Notes:
 
@@ -22,5 +22,12 @@ Notes:
   body / highlights that P2 creates.
 - **Import** (Pocket/Instapaper/Wallabag) and a **packaged browser extension**
   are deferred beyond P5; tracked as future work, not in this roadmap yet.
+- **Personal access tokens** ([features/2026-06-15-personal-access-tokens.md](./features/2026-06-15-personal-access-tokens.md))
+  are a shared enabler built before P4/P5 — both Kobo (OPDS) and Obsidian (plugin)
+  need a long-lived token instead of an expiring session.
+- **P4 first slice ships OPDS + EPUB/KEPUB** (a stock Kobo subscribes via its
+  custom-OPDS-catalog setting); **native Kobo store-API sync emulation +
+  read-state sync-back** is a documented fast-follow (needs a physical device to
+  verify). See the P4 spec.
 - Design (tokens + mockups) is produced once up-front from the PRD design brief
   (PRD §11) so the system is coherent across all phases.
