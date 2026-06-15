@@ -1,6 +1,7 @@
 import JSZip from 'jszip';
 import { describe, expect, it } from 'vitest';
 import { buildEpub } from '../src/modules/kobo/infra/epub.builder';
+import { toKepubXhtml } from '../src/modules/kobo/infra/kepub.transform';
 
 const base = {
   item: { id: 'it1', title: 'Reading Slowly', url: 'https://x.com/a', siteName: 'x.com' },
@@ -34,5 +35,19 @@ describe('buildEpub', () => {
     const ch = await zip.file('OEBPS/chapter.xhtml')!.async('string');
     expect(ch).toContain('images/abc.png');
     expect(ch).not.toContain('/api/v1/items/');
+  });
+});
+
+describe('toKepubXhtml', () => {
+  it('wraps paragraph text in koboSpans, preserving text', () => {
+    const out = toKepubXhtml('<body><p>Hello world</p></body>');
+    expect(out).toContain('class="koboSpan"');
+    expect(out).toMatch(/id="kobo\.\d+\.\d+"/);
+    expect(out).toContain('Hello world');
+  });
+
+  it('does not double-wrap', () => {
+    const once = toKepubXhtml('<body><p>Hi</p></body>');
+    expect(toKepubXhtml(once)).toBe(once);
   });
 });
