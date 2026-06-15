@@ -14,6 +14,25 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Auth: shared `SessionGuard` (PAT Basic for OPDS) — no kobo-specific auth. Native Kobo store-API sync remains a documented fast-follow (device-unverifiable here).
 - Gates: backend lint + typecheck clean; `pnpm --filter @app/backend test` 159/159 on the merged tree (PAT + export + kobo).
 
+## T-2026-06-15-006 — Obsidian Plugin (packages/obsidian-plugin)
+
+- Created: 2026-06-15
+- Completed: 2026-06-15
+- Owner: claude
+- Spec: [specs/features/2026-06-15-obsidian-export.md](../features/2026-06-15-obsidian-export.md)
+- Plan: [specs/features/2026-06-15-obsidian-plugin.plan.md](../features/2026-06-15-obsidian-plugin.plan.md)
+- Result: merged to `main` via `--no-ff` (7 commits `10e8f2f`→`06d9686`); branch deleted. **Completes P5 (Obsidian export).**
+- Delivered:
+  - T1 — scaffold `packages/obsidian-plugin`: package.json, manifest.json, tsconfig.json, esbuild.config.mjs, vitest.config.ts, eslint.config.mjs, .gitignore (workspace globs `packages/*`).
+  - T2 — `src/lib/export-url.ts` (`buildExportUrl` trims slash, appends `/export/markdown`, params only when set); 2 TDD tests.
+  - T3 — `src/lib/frontmatter.ts` (`parseBurkmakId` from leading YAML block); 3 TDD tests.
+  - T4 — `src/settings.ts` (`BurkmakSettings` + `DEFAULT_SETTINGS`; settings tab: baseUrl, token (password), folder, readState, includeEmpty).
+  - T5 — `src/main.ts` (`BurkmakPlugin`, "Sync from burkmak" command; `requestUrl` Bearer PAT, idempotent write by `burkmakId`, per-note error-continue, Notice summary).
+  - T6 — README (manual/BRAT install, setup, usage); `main.js`/`*.map` gitignored.
+- Gates: 4/4 lib tests; typecheck + lint clean; build emits `main.js` (23.3 kb CJS); `main.js` NOT committed (manifest + src are).
+- Deviations: `requestUrl` (CORS-safe) per plan; base.json `exactOptionalPropertyTypes` → conditional spread for the `readState` filter; `noImplicitOverride` → `override` on `settings`/`display()`; eslint `projectService` ↔ `project` key removed locally.
+- Verification ceiling: pure libs unit-tested + package builds here; the in-Obsidian runtime (settings, Sync command, vault writes) is verifiable only inside Obsidian — out of sandbox.
+
 ## T-2026-06-15-004 — Obsidian Export Backend API
 
 - Created: 2026-06-15
