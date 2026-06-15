@@ -24,6 +24,10 @@ type Highlight = components['schemas']['Highlight'];
 type HighlightList = components['schemas']['HighlightList'];
 type CreateHighlightRequest = components['schemas']['CreateHighlightRequest'];
 type UpdateHighlightRequest = components['schemas']['UpdateHighlightRequest'];
+type PersonalAccessToken = components['schemas']['PersonalAccessToken'];
+type PersonalAccessTokenCreated = components['schemas']['PersonalAccessTokenCreated'];
+type TokenList = components['schemas']['TokenList'];
+type CreateTokenRequest = components['schemas']['CreateTokenRequest'];
 
 export interface ItemsQuery {
   readState?: ReadState;
@@ -61,6 +65,11 @@ export interface ApiClient {
   createHighlight(id: string, body: CreateHighlightRequest): Promise<Highlight>;
   updateHighlight(hid: string, body: UpdateHighlightRequest): Promise<Highlight>;
   deleteHighlight(hid: string): Promise<void>;
+
+  // personal access tokens
+  createToken(body: CreateTokenRequest): Promise<PersonalAccessTokenCreated>;
+  listTokens(): Promise<TokenList>;
+  revokeToken(id: string): Promise<void>;
 }
 
 interface RequestInitLite {
@@ -110,5 +119,11 @@ export function useApi(): ApiClient {
     updateHighlight: (hid, body) =>
       request<Highlight>(`/highlights/${hid}`, { method: 'PATCH', body }),
     deleteHighlight: (hid) => request<undefined>(`/highlights/${hid}`, { method: 'DELETE' }),
+
+    createToken: (body) => request<PersonalAccessTokenCreated>('/tokens', { method: 'POST', body }),
+    listTokens: () => request<TokenList>('/tokens'),
+    revokeToken: (id) => request<undefined>(`/tokens/${id}`, { method: 'DELETE' }),
   };
 }
+
+export type { PersonalAccessToken, PersonalAccessTokenCreated, TokenList, CreateTokenRequest };

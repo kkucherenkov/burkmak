@@ -2,6 +2,21 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-15-002 — Personal Access Tokens web (Task 6)
+
+- Created: 2026-06-15
+- Completed: 2026-06-15
+- Owner: claude
+- Spec: [specs/features/2026-06-15-personal-access-tokens.md](../features/2026-06-15-personal-access-tokens.md)
+- Plan: [specs/features/2026-06-15-pat.plan.md](../features/2026-06-15-pat.plan.md) (Task 6)
+- Files:
+  - `apps/web/app/composables/useApi.ts` — createToken/listTokens/revokeToken
+  - `apps/web/app/utils/token-view.ts` — formatLastUsed, tokenRows (pure utils)
+  - `apps/web/tests/unit/token-view.spec.ts` — TDD unit tests (7 cases)
+  - `apps/web/app/pages/settings.vue` — Personal access tokens card
+  - `apps/web/i18n/locales/en.ts` / `ru.ts` — settings.tokens.\* namespace
+- Gates: test ✓ typecheck ✓ build ✓ lint ✓ stylelint ✓ format ✓
+
 ## T-2026-06-15-001 — Personal Access Tokens backend (Tasks 1–5)
 
 - Created: 2026-06-15

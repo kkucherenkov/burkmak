@@ -101,6 +101,22 @@ export default {
       copy: 'Copy',
       copied: 'Copied',
     },
+    tokens: {
+      title: 'Personal access tokens',
+      description:
+        'Tokens let headless clients (Kobo OPDS, Obsidian plugin) authenticate without an interactive session. The secret is shown once — copy it immediately.',
+      create: 'Create token',
+      name: 'Token name',
+      namePlaceholder: 'e.g. Kobo e-reader',
+      copyOnce: 'Copy the token now — it will not be shown again.',
+      copy: 'Copy',
+      copied: 'Copied',
+      revoke: 'Revoke',
+      empty: 'No tokens yet.',
+      lastUsed: 'Last used',
+      never: 'Never',
+      created: 'Created',
+    },
   },
 
   itemDetail: {
