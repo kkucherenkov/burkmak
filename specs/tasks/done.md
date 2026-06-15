@@ -9,8 +9,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Owner: claude
 - Spec: [specs/features/2026-06-15-obsidian-export.md](../features/2026-06-15-obsidian-export.md)
 - Plan: [specs/features/2026-06-15-obsidian-backend.plan.md](../features/2026-06-15-obsidian-backend.plan.md)
-- Branch: `feat/obsidian-backend`
-- Result: 4 commits (Tasks 1–4); awaiting `--no-ff` merge to `main`.
+- Result: merged to `main` via `--no-ff` as `b296510` (4 feature commits `e8884fd`→`afa6bfa`); branch deleted.
 - Delivered:
   - T1 (`feat(backend): export filename slug (obsidian-backend)`) — `slugify.ts`: lowercase, collapse non-alnum runs to `-`, trim, append `-<id>.md`; fallback to `<id>.md` when title null/empty. 3 TDD unit tests.
   - T2 (`feat(backend): obsidian markdown renderer (obsidian-backend)`) — `render-note.ts`: YAML frontmatter (`burkmakId`, `title`, `url`, `canonicalUrl`?, `source`?, `savedAt`, `readingTimeMin`?, `tags`?), body H1 + metadata line + `## Highlights` blockquotes with notes; YAML-special title quoting; null siteName/readingTime omitted cleanly. 3 TDD tests (6 assertions).
