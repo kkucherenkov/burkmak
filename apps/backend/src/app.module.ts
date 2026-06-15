@@ -29,6 +29,7 @@ import { ItemsModule } from './modules/items/items.module';
 import { HighlightsModule } from './modules/highlights/highlights.module';
 import { TagsModule } from './modules/tags/tags.module';
 import { TokensModule } from './modules/tokens/tokens.module';
+import { KoboModule } from './modules/kobo/kobo.module';
 
 type ImportableModule = DynamicModule | (new (...args: unknown[]) => unknown);
 
@@ -70,6 +71,7 @@ const devOnlyModules: ImportableModule[] = [];
     HighlightsModule,
     TokensModule,
     ExportModule,
+    KoboModule,
     ...devOnlyModules,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

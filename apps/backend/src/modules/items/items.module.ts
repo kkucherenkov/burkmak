@@ -43,6 +43,7 @@ import { ItemsController } from './items.controller';
     { provide: ARTICLE_EXTRACTOR, useClass: ReadabilityExtractor },
     { provide: IMAGE_CACHE, useClass: LocalImageCache },
   ],
+  exports: [ITEM_REPO, ARTICLE_REPO],
 })
 export class ItemsModule implements OnModuleInit {
   constructor(
