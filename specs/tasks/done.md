@@ -2,6 +2,18 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-15-005 — Kobo Sync: OPDS catalog + EPUB/KEPUB (P4)
+
+- Created: 2026-06-15
+- Completed: 2026-06-15
+- Owner: claude
+- Spec: [specs/features/2026-06-15-kobo-sync.md](../features/2026-06-15-kobo-sync.md)
+- Plan: [specs/features/2026-06-15-kobo.plan.md](../features/2026-06-15-kobo.plan.md)
+- Result: merged to `main` via `--no-ff` as `bbdafc7` (7 commits `9f0840b`→lint-fix); branch deleted. `app.module.ts` import-array conflict with the parallel obsidian-backend merge resolved (kept both `ExportModule` + `KoboModule`).
+- Delivered: `jszip` dep; pure `epub.builder.ts` (EPUB3, mimetype-first STORE, `urn:burkmak:<id>`, embedded images with rewritten `src`), `kepub.transform.ts` (Kobo span injection, idempotent), `opds.feed.ts` (OPDS 1.2 Atom, XML-escaped, valid empty feed), `epub.cache.ts` (disk cache `data/epub/<itemId>/<variant>-<extractedAt>.epub`), `build-epub.service.ts` (ownership → not_ready guard → cache → build); `KoboController` (`GET items/:id/epub` streams `application/epub+zip`, 404/409; `GET opds` atom-xml); `ItemsModule` exports `ITEM_REPO`/`ARTICLE_REPO`; `AppConfig.publicApiBaseUrl` getter (via ConfigService, not process.env). 9 unit tests.
+- Auth: shared `SessionGuard` (PAT Basic for OPDS) — no kobo-specific auth. Native Kobo store-API sync remains a documented fast-follow (device-unverifiable here).
+- Gates: backend lint + typecheck clean; `pnpm --filter @app/backend test` 159/159 on the merged tree (PAT + export + kobo).
+
 ## T-2026-06-15-004 — Obsidian Export Backend API
 
 - Created: 2026-06-15
