@@ -1,0 +1,4 @@
+# Obsidian plugin build artifacts — do NOT commit these
+main.js
+main.js.map
+*.map

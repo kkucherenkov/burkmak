@@ -1,0 +1,9 @@
+{
+  "id": "burkmak",
+  "name": "burkmak",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Export your burkmak highlights and notes into your vault.",
+  "author": "burkmak",
+  "isDesktopOnly": false
+}
