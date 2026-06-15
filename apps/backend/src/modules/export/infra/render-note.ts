@@ -34,7 +34,7 @@ const YAML_SPECIAL_RE = /[:#\-?[\]{}|]/;
 function yamlScalar(value: string): string {
   if (YAML_SPECIAL_RE.test(value) || value.startsWith(' ')) {
     // Escape internal double-quotes by doubling them
-    return `"${value.replaceAll('"', '\\"')}"`;
+    return `"${value.replaceAll('"', String.raw`\"`)}"`;
   }
   return value;
 }
@@ -60,10 +60,12 @@ export function renderNote(item: NoteItem, highlights: NoteHighlight[]): Rendere
   const filename = slugFilename(item.title ?? null, item.id);
 
   // --- YAML frontmatter ---
-  const frontmatterLines: string[] = ['---', `burkmakId: ${item.id}`];
-
-  frontmatterLines.push(`title: ${yamlScalar(displayTitle)}`);
-  frontmatterLines.push(`url: ${item.url}`);
+  const frontmatterLines: string[] = [
+    '---',
+    `burkmakId: ${item.id}`,
+    `title: ${yamlScalar(displayTitle)}`,
+    `url: ${item.url}`,
+  ];
 
   if (item.canonicalUrl) {
     frontmatterLines.push(`canonicalUrl: ${item.canonicalUrl}`);
@@ -76,7 +78,7 @@ export function renderNote(item: NoteItem, highlights: NoteHighlight[]): Rendere
   frontmatterLines.push(`savedAt: ${item.savedAt}`);
 
   if (item.readingTimeMin != null) {
-    frontmatterLines.push(`readingTimeMin: ${item.readingTimeMin}`);
+    frontmatterLines.push(`readingTimeMin: ${String(item.readingTimeMin)}`);
   }
 
   if (item.tags.length > 0) {
@@ -89,35 +91,28 @@ export function renderNote(item: NoteItem, highlights: NoteHighlight[]): Rendere
   frontmatterLines.push('---');
 
   // --- Body ---
-  const bodyLines: string[] = [];
+  const bodyLines: string[] = [`# [${displayTitle}](${item.url})`, ''];
 
   // H1 title linking to URL
-  bodyLines.push(`# [${displayTitle}](${item.url})`);
-  bodyLines.push('');
 
   // Metadata line — omit absent parts
   const metaParts: string[] = [];
   if (item.siteName) metaParts.push(item.siteName);
   const dateStr = item.savedAt.slice(0, 10); // YYYY-MM-DD
   metaParts.push(`saved ${dateStr}`);
-  if (item.readingTimeMin != null) metaParts.push(`${item.readingTimeMin} min`);
-  bodyLines.push(`*${metaParts.join(' · ')}*`);
-  bodyLines.push('');
+  if (item.readingTimeMin != null) metaParts.push(`${String(item.readingTimeMin)} min`);
+  bodyLines.push(`*${metaParts.join(' · ')}*`, '');
 
   // Highlights section
   if (highlights.length > 0) {
-    bodyLines.push('## Highlights');
-    bodyLines.push('');
+    bodyLines.push('## Highlights', '');
 
     for (const h of highlights) {
       bodyLines.push(blockquote(h.quote));
       if (h.note) {
-        bodyLines.push('');
-        bodyLines.push(h.note);
+        bodyLines.push('', h.note);
       }
-      bodyLines.push('');
-      bodyLines.push(`*— ${h.color}*`);
-      bodyLines.push('');
+      bodyLines.push('', `*— ${h.color}*`, '');
     }
   }
 

@@ -8,13 +8,13 @@ import type {
   IExportRepo,
 } from '../domain/export.ports';
 
-type HighlightRow = {
+interface HighlightRow {
   quote: string;
   note: string | null;
   color: string;
-};
+}
 
-type ItemWithHighlights = {
+interface ItemWithHighlights {
   id: string;
   title: string | null;
   url: string;
@@ -24,7 +24,7 @@ type ItemWithHighlights = {
   tags: { tag: { slug: string } }[];
   article: { readingTimeMin: number } | null;
   highlights: HighlightRow[];
-};
+}
 
 function toExportItem(row: ItemWithHighlights): ExportItem {
   const highlights: ExportHighlight[] = row.highlights.map((h) => ({

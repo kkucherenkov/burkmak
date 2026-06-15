@@ -22,6 +22,7 @@ import { ObservabilityModule } from './common/observability/observability.module
 import { PrismaModule } from './common/prisma/prisma.module';
 import { SmsModule } from './common/sms/sms.module';
 import { EventsModule } from './modules/events/events.module';
+import { ExportModule } from './modules/export/export.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { HealthModule } from './modules/health/health.module';
 import { ItemsModule } from './modules/items/items.module';
@@ -68,6 +69,7 @@ const devOnlyModules: ImportableModule[] = [];
     TagsModule,
     HighlightsModule,
     TokensModule,
+    ExportModule,
     ...devOnlyModules,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
