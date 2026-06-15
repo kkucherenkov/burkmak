@@ -3,11 +3,12 @@ import { existsSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { generateToken, hashToken, PAT_PREFIX } from '../src/modules/tokens/infra/pat.crypto';
 import { PrismaService } from '../src/common/prisma/prisma.service';
 import { PrismaTokensRepo } from '../src/modules/tokens/infra/prisma-tokens.repo';
+import { PatService } from '../src/common/auth/pat.service';
 
 // ---- crypto unit tests ----
 
@@ -42,6 +43,7 @@ function cleanup(): void {
 
 let prisma: PrismaService;
 let repo: PrismaTokensRepo;
+let patService: PatService;
 
 // Seed a minimal user row so FK constraints are satisfied.
 const USER_A = 'user-a-pat-test';
@@ -75,6 +77,7 @@ beforeAll(async () => {
   );
 
   repo = new PrismaTokensRepo(prisma);
+  patService = new PatService(repo);
 }, 60_000);
 
 afterAll(async () => {
@@ -147,5 +150,67 @@ describe('PrismaTokensRepo', () => {
     const updated = list.find((t) => t.id === rec.id);
     expect(updated?.lastUsedAt).not.toBeNull();
     void secret;
+  });
+});
+
+describe('PatService.resolve', () => {
+  function req(authorization: string): { headers: Record<string, unknown> } {
+    return { headers: { authorization } };
+  }
+
+  it('Bearer burk_pat_ → resolves userId + touch called', async () => {
+    const { secret, hash, prefix } = generateToken();
+    const rec = await repo.create({
+      userId: USER_A,
+      name: 'Service Bearer Test',
+      tokenHash: hash,
+      prefix,
+    });
+    const touchSpy = vi.spyOn(repo, 'touch');
+    const userId = await patService.resolve(req(`Bearer ${secret}`));
+    expect(userId).toBe(USER_A);
+    // touch is fire-and-forget; give it a tick to run
+    await new Promise((r) => setImmediate(r));
+    expect(touchSpy).toHaveBeenCalledWith(rec.id);
+    touchSpy.mockRestore();
+  });
+
+  it('Basic header with burk_pat_ password → resolves userId', async () => {
+    const { secret, hash, prefix } = generateToken();
+    await repo.create({
+      userId: USER_A,
+      name: 'Service Basic Test',
+      tokenHash: hash,
+      prefix,
+    });
+    const b64 = Buffer.from(`ignored:${secret}`).toString('base64');
+    const userId = await patService.resolve(req(`Basic ${b64}`));
+    expect(userId).toBe(USER_A);
+  });
+
+  it('Better-Auth-style bearer (no burk_pat_ prefix) → null (not mistaken for a PAT)', async () => {
+    // A session bearer from Better Auth never starts with burk_pat_
+    const fakeSessionToken = 'eyJhbGciOiJIUzI1NiJ9.some.payload';
+    const userId = await patService.resolve(req(`Bearer ${fakeSessionToken}`));
+    expect(userId).toBeNull();
+  });
+
+  it('revoked secret → null', async () => {
+    const { secret, hash, prefix } = generateToken();
+    const rec = await repo.create({
+      userId: USER_A,
+      name: 'Revoked Resolve Test',
+      tokenHash: hash,
+      prefix,
+    });
+    await repo.revoke(USER_A, rec.id);
+    const userId = await patService.resolve(req(`Bearer ${secret}`));
+    expect(userId).toBeNull();
+  });
+
+  it('unknown secret → null', async () => {
+    const { secret } = generateToken(); // never stored
+    const userId = await patService.resolve(req(`Bearer ${secret}`));
+    expect(userId).toBeNull();
   });
 });

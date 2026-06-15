@@ -13,6 +13,7 @@ import { I18nContext, I18nService } from 'nestjs-i18n';
 import { PrismaService } from '../prisma/prisma.service';
 
 import { AuthService } from './auth.service';
+import { PatService } from './pat.service';
 
 import type { Request } from 'express';
 
@@ -28,19 +29,30 @@ export class SessionGuard implements CanActivate {
   constructor(
     private readonly auth: AuthService,
     private readonly i18n: I18nService,
+    private readonly pat: PatService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
+
+    // 1. Try Better Auth session (cookie or bearer token from Better Auth plugin)
     const session = await this.auth.getSession(req);
-    if (!session?.user) {
-      const lang = I18nContext.current()?.lang;
-      throw new UnauthorizedException(
-        this.i18n.t('auth.sessionRequired', lang ? { lang } : undefined),
-      );
+    if (session?.user) {
+      req.userId = session.user.id;
+      return true;
     }
-    req.userId = session.user.id;
-    return true;
+
+    // 2. Try Personal Access Token (Bearer burk_pat_… or Basic password burk_pat_…)
+    const userId = await this.pat.resolve(req);
+    if (userId) {
+      req.userId = userId;
+      return true;
+    }
+
+    const lang = I18nContext.current()?.lang;
+    throw new UnauthorizedException(
+      this.i18n.t('auth.sessionRequired', lang ? { lang } : undefined),
+    );
   }
 }
 
@@ -57,31 +69,40 @@ export function RoleGuard(requiredRole: string): Type<CanActivate> {
     readonly auth: AuthService;
     readonly prisma: PrismaService;
     readonly i18n: I18nService;
+    readonly pat: PatService;
 
-    constructor(auth: AuthService, prisma: PrismaService, i18n: I18nService) {
+    constructor(auth: AuthService, prisma: PrismaService, i18n: I18nService, pat: PatService) {
       this.auth = auth;
       this.prisma = prisma;
       this.i18n = i18n;
+      this.pat = pat;
       this.logger = new Logger(MixinRoleGuard.name);
     }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
       const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
-      // Resolve session
+      // 1. Resolve session (Better Auth first)
       const session = await this.auth.getSession(req);
-      if (!session?.user) {
-        const lang = I18nContext.current()?.lang;
-        throw new UnauthorizedException(
-          this.i18n.t('auth.sessionRequired', lang ? { lang } : undefined),
-        );
+      if (session?.user) {
+        req.userId = session.user.id;
+      } else {
+        // 2. Fall back to PAT
+        const userId = await this.pat.resolve(req);
+        if (userId) {
+          req.userId = userId;
+        } else {
+          const lang = I18nContext.current()?.lang;
+          throw new UnauthorizedException(
+            this.i18n.t('auth.sessionRequired', lang ? { lang } : undefined),
+          );
+        }
       }
-      req.userId = session.user.id;
 
       // TODO: Implement role check using your domain UserProfile model.
       // Example:
       // const profile = await this.prisma.userProfile.findUnique({
-      //   where: { userId: session.user.id },
+      //   where: { userId: req.userId },
       //   select: { role: true },
       // });
       // if (profile?.role !== requiredRole) { ... }
