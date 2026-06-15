@@ -2,6 +2,7 @@ import JSZip from 'jszip';
 import { describe, expect, it } from 'vitest';
 import { buildEpub } from '../src/modules/kobo/infra/epub.builder';
 import { toKepubXhtml } from '../src/modules/kobo/infra/kepub.transform';
+import { buildOpdsFeed } from '../src/modules/kobo/infra/opds.feed';
 
 const base = {
   item: { id: 'it1', title: 'Reading Slowly', url: 'https://x.com/a', siteName: 'x.com' },
@@ -49,5 +50,38 @@ describe('toKepubXhtml', () => {
   it('does not double-wrap', () => {
     const once = toKepubXhtml('<body><p>Hi</p></body>');
     expect(toKepubXhtml(once)).toBe(once);
+  });
+});
+
+describe('buildOpdsFeed', () => {
+  it('builds an acquisition feed with one entry per item', () => {
+    const xml = buildOpdsFeed({
+      baseUrl: 'https://h/api/v1',
+      updated: '2026-06-15T00:00:00Z',
+      items: [
+        {
+          id: 'it1',
+          title: 'A & B',
+          siteName: 'x.com',
+          excerpt: 'hi',
+          savedAt: '2026-06-14T00:00:00Z',
+        },
+      ],
+    });
+    expect(xml).toContain('<?xml');
+    expect(xml).toContain('<feed');
+    expect(xml).toContain('opds-spec.org/acquisition');
+    expect(xml).toContain('https://h/api/v1/items/it1/epub');
+    expect(xml).toContain('A &amp; B'); // escaped
+  });
+
+  it('valid empty feed when no items', () => {
+    const xml = buildOpdsFeed({
+      baseUrl: 'https://h/api/v1',
+      updated: '2026-06-15T00:00:00Z',
+      items: [],
+    });
+    expect(xml).toContain('<feed');
+    expect(xml).not.toContain('<entry');
   });
 });
