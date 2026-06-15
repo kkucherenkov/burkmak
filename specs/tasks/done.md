@@ -2,30 +2,16 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
-## T-2026-06-15-002 — Personal Access Tokens web (Task 6)
-
-- Created: 2026-06-15
-- Completed: 2026-06-15
-- Owner: claude
-- Spec: [specs/features/2026-06-15-personal-access-tokens.md](../features/2026-06-15-personal-access-tokens.md)
-- Plan: [specs/features/2026-06-15-pat.plan.md](../features/2026-06-15-pat.plan.md) (Task 6)
-- Files:
-  - `apps/web/app/composables/useApi.ts` — createToken/listTokens/revokeToken
-  - `apps/web/app/utils/token-view.ts` — formatLastUsed, tokenRows (pure utils)
-  - `apps/web/tests/unit/token-view.spec.ts` — TDD unit tests (7 cases)
-  - `apps/web/app/pages/settings.vue` — Personal access tokens card
-  - `apps/web/i18n/locales/en.ts` / `ru.ts` — settings.tokens.\* namespace
-- Gates: test ✓ typecheck ✓ build ✓ lint ✓ stylelint ✓ format ✓
-
-## T-2026-06-15-001 — Personal Access Tokens backend (Tasks 1–5)
+## T-2026-06-15-003 — Personal Access Tokens (backend + web)
 
 - Created: 2026-06-15
 - Completed: 2026-06-15
 - Owner: claude
 - Spec: [specs/features/2026-06-15-personal-access-tokens.md](../features/2026-06-15-personal-access-tokens.md)
 - Plan: [specs/features/2026-06-15-pat.plan.md](../features/2026-06-15-pat.plan.md)
-- Result: 5 commits on branch `feat/pat` (not yet merged — waiting for Task 6 web slice).
-- Delivered:
+- Result: merged to `main` via `--no-ff` as `e5979a2` (7 commits `523a94b`→`21498bf`); branch deleted. Shared enabler — unblocks P4 (Kobo OPDS, Basic auth) + P5 (Obsidian plugin, Bearer auth).
+- Delivered (web, Task 6, `21498bf`): `useApi` create/list/revokeToken; `app/utils/token-view.ts` (formatLastUsed, tokenRows) + 7 TDD specs; `settings.vue` Personal-access-tokens card (create / copy-once / revoke); `settings.tokens.*` i18n (en+ru). Gates: web 31 tests, container typecheck + nuxt build, lint, stylelint, format ✓.
+- Delivered (backend, Tasks 1–5):
   - T1 (`feat(backend): PersonalAccessToken model + migration (pat)`) — `PersonalAccessToken` Prisma model + `User.personalAccessTokens` back-relation; migration `20260615101952_personal_access_tokens`; verified with `prisma migrate diff` (empty diff); `prisma generate` + typecheck green. WAL lock from running container required offline diff fallback.
   - T2 (`feat(backend): PAT token crypto (pat)`) — `pat.crypto.ts`: `PAT_PREFIX`, `hashToken`, `generateToken` (sha256, base64url, prefix slice); 2 unit tests TDD.
   - T3 (`feat(backend): PAT repo + ports (pat)`) — `tokens.ports.ts` (PAT_REPO symbol, PatRecord, PatRepo interface); `prisma-tokens.repo.ts` (create/listForUser/revoke/findActiveByHash/touch, with expiry + revokedAt filter); 5 repo isolation tests via `migrate deploy` temp SQLite.
