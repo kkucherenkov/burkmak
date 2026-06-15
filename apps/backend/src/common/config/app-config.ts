@@ -94,6 +94,18 @@ export class AppConfig {
     return this.stringOrDefault('DATA_DIR', './data');
   }
 
+  /**
+   * Public base URL for the API, e.g. `https://example.com/api/v1`.
+   * Used in OPDS catalog links and EPUB download hrefs.
+   * Falls back to `http://localhost:<port>/api/v1` when PUBLIC_API_BASE_URL is unset.
+   */
+  get publicApiBaseUrl(): string {
+    const explicit = this.config.get<string>('PUBLIC_API_BASE_URL');
+    if (explicit) return explicit.replace(/\/+$/, '');
+    const port = this.runtime.port;
+    return `http://localhost:${port.toString()}/api/v1`;
+  }
+
   get jobs(): { pollIntervalMs: number; backoffBaseMs: number } {
     return {
       pollIntervalMs: this.numberOrDefault('JOBS_POLL_INTERVAL_MS', 1000),

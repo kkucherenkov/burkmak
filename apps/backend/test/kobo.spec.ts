@@ -92,9 +92,8 @@ describe('buildOpdsFeed', () => {
 });
 
 describe('BuildEpubService', () => {
-  function makeService(
-    itemOverride: Partial<Parameters<typeof makeService>[0]> & { item?: unknown; article?: unknown } = {},
-  ) {
+  function makeService(override: { item?: unknown; article?: unknown } = {}) {
+    const itemOverride = override;
     const dataDir = tmpdir();
     const mockConfig = { dataDir } as unknown as import('../src/common/config/app-config').AppConfig;
     const epubCache = new EpubCache(mockConfig);

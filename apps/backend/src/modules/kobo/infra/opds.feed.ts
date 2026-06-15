@@ -32,11 +32,11 @@ export function buildOpdsFeed(input: OpdsFeedInput): string {
   const entries = items
     .map((item) => {
       const authorBlock =
-        item.siteName != null
-          ? `    <author><name>${xmlEscape(item.siteName)}</name></author>\n`
-          : '';
+        item.siteName === null
+          ? ''
+          : `    <author><name>${xmlEscape(item.siteName)}</name></author>\n`;
       const summaryBlock =
-        item.excerpt != null ? `    <summary>${xmlEscape(item.excerpt)}</summary>\n` : '';
+        item.excerpt === null ? '' : `    <summary>${xmlEscape(item.excerpt)}</summary>\n`;
 
       return `  <entry>
     <title>${xmlEscape(item.title)}</title>

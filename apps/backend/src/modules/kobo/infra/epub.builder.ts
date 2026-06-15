@@ -38,8 +38,10 @@ function xmlEscape(text: string): string {
  */
 function rewriteImageSrcs(html: string, itemId: string): string {
   const prefix = `/api/v1/items/${itemId}/image/`;
+  // Escape forward-slashes for the RegExp pattern using a pre-built pattern string
+  const escapedPrefix = prefix.replaceAll('/', String.raw`\/`);
   return html.replaceAll(
-    new RegExp(`src="${prefix.replaceAll('/', '\\/')}([^"]+)"`, 'g'),
+    new RegExp(`src="${escapedPrefix}([^"]+)"`, 'g'),
     'src="images/$1"',
   );
 }

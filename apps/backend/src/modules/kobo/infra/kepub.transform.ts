@@ -11,8 +11,6 @@
  * - Does not modify attribute text or tag names.
  */
 
-const BLOCK_ELEMENTS = new Set(['p', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'td', 'th']);
-
 /**
  * Inject koboSpan elements into XHTML chapter content.
  * If the content already contains koboSpan, returns it unchanged.
@@ -25,7 +23,7 @@ export function toKepubXhtml(xhtml: string): string {
 
   let paraIndex = 0;
 
-  return xhtml.replace(
+  return xhtml.replaceAll(
     /(<(p|li|h[1-6]|blockquote|td|th)(\s[^>]*)?>)([\s\S]*?)(<\/\2>)/gi,
     (_match, openTag: string, _tagName: string, _attrs: string, inner: string, closeTag: string) => {
       // Wrap the text nodes and inline content inside this block element
