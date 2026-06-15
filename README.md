@@ -9,9 +9,10 @@ roadmap up: **native Kobo sync** and **Obsidian export**. It runs on a small
 stack — NestJS + SQLite + Nuxt + Flutter — so a single binary-shaped deployment
 serves the web app, the mobile app, and your e-reader.
 
-> Status: **P1–P3 shipped** (save/organise, extraction/reader/highlights/
-> full-text search, and capture surfaces — bookmarklet + Android share-sheet).
-> P4 (Kobo) and P5 (Obsidian) planned. See the [roadmap](#roadmap).
+> Status: **P1–P5 shipped** (save/organise, extraction/reader/highlights/
+> full-text search, capture surfaces, **Kobo via OPDS + EPUB/KEPUB**, and
+> **Obsidian export API + plugin**). Native Kobo store-protocol sync is a
+> documented fast-follow. See the [roadmap](#roadmap).
 
 ## Screenshots
 
@@ -57,12 +58,19 @@ shipped UI implements.</sub>
   same-origin `/save` popup that reuses your session.
 - Spec: [`specs/features/2026-06-14-capture-surfaces.md`](specs/features/2026-06-14-capture-surfaces.md).
 
-### Sync & export — _planned (S4 · S5)_
+### Sync & export — _shipped (S4 · S5)_
 
-- **Kobo sync** (S4): generate EPUB/KEPUB, emulate the Kobo sync API so a paired
-  device pulls new articles over wifi and pushes read-state back.
-- **Obsidian export** (S5): an export API + plugin that writes one note per
-  article — source, metadata, highlights and notes — idempotently.
+- **Kobo sync** (S4): a built-in **OPDS catalog** (`GET /api/v1/opds`) +
+  **EPUB/KEPUB** generation from extracted articles (`GET /api/v1/items/{id}/epub`).
+  Add it on a stock Kobo via Settings → "Add an OPDS catalog" — no firmware
+  hacking. _Native Kobo store-protocol sync + read-state sync-back is a documented
+  fast-follow (needs a physical device to verify)._
+- **Obsidian export** (S5): a markdown **export API** (one note per article —
+  source, metadata, highlights, notes; idempotent via a `burkmakId` frontmatter
+  key) + an **[Obsidian plugin](packages/obsidian-plugin)** that syncs it into
+  your vault.
+- **Personal access tokens** (Settings): a long-lived token for those headless
+  clients — Kobo's OPDS reader (HTTP Basic) and the Obsidian plugin (Bearer).
 
 ## Roadmap
 
@@ -70,13 +78,13 @@ Phase order: **S0 → S1 → S2**, then **S3 / S4 / S5** in parallel. Each phase
 one spec → plan → build cycle. Full detail in [`specs/roadmap.md`](specs/roadmap.md)
 and the requirements in [`specs/PRD.md`](specs/PRD.md).
 
-| Phase  | Subsystem | Ships                                                         | Status     |
-| ------ | --------- | ------------------------------------------------------------- | ---------- |
-| **P1** | S0 + S1   | Foundation (SQLite, jobs + SSE spine) and core library        | ✅ shipped |
-| **P2** | S2        | Article extraction, reader view, FTS5 body search, highlights | ✅ shipped |
-| **P3** | S3        | Android share-sheet capture, browser bookmarklet              | ✅ shipped |
-| **P4** | S4        | EPUB/KEPUB, Kobo sync emulation, device pairing, read-back    | 📋 planned |
-| **P5** | S5        | Obsidian export API + Obsidian plugin                         | 📋 planned |
+| Phase  | Subsystem | Ships                                                             | Status     |
+| ------ | --------- | ----------------------------------------------------------------- | ---------- |
+| **P1** | S0 + S1   | Foundation (SQLite, jobs + SSE spine) and core library            | ✅ shipped |
+| **P2** | S2        | Article extraction, reader view, FTS5 body search, highlights     | ✅ shipped |
+| **P3** | S3        | Android share-sheet capture, browser bookmarklet                  | ✅ shipped |
+| **P4** | S4        | OPDS catalog + EPUB/KEPUB download (native store sync: follow-up) | ✅ shipped |
+| **P5** | S5        | Obsidian export API + Obsidian plugin                             | ✅ shipped |
 
 ## Architecture
 
@@ -141,6 +149,7 @@ packages/
   ui/               @app/ui Vue components + Storybook + specs
   ui_flutter/       app_ui Flutter widgets + theme
   design-tokens/    tokens pipeline: JSON → CSS / TS / Dart
+  obsidian-plugin/  Obsidian plugin (esbuild → main.js) for the export API
 specs/
   PRD.md            product requirements
   roadmap.md        phase → subsystem map
