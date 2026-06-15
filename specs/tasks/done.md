@@ -2,6 +2,23 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-06-15-004 — Obsidian Export Backend API
+
+- Created: 2026-06-15
+- Completed: 2026-06-15
+- Owner: claude
+- Spec: [specs/features/2026-06-15-obsidian-export.md](../features/2026-06-15-obsidian-export.md)
+- Plan: [specs/features/2026-06-15-obsidian-backend.plan.md](../features/2026-06-15-obsidian-backend.plan.md)
+- Branch: `feat/obsidian-backend`
+- Result: 4 commits (Tasks 1–4); awaiting `--no-ff` merge to `main`.
+- Delivered:
+  - T1 (`feat(backend): export filename slug (obsidian-backend)`) — `slugify.ts`: lowercase, collapse non-alnum runs to `-`, trim, append `-<id>.md`; fallback to `<id>.md` when title null/empty. 3 TDD unit tests.
+  - T2 (`feat(backend): obsidian markdown renderer (obsidian-backend)`) — `render-note.ts`: YAML frontmatter (`burkmakId`, `title`, `url`, `canonicalUrl`?, `source`?, `savedAt`, `readingTimeMin`?, `tags`?), body H1 + metadata line + `## Highlights` blockquotes with notes; YAML-special title quoting; null siteName/readingTime omitted cleanly. 3 TDD tests (6 assertions).
+  - T3 (`feat(backend): export queries (obsidian-backend)`) — `export.ports.ts` (EXPORT_REPO symbol, ExportItem/ExportHighlight/ExportListFilter, IExportRepo); `ExportMarkdownQuery/Handler` (bundle, filter+includeEmpty); `ExportItemMarkdownQuery/Handler` (single, throws ItemNotFoundError on miss); `export.repo.ts` (Prisma joined select with highlights+article). exactOptionalPropertyTypes compliant.
+  - T4 (`feat(backend): export endpoints (obsidian-backend)`) — `ExportMarkdownDto` (readState enum, since ISO8601, includeEmpty bool-string); `ExportController` (`@Controller({ version: '1' })`): `GET export/markdown` → JSON bundle, `GET items/:id/export/markdown` → `text/markdown` via `@Res()`; `ExportModule`; registered in `AppModule`.
+- Gates: `pnpm --filter @app/backend lint` clean; `pnpm --filter @app/backend typecheck` clean; `pnpm --filter @app/backend test` 150/150 green (31 test files).
+- Self-review: frontmatter carries `burkmakId`; YAML-special titles quoted (`title: "A: B #c"`); null note/siteName/readingTime omitted; `includeEmpty=false` filters highlight-less items; auth via shared `SessionGuard` (PAT Bearer already in); renderer pure + fully TDD.
+
 ## T-2026-06-15-003 — Personal Access Tokens (backend + web)
 
 - Created: 2026-06-15
