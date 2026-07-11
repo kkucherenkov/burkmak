@@ -95,7 +95,9 @@ describe('BuildEpubService', () => {
   function makeService(override: { item?: unknown; article?: unknown } = {}) {
     const itemOverride = override;
     const dataDir = tmpdir();
-    const mockConfig = { dataDir } as unknown as import('../src/common/config/app-config').AppConfig;
+    const mockConfig = {
+      dataDir,
+    } as unknown as import('../src/common/config/app-config').AppConfig;
     const epubCache = new EpubCache(mockConfig);
 
     const defaultItem = {
@@ -126,10 +128,16 @@ describe('BuildEpubService', () => {
     };
 
     const mockItemRepo = {
-      findById: vi.fn().mockResolvedValue(itemOverride['item'] !== undefined ? itemOverride['item'] : defaultItem),
+      findById: vi
+        .fn()
+        .mockResolvedValue(itemOverride['item'] !== undefined ? itemOverride['item'] : defaultItem),
     };
     const mockArticleRepo = {
-      findByItem: vi.fn().mockResolvedValue(itemOverride['article'] !== undefined ? itemOverride['article'] : defaultArticle),
+      findByItem: vi
+        .fn()
+        .mockResolvedValue(
+          itemOverride['article'] !== undefined ? itemOverride['article'] : defaultArticle,
+        ),
     };
 
     const service = new BuildEpubService(

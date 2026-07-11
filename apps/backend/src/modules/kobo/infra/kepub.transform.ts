@@ -25,7 +25,14 @@ export function toKepubXhtml(xhtml: string): string {
 
   return xhtml.replaceAll(
     /(<(p|li|h[1-6]|blockquote|td|th)(\s[^>]*)?>)([\s\S]*?)(<\/\2>)/gi,
-    (_match, openTag: string, _tagName: string, _attrs: string, inner: string, closeTag: string) => {
+    (
+      _match,
+      openTag: string,
+      _tagName: string,
+      _attrs: string,
+      inner: string,
+      closeTag: string,
+    ) => {
       // Wrap the text nodes and inline content inside this block element
       const wrapped = wrapTextNodes(inner, paraIndex);
       paraIndex++;
