@@ -13,6 +13,7 @@ import {
   type IImageCache,
 } from '../domain/article.ports';
 import { ITEM_REPO, type IItemRepo } from '../domain/items.ports';
+import { firstCachedImageKey } from './image-cache';
 
 /** Fetch timeout for article HTML — slightly longer than metadata (page bodies are larger). */
 const FETCH_TIMEOUT_MS = 15_000;
@@ -47,6 +48,7 @@ export class ExtractArticleHandler implements JobHandler {
         contentText: parsed.contentText,
         wordCount: parsed.wordCount,
         readingTimeMin: parsed.readingTimeMin,
+        coverImageKey: firstCachedImageKey(rewrittenHtml, job.itemId),
       });
 
       await this.itemRepo.setExtractStatus(job.itemId, 'ready');

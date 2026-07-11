@@ -68,12 +68,13 @@ describe('ExtractArticleHandler', () => {
     expect(extractor.extract).toHaveBeenCalledWith(RAW_HTML, ITEM.url);
     // Cached images with rewritten html
     expect(imageCache.cache).toHaveBeenCalledWith('itm_1', PARSED.contentHtml, ITEM.url);
-    // Upserted article with rewritten HTML
+    // Upserted article with rewritten HTML + first cached image as the cover
     expect(articleRepo.upsert).toHaveBeenCalledWith('itm_1', {
       contentHtml: REWRITTEN_HTML,
       contentText: PARSED.contentText,
       wordCount: PARSED.wordCount,
       readingTimeMin: PARSED.readingTimeMin,
+      coverImageKey: 'abc123.jpg',
     });
     // Marked item ready
     expect(itemRepo.setExtractStatus).toHaveBeenCalledWith('itm_1', 'ready');

@@ -1530,10 +1530,35 @@ paths:
         Basic authentication — any non-empty username, PAT as the password.
         The response content-type is
         `application/atom+xml;profile=opds-catalog;kind=acquisition`.
+
+        Entries carry `http://opds-spec.org/image` (+ `/image/thumbnail`)
+        links when a cover is known — the first cached content image, served
+        by `GET /api/v1/items/{id}/image/{key}` with the same credentials, or
+        the remote lead image as a fallback. The feed paginates via a
+        `rel="next"` link (page size 50) and advertises OpenSearch via a
+        `rel="search"` link.
       tags: [kobo]
       security:
         - patBasicAuth: []
         - bearerAuth: []
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          description: |
+            Opaque pagination cursor from the previous page's `rel="next"`
+            link. Unknown or stale cursors fall back to the first page —
+            OPDS devices are hard to debug, so the feed never 400s on paging.
+          schema:
+            type: string
+        - name: q
+          in: query
+          required: false
+          description: |
+            Full-text search term (same semantics as the library `q` filter).
+            Used by the OpenSearch template; empty result is a valid empty feed.
+          schema:
+            type: string
       responses:
         "200":
           description: OPDS 1.2 Atom acquisition feed
@@ -1561,6 +1586,50 @@ paths:
                               href="/api/v1/items/clxabc123/epub"/>
                       </entry>
                     </feed>
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
+
+  /api/v1/opds/opensearch.xml:
+    get:
+      operationId: getOpdsOpenSearch
+      summary: OpenSearch description document for the OPDS catalog
+      description: |
+        Returns an OpenSearch 1.1 description document advertising the OPDS
+        search endpoint (`GET /api/v1/opds?q={searchTerms}`). OPDS clients
+        discover this document through the feed's `rel="search"` link and use
+        it to power their built-in catalog search UI.
+      tags: [kobo]
+      security:
+        - patBasicAuth: []
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OpenSearch description document
+          content:
+            application/opensearchdescription+xml:
+              schema:
+                type: string
+              examples:
+                doc:
+                  value: |
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+                      <ShortName>burkmak</ShortName>
+                      <Description>Search your saved articles</Description>
+                      <Url type="application/atom+xml;profile=opds-catalog;kind=acquisition"
+                           template="/api/v1/opds?q={searchTerms}"/>
+                    </OpenSearchDescription>
         "401":
           description: Not authenticated
           content:

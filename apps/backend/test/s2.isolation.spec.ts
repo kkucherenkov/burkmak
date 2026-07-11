@@ -110,6 +110,7 @@ beforeAll(async () => {
     contentText: 'Some article for user A.',
     wordCount: 5,
     readingTimeMin: 1,
+    coverImageKey: null,
   });
   await items.setExtractStatus(aItemId, 'ready');
 
@@ -121,6 +122,7 @@ beforeAll(async () => {
     contentText: `This is a secret article. ${UNIQUE_PHRASE} is here.`,
     wordCount: 9,
     readingTimeMin: 1,
+    coverImageKey: null,
   });
   await items.setExtractStatus(bItemId, 'ready');
 

@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AddItemTagData, AddItemTagErrors, AddItemTagResponses, CreateHighlightData, CreateHighlightErrors, CreateHighlightResponses, CreateTokenData, CreateTokenErrors, CreateTokenResponses, DeleteHighlightData, DeleteHighlightErrors, DeleteHighlightResponses, DeleteItemData, DeleteItemErrors, DeleteItemResponses, DeleteTagData, DeleteTagErrors, DeleteTagResponses, ExportItemMarkdownData, ExportItemMarkdownErrors, ExportItemMarkdownResponses, ExportMarkdownBundleData, ExportMarkdownBundleErrors, ExportMarkdownBundleResponses, ExtractArticleData, ExtractArticleErrors, ExtractArticleResponses, GetArticleData, GetArticleErrors, GetArticleResponses, GetHealthData, GetHealthErrors, GetHealthResponses, GetItemData, GetItemEpubData, GetItemEpubErrors, GetItemEpubResponses, GetItemErrors, GetItemImageData, GetItemImageErrors, GetItemImageResponses, GetItemResponses, GetOpdsFeedData, GetOpdsFeedErrors, GetOpdsFeedResponses, ListHighlightsData, ListHighlightsErrors, ListHighlightsResponses, ListItemsData, ListItemsErrors, ListItemsResponses, ListTagsData, ListTagsErrors, ListTagsResponses, ListTokensData, ListTokensErrors, ListTokensResponses, RemoveItemTagData, RemoveItemTagErrors, RemoveItemTagResponses, RenameTagData, RenameTagErrors, RenameTagResponses, RevokeTokenData, RevokeTokenErrors, RevokeTokenResponses, SaveItemData, SaveItemErrors, SaveItemResponses, StreamEventsData, StreamEventsErrors, StreamEventsResponse, StreamEventsResponses, UpdateHighlightData, UpdateHighlightErrors, UpdateHighlightResponses, UpdateItemData, UpdateItemErrors, UpdateItemResponses } from './types.gen';
+import type { AddItemTagData, AddItemTagErrors, AddItemTagResponses, CreateHighlightData, CreateHighlightErrors, CreateHighlightResponses, CreateTokenData, CreateTokenErrors, CreateTokenResponses, DeleteHighlightData, DeleteHighlightErrors, DeleteHighlightResponses, DeleteItemData, DeleteItemErrors, DeleteItemResponses, DeleteTagData, DeleteTagErrors, DeleteTagResponses, ExportItemMarkdownData, ExportItemMarkdownErrors, ExportItemMarkdownResponses, ExportMarkdownBundleData, ExportMarkdownBundleErrors, ExportMarkdownBundleResponses, ExtractArticleData, ExtractArticleErrors, ExtractArticleResponses, GetArticleData, GetArticleErrors, GetArticleResponses, GetHealthData, GetHealthErrors, GetHealthResponses, GetItemData, GetItemEpubData, GetItemEpubErrors, GetItemEpubResponses, GetItemErrors, GetItemImageData, GetItemImageErrors, GetItemImageResponses, GetItemResponses, GetOpdsFeedData, GetOpdsFeedErrors, GetOpdsFeedResponses, GetOpdsOpenSearchData, GetOpdsOpenSearchErrors, GetOpdsOpenSearchResponses, ListHighlightsData, ListHighlightsErrors, ListHighlightsResponses, ListItemsData, ListItemsErrors, ListItemsResponses, ListTagsData, ListTagsErrors, ListTagsResponses, ListTokensData, ListTokensErrors, ListTokensResponses, RemoveItemTagData, RemoveItemTagErrors, RemoveItemTagResponses, RenameTagData, RenameTagErrors, RenameTagResponses, RevokeTokenData, RevokeTokenErrors, RevokeTokenResponses, SaveItemData, SaveItemErrors, SaveItemResponses, StreamEventsData, StreamEventsErrors, StreamEventsResponse, StreamEventsResponses, UpdateHighlightData, UpdateHighlightErrors, UpdateHighlightResponses, UpdateItemData, UpdateItemErrors, UpdateItemResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -413,10 +413,32 @@ export const exportItemMarkdown = <ThrowOnError extends boolean = false>(options
  * The response content-type is
  * `application/atom+xml;profile=opds-catalog;kind=acquisition`.
  *
+ * Entries carry `http://opds-spec.org/image` (+ `/image/thumbnail`)
+ * links when a cover is known — the first cached content image, served
+ * by `GET /api/v1/items/{id}/image/{key}` with the same credentials, or
+ * the remote lead image as a fallback. The feed paginates via a
+ * `rel="next"` link (page size 50) and advertises OpenSearch via a
+ * `rel="search"` link.
+ *
  */
 export const getOpdsFeed = <ThrowOnError extends boolean = false>(options?: Options<GetOpdsFeedData, ThrowOnError>) => (options?.client ?? client).get<GetOpdsFeedResponses, GetOpdsFeedErrors, ThrowOnError>({
     security: [{ scheme: 'basic', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/api/v1/opds',
+    ...options
+});
+
+/**
+ * OpenSearch description document for the OPDS catalog
+ *
+ * Returns an OpenSearch 1.1 description document advertising the OPDS
+ * search endpoint (`GET /api/v1/opds?q={searchTerms}`). OPDS clients
+ * discover this document through the feed's `rel="search"` link and use
+ * it to power their built-in catalog search UI.
+ *
+ */
+export const getOpdsOpenSearch = <ThrowOnError extends boolean = false>(options?: Options<GetOpdsOpenSearchData, ThrowOnError>) => (options?.client ?? client).get<GetOpdsOpenSearchResponses, GetOpdsOpenSearchErrors, ThrowOnError>({
+    security: [{ scheme: 'basic', type: 'http' }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/opds/opensearch.xml',
     ...options
 });
 

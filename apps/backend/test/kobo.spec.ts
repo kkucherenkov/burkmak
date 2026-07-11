@@ -5,7 +5,7 @@ import JSZip from 'jszip';
 import { describe, expect, it, vi } from 'vitest';
 import { buildEpub } from '../src/modules/kobo/infra/epub.builder';
 import { toKepubXhtml } from '../src/modules/kobo/infra/kepub.transform';
-import { buildOpdsFeed } from '../src/modules/kobo/infra/opds.feed';
+import { buildOpdsFeed, buildOpenSearchDescription } from '../src/modules/kobo/infra/opds.feed';
 import { EpubCache } from '../src/modules/kobo/infra/epub.cache';
 import { BuildEpubService } from '../src/modules/kobo/application/build-epub.service';
 
@@ -59,10 +59,16 @@ describe('toKepubXhtml', () => {
 });
 
 describe('buildOpdsFeed', () => {
+  const page = {
+    baseUrl: 'https://h/api/v1',
+    updated: '2026-06-15T00:00:00Z',
+    selfHref: 'https://h/api/v1/opds',
+    nextHref: null,
+  };
+
   it('builds an acquisition feed with one entry per item', () => {
     const xml = buildOpdsFeed({
-      baseUrl: 'https://h/api/v1',
-      updated: '2026-06-15T00:00:00Z',
+      ...page,
       items: [
         {
           id: 'it1',
@@ -70,6 +76,7 @@ describe('buildOpdsFeed', () => {
           siteName: 'x.com',
           excerpt: 'hi',
           savedAt: '2026-06-14T00:00:00Z',
+          coverHref: null,
         },
       ],
     });
@@ -78,16 +85,59 @@ describe('buildOpdsFeed', () => {
     expect(xml).toContain('opds-spec.org/acquisition');
     expect(xml).toContain('https://h/api/v1/items/it1/epub');
     expect(xml).toContain('A &amp; B'); // escaped
+    expect(xml).not.toContain('opds-spec.org/image');
   });
 
   it('valid empty feed when no items', () => {
-    const xml = buildOpdsFeed({
-      baseUrl: 'https://h/api/v1',
-      updated: '2026-06-15T00:00:00Z',
-      items: [],
-    });
+    const xml = buildOpdsFeed({ ...page, items: [] });
     expect(xml).toContain('<feed');
     expect(xml).not.toContain('<entry');
+  });
+
+  it('emits cover + thumbnail links with a mime type from the extension', () => {
+    const xml = buildOpdsFeed({
+      ...page,
+      items: [
+        {
+          id: 'it1',
+          title: 'T',
+          siteName: null,
+          excerpt: null,
+          savedAt: '2026-06-14T00:00:00Z',
+          coverHref: 'https://h/api/v1/items/it1/image/abc.webp',
+        },
+      ],
+    });
+    expect(xml).toContain(
+      '<link rel="http://opds-spec.org/image" type="image/webp" href="https://h/api/v1/items/it1/image/abc.webp"/>',
+    );
+    expect(xml).toContain('rel="http://opds-spec.org/image/thumbnail"');
+  });
+
+  it('always links start + search; next only when a next page exists', () => {
+    const lastPage = buildOpdsFeed({ ...page, items: [] });
+    expect(lastPage).toContain('rel="start"');
+    expect(lastPage).toContain('rel="search"');
+    expect(lastPage).toContain('https://h/api/v1/opds/opensearch.xml');
+    expect(lastPage).not.toContain('rel="next"');
+
+    const midPage = buildOpdsFeed({
+      ...page,
+      selfHref: 'https://h/api/v1/opds?cursor=c1',
+      nextHref: 'https://h/api/v1/opds?cursor=c2&q=a%26b',
+      items: [],
+    });
+    expect(midPage).toContain('<link rel="next"');
+    // & in the next href is XML-escaped
+    expect(midPage).toContain('href="https://h/api/v1/opds?cursor=c2&amp;q=a%26b"');
+  });
+});
+
+describe('buildOpenSearchDescription', () => {
+  it('advertises the q template on the opds endpoint', () => {
+    const xml = buildOpenSearchDescription('https://h/api/v1');
+    expect(xml).toContain('<OpenSearchDescription');
+    expect(xml).toContain('template="https://h/api/v1/opds?q={searchTerms}"');
   });
 });
 

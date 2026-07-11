@@ -1166,7 +1166,21 @@ export type ExportItemMarkdownResponse = ExportItemMarkdownResponses[keyof Expor
 export type GetOpdsFeedData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Opaque pagination cursor from the previous page's `rel="next"`
+         * link. Unknown or stale cursors fall back to the first page —
+         * OPDS devices are hard to debug, so the feed never 400s on paging.
+         *
+         */
+        cursor?: string;
+        /**
+         * Full-text search term (same semantics as the library `q` filter).
+         * Used by the OpenSearch template; empty result is a valid empty feed.
+         *
+         */
+        q?: string;
+    };
     url: '/api/v1/opds';
 };
 
@@ -1187,6 +1201,31 @@ export type GetOpdsFeedResponses = {
 };
 
 export type GetOpdsFeedResponse = GetOpdsFeedResponses[keyof GetOpdsFeedResponses];
+
+export type GetOpdsOpenSearchData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/opds/opensearch.xml';
+};
+
+export type GetOpdsOpenSearchErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+};
+
+export type GetOpdsOpenSearchError = GetOpdsOpenSearchErrors[keyof GetOpdsOpenSearchErrors];
+
+export type GetOpdsOpenSearchResponses = {
+    /**
+     * OpenSearch description document
+     */
+    200: string;
+};
+
+export type GetOpdsOpenSearchResponse = GetOpdsOpenSearchResponses[keyof GetOpdsOpenSearchResponses];
 
 export type ListTokensData = {
     body?: never;
