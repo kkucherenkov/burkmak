@@ -1,5 +1,22 @@
 # Active tasks
 
+## T-2026-07-11-003 — Kobo native sync (store-API emulation)
+
+- Created: 2026-07-11
+- Owner: claude
+- Spec: [specs/features/2026-07-11-kobo-native-sync.md](../features/2026-07-11-kobo-native-sync.md)
+- Plan: [specs/features/2026-07-11-kobo-native-sync.plan.md](../features/2026-07-11-kobo-native-sync.plan.md)
+- Goal: Kobo pointed at `/api/v1/kobo/<PAT>` auto-syncs extracted articles as KEPUBs and pushes reading progress / Finished back.
+- Spec diff: none (device mount excluded from contract, documented in overview; validator ignorePaths)
+- Codegen impact: no
+- Sub-steps:
+  - [x] Phase A: Prisma models + migration, PatService.resolveSecret, validator ignore, openapi overview note
+  - [x] Phase B: store module (guard, sync token, builders, repo, services, controller, init resources) — 202/202 backend tests green, lint+typecheck clean
+  - [x] Phase C: curl device simulation — auth stub, initialization resources, first sync (NewEntitlement + real Size), KEPUB download, cover 200, PUT Finished → readState=read, delta re-sync, archive → IsRemoved, unknown → {}, bad token → 401
+  - [ ] On-device verification (physical Kobo) — documented ceiling
+- Status: in-progress (awaiting PR + physical-device check)
+- Blockers: —
+
 ## T-2026-07-11-002 — Kobo OPDS polish: covers, pagination, search
 
 - Created: 2026-07-11

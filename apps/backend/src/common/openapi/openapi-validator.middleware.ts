@@ -50,12 +50,13 @@ export function registerOpenApiValidator(app: INestApplication, nodeEnv: string)
       // (b) return a generic, non-localised 401. The spec still documents the
       // schemes for clients and generated code.
       validateSecurity: false,
-      // Better Auth owns its own wire protocol — the validator has no OpenAPI
-      // schema for these routes and must not reject them. `/api/v1/auth` is
-      // mounted inside URI versioning so the namespace is consistent.
+      // Better Auth and the Kobo store mount own their own wire protocols —
+      // the validator has no OpenAPI schema for these routes and must not
+      // reject them. Both are mounted inside URI versioning so the namespace
+      // is consistent (`/api/v1/auth/*`, `/api/v1/kobo/<token>/*`).
       // `ignorePaths` is tested against `req.path`, which is relative to the
       // middleware mount point (`/api`), so the `/api` prefix must be omitted.
-      ignorePaths: /\/v1\/auth(\/|$)/,
+      ignorePaths: /\/v1\/(auth|kobo)(\/|$)/,
     }),
   );
 

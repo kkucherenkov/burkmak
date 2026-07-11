@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -26,6 +26,11 @@ export class EpubCache {
 
   exists(filePath: string): boolean {
     return existsSync(filePath);
+  }
+
+  /** Byte size of a cached file, or 0 when it hasn't been built yet (e.g. sync's DownloadUrls.Size). */
+  size(filePath: string): number {
+    return existsSync(filePath) ? statSync(filePath).size : 0;
   }
 
   async read(filePath: string): Promise<Uint8Array> {

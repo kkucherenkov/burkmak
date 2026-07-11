@@ -26,6 +26,16 @@ export class PatService {
     const header = req.headers['authorization'];
     const secret = this.extract(typeof header === 'string' ? header : undefined);
     if (!secret) return null;
+    return this.resolveSecret(secret);
+  }
+
+  /**
+   * Resolve a raw burk_pat_ secret to a userId (null when unknown/revoked).
+   * Used where the token can't travel in a header — e.g. the Kobo store mount
+   * puts it in the URL path because Nickel can't send auth headers.
+   */
+  async resolveSecret(secret: string): Promise<string | null> {
+    if (!secret.startsWith(PAT_PREFIX)) return null;
     const found = await this.repo.findActiveByHash(hashToken(secret));
     if (!found) return null;
     void this.repo.touch(found.id); // best-effort, non-blocking
