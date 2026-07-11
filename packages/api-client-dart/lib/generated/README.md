@@ -93,6 +93,7 @@ Class | Method | HTTP request | Description
 [*ItemsApi*](doc/ItemsApi.md) | [**updateItem**](doc/ItemsApi.md#updateitem) | **PATCH** /api/v1/items/{id} | Update read state or favourite flag on an item
 [*KoboApi*](doc/KoboApi.md) | [**getItemEpub**](doc/KoboApi.md#getitemepub) | **GET** /api/v1/items/{id}/epub | Download an EPUB/KEPUB for a saved item
 [*KoboApi*](doc/KoboApi.md) | [**getOpdsFeed**](doc/KoboApi.md#getopdsfeed) | **GET** /api/v1/opds | OPDS 1.2 acquisition feed of extracted articles
+[*KoboApi*](doc/KoboApi.md) | [**getOpdsOpenSearch**](doc/KoboApi.md#getopdsopensearch) | **GET** /api/v1/opds/opensearch.xml | OpenSearch description document for the OPDS catalog
 [*SystemApi*](doc/SystemApi.md) | [**getHealth**](doc/SystemApi.md#gethealth) | **GET** /api/v1/health | Service health probe
 [*TagsApi*](doc/TagsApi.md) | [**deleteTag**](doc/TagsApi.md#deletetag) | **DELETE** /api/v1/tags/{id} | Delete a tag and remove it from all items
 [*TagsApi*](doc/TagsApi.md) | [**listTags**](doc/TagsApi.md#listtags) | **GET** /api/v1/tags | List all tags for the authenticated user

@@ -435,8 +435,38 @@ export interface paths {
          *     Basic authentication — any non-empty username, PAT as the password.
          *     The response content-type is
          *     `application/atom+xml;profile=opds-catalog;kind=acquisition`.
+         *
+         *     Entries carry `http://opds-spec.org/image` (+ `/image/thumbnail`)
+         *     links when a cover is known — the first cached content image, served
+         *     by `GET /api/v1/items/{id}/image/{key}` with the same credentials, or
+         *     the remote lead image as a fallback. The feed paginates via a
+         *     `rel="next"` link (page size 50) and advertises OpenSearch via a
+         *     `rel="search"` link.
          */
         get: operations["getOpdsFeed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opds/opensearch.xml": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * OpenSearch description document for the OPDS catalog
+         * @description Returns an OpenSearch 1.1 description document advertising the OPDS
+         *     search endpoint (`GET /api/v1/opds?q={searchTerms}`). OPDS clients
+         *     discover this document through the feed's `rel="search"` link and use
+         *     it to power their built-in catalog search UI.
+         */
+        get: operations["getOpdsOpenSearch"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1760,7 +1790,19 @@ export interface operations {
     };
     getOpdsFeed: {
         parameters: {
-            query?: never;
+            query?: {
+                /**
+                 * @description Opaque pagination cursor from the previous page's `rel="next"`
+                 *     link. Unknown or stale cursors fall back to the first page —
+                 *     OPDS devices are hard to debug, so the feed never 400s on paging.
+                 */
+                cursor?: string;
+                /**
+                 * @description Full-text search term (same semantics as the library `q` filter).
+                 *     Used by the OpenSearch template; empty result is a valid empty feed.
+                 */
+                q?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1774,6 +1816,35 @@ export interface operations {
                 };
                 content: {
                     "application/atom+xml": string;
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getOpdsOpenSearch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OpenSearch description document */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/opensearchdescription+xml": string;
                 };
             };
             /** @description Not authenticated */
