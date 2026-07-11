@@ -10,11 +10,11 @@
 - Spec diff: none (device mount excluded from contract, documented in overview; validator ignorePaths)
 - Codegen impact: no
 - Sub-steps:
-  - [ ] Phase A: Prisma models + migration, PatService.resolveSecret, validator ignore, openapi overview note
-  - [ ] Phase B: store module (guard, sync token, builders, repo, services, controller, init resources)
-  - [ ] Phase C: units + gates + curl device simulation
+  - [x] Phase A: Prisma models + migration, PatService.resolveSecret, validator ignore, openapi overview note
+  - [x] Phase B: store module (guard, sync token, builders, repo, services, controller, init resources) — 202/202 backend tests green, lint+typecheck clean
+  - [x] Phase C: curl device simulation — auth stub, initialization resources, first sync (NewEntitlement + real Size), KEPUB download, cover 200, PUT Finished → readState=read, delta re-sync, archive → IsRemoved, unknown → {}, bad token → 401
   - [ ] On-device verification (physical Kobo) — documented ceiling
-- Status: in-progress
+- Status: in-progress (awaiting PR + physical-device check)
 - Blockers: —
 
 ## T-2026-07-11-002 — Kobo OPDS polish: covers, pagination, search
