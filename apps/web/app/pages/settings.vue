@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  import { AppButton, AppSelect } from '@app/ui';
-  import { onMounted, ref } from 'vue';
+  import { AppButton, AppField, AppSelect } from '@app/ui';
+  import { computed, onMounted, ref } from 'vue';
 
   import { buildBookmarkletHref } from '~/utils/bookmarklet';
   import { tokenRows } from '~/utils/token-view';
@@ -15,9 +15,11 @@
     { id: 'ru', label: 'Русский' },
   ];
 
-  function toggleTheme(): void {
-    colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark';
-  }
+  const themeOptions = computed(() => [
+    { id: 'system', label: t('settings.themeSystem') },
+    { id: 'light', label: t('settings.themeLight') },
+    { id: 'dark', label: t('settings.themeDark') },
+  ]);
 
   const bookmarkletHref = ref('');
   const copied = ref(false);
@@ -102,16 +104,30 @@
     <h1 class="page-settings__title">
       {{ t('settings.title') }}
     </h1>
-    <AppButton variant="outline" :label="t('settings.theme')" @click="toggleTheme" />
-    <AppSelect
-      :model-value="locale"
-      :options="localeOptions"
-      @update:model-value="
-        (v) => {
-          void setLocale(v as 'en' | 'ru');
-        }
-      "
-    />
+    <AppField :label="t('settings.theme')">
+      <template #default="fieldAttrs">
+        <AppSelect
+          v-bind="fieldAttrs"
+          :model-value="colorMode.preference"
+          :options="themeOptions"
+          @update:model-value="colorMode.preference = $event"
+        />
+      </template>
+    </AppField>
+    <AppField :label="t('settings.language')">
+      <template #default="fieldAttrs">
+        <AppSelect
+          v-bind="fieldAttrs"
+          :model-value="locale"
+          :options="localeOptions"
+          @update:model-value="
+            (v) => {
+              void setLocale(v as 'en' | 'ru');
+            }
+          "
+        />
+      </template>
+    </AppField>
     <section class="page-settings__bookmarklet">
       <h2 class="page-settings__subtitle">
         {{ t('settings.bookmarklet.title') }}

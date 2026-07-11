@@ -3,7 +3,8 @@
 
   import AppChip from '../AppChip/AppChip.vue';
   import AppInput from '../AppInput/AppInput.vue';
-  import AppSelect, { type AppSelectOption } from '../AppSelect/AppSelect.vue';
+  import AppSelect from '../AppSelect/AppSelect.vue';
+  import type { AppSelectOption } from '../AppSelect/select-types';
 
   export type AppFilterSegment = 'unread' | 'read' | 'archived' | 'favorite';
 
@@ -34,6 +35,19 @@
     { key: 'archived', label: props.labels.archived },
     { key: 'favorite', label: props.labels.favorite },
   ]);
+
+  // AppSelect's placeholder is intentionally non-selectable, so "no tag" must
+  // be a real option — the sentinel maps back to `null` on the way out.
+  const ALL_TAGS_ID = '__all__';
+
+  const tagSelectOptions = computed<AppSelectOption[]>(() => [
+    { id: ALL_TAGS_ID, label: props.labels.allTags },
+    ...props.tagOptions,
+  ]);
+
+  function onTagChange(value: string): void {
+    emit('update:tag', value === ALL_TAGS_ID ? null : value);
+  }
 </script>
 
 <template>
@@ -54,11 +68,10 @@
 
     <AppSelect
       class="app-filter-bar__tags"
-      :model-value="tag"
-      :options="tagOptions"
-      :placeholder="labels.allTags"
+      :model-value="tag ?? ALL_TAGS_ID"
+      :options="tagSelectOptions"
       size="sm"
-      @update:model-value="emit('update:tag', $event)"
+      @update:model-value="onTagChange"
     />
 
     <AppInput

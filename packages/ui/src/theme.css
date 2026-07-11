@@ -1,0 +1,69 @@
+/* Theme plumbing shared by the Storybook sandbox (src/styles.css) and the app
+   (apps/web/app/assets/css/main.css). Both import this file so the values can
+   never drift between the two — the previous hand-mirroring left apps/web
+   without any --highlight-* definitions at all. */
+
+/*
+ * WHY --highlight-* tokens are defined here (not in the DTCG pipeline):
+ * Highlight colors are content-purpose colors — the user's marks on the page.
+ * They are warm-tuned hexes that must sit on the paper surface (--surface-page)
+ * and cannot be derived by color-mix from existing semantic tokens without losing
+ * chroma (see reader-highlights.vue mockup header comment). They are NOT chrome
+ * tokens and do not belong in the DTCG brand/semantic/status taxonomy.
+ *
+ * The hex literals below are the token VALUES (this IS the token definition site);
+ * all consumers must reference var(--highlight-*), never the hex directly.
+ */
+/* stylelint-disable color-no-hex -- WHY: these ARE the token definitions (the hex values ARE the tokens). Consumers always use var(--highlight-*). */
+:root,
+[data-theme='light'] {
+  --highlight-yellow: #fcefa6;
+  --highlight-green: #cdebc5;
+  --highlight-blue: #c9e2f2;
+  --highlight-pink: #f6d2de;
+
+  /* Deeper rail variants used for the highlight card's leading color bar.
+   * These are more saturated siblings of the swatch fills; not derivable
+   * via color-mix toward --text-fg (that only mutes the pale swatch). */
+  --highlight-yellow-rail: #e8cf4e;
+  --highlight-green-rail: #84c178;
+  --highlight-blue-rail: #6aabd6;
+  --highlight-pink-rail: #e08aa6;
+}
+
+/* Dark equivalents: same hues, lightness dropped below the dark reader text
+ * (--text-fg #ECE6DB) so highlighted passages keep AA contrast. Rails stay
+ * brighter than the fills — they are accents on dark card surfaces, not
+ * text backgrounds. Keyed on .dark (what @nuxtjs/color-mode toggles) plus
+ * [data-theme='dark'] to match the generated token blocks. */
+[data-theme='dark'],
+.dark {
+  --highlight-yellow: #5c4d16;
+  --highlight-green: #2e4a29;
+  --highlight-blue: #1f3c52;
+  --highlight-pink: #52293a;
+
+  --highlight-yellow-rail: #c9ad3f;
+  --highlight-green-rail: #6ea963;
+  --highlight-blue-rail: #5a97c2;
+  --highlight-pink-rail: #c26f8d;
+}
+/* stylelint-enable color-no-hex */
+
+/* Native UA surfaces (scrollbars, form-control popups, autofill) must follow
+ * the app-chosen theme, not the OS. @nuxtjs/color-mode toggles the .light /
+ * .dark CLASS on <html>; the data-theme attribute selectors are kept for the
+ * generated token blocks' alternate themes (sepia/forest). */
+:root {
+  color-scheme: light dark;
+}
+
+html[data-theme='light'],
+html.light {
+  color-scheme: light;
+}
+
+html[data-theme='dark'],
+html.dark {
+  color-scheme: dark;
+}

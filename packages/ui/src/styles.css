@@ -4,6 +4,7 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 @import "./tokens.generated.css";
+@import "./theme.css";
 
 @theme inline {
   --color-bg: var(--surface-page);
@@ -55,46 +56,4 @@
   --shadow-focus: var(--shadow-focus);
 }
 
-/*
- * WHY --highlight-* tokens are defined here (not in the DTCG pipeline):
- * Highlight colors are content-purpose colors — the user's marks on the page.
- * They are warm-tuned hexes that must sit on the paper surface (--surface-page)
- * and cannot be derived by color-mix from existing semantic tokens without losing
- * chroma (see reader-highlights.vue mockup header comment). They are NOT chrome
- * tokens and do not belong in the DTCG brand/semantic/status taxonomy.
- * Defining them in :root here makes them available as CSS custom properties
- * throughout the Storybook sandbox, mirroring what apps/web will declare in
- * its own main.css for the production app.
- * Light-mode values only for now (dark-mode equivalents are a future concern).
- *
- * The hex literals below are the token VALUES (this IS the token definition site);
- * all consumers must reference var(--highlight-*), never the hex directly.
- */
-/* stylelint-disable color-no-hex -- WHY: these ARE the token definitions (the hex values ARE the tokens). Consumers always use var(--highlight-*). */
-:root {
-  --highlight-yellow: #fcefa6;
-  --highlight-green: #cdebc5;
-  --highlight-blue: #c9e2f2;
-  --highlight-pink: #f6d2de;
-
-  /* Deeper rail variants used for the highlight card's leading color bar.
-   * These are more saturated siblings of the swatch fills; not derivable
-   * via color-mix toward --text-fg (that only mutes the pale swatch). */
-  --highlight-yellow-rail: #e8cf4e;
-  --highlight-green-rail: #84c178;
-  --highlight-blue-rail: #6aabd6;
-  --highlight-pink-rail: #e08aa6;
-}
-/* stylelint-enable color-no-hex */
-
-:root {
-  color-scheme: light dark;
-}
-
-html[data-theme='light'] {
-  color-scheme: light;
-}
-
-html[data-theme='dark'] {
-  color-scheme: dark;
-}
+/* Highlight tokens + color-scheme rules live in ./theme.css (shared with apps/web). */

@@ -121,3 +121,35 @@ export const WithTags: Story = {
     `,
   }),
 };
+
+/** A tag is selected — picking "All tags" in the dropdown clears the filter. */
+export const TagSelected: Story = {
+  args: {
+    segment: 'unread' as AppFilterSegment,
+    q: '',
+    tag: 'rust',
+    tagOptions: allTagOptions,
+    labels: baseLabels,
+  },
+  render: (args) => ({
+    components: { AppFilterBar },
+    setup() {
+      const segment = ref<AppFilterSegment>(args.segment);
+      const q = ref(args.q);
+      const tag = ref<string | null>(args.tag);
+      return { args, segment, q, tag };
+    },
+    template: `
+      <AppFilterBar
+        :segment="segment"
+        :q="q"
+        :tag="tag"
+        :tagOptions="args.tagOptions"
+        :labels="args.labels"
+        @update:segment="segment = $event"
+        @update:q="q = $event"
+        @update:tag="tag = $event"
+      />
+    `,
+  }),
+};

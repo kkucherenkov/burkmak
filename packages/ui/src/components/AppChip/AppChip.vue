@@ -199,19 +199,23 @@
         color: var(--text-inverse);
       }
 
+      /* NOT --brand-accent-fg: that token is the text color ON a solid accent
+       * fill (white in light, near-black in dark) — on the subtle background it
+       * disappears in both themes. Accent-on-subtle mirrors the status blocks
+       * below (*-fg on *-subtle). */
       &.app-chip--soft {
         background-color: var(--brand-accent-subtle);
-        color: var(--brand-accent-fg);
+        color: var(--brand-accent);
       }
 
       &.app-chip--subtle {
         background-color: color-mix(in srgb, var(--brand-accent-subtle) 60%, transparent);
-        color: var(--brand-accent-fg);
+        color: var(--brand-accent);
       }
 
       &.app-chip--outline {
         border-color: var(--brand-accent);
-        color: var(--brand-accent-fg);
+        color: var(--brand-accent);
       }
     }
 

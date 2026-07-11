@@ -90,7 +90,10 @@ export default {
 
   settings: {
     title: 'Настройки',
-    theme: 'Сменить тему',
+    theme: 'Тема',
+    themeSystem: 'Системная',
+    themeLight: 'Светлая',
+    themeDark: 'Тёмная',
     language: 'Язык',
     bookmarklet: {
       title: 'Букмарклет для браузера',
@@ -169,6 +172,8 @@ export default {
     appName: 'burkmak',
     navHome: 'Главная',
     navLogin: 'Войти',
+    navSettings: 'Настройки',
     navSignOut: 'Выйти',
+    toggleTheme: 'Переключить тему',
   },
 } as const;
