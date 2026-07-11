@@ -114,6 +114,8 @@ model Item {
   tags          ItemTag[]
   article       Article?
   highlights    Highlight[]
+  koboEntitlement  KoboEntitlement?
+  koboReadingState KoboReadingState?
 
   @@index([userId, readState])
   @@index([userId, savedAt])
@@ -133,6 +135,38 @@ model Article {
   item           Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@map("article")
+}
+
+// One row per (item ever emitted to a Kobo device). Existence = "already
+// synced" (Calibre-Web's KoboSyncedBooks design); the uuid is the stable
+// entitlement/RevisionId the device knows the book by. itemId goes NULL when
+// the item is deleted — the orphan row emits one IsRemoved delta, then is
+// purged by the sync service.
+model KoboEntitlement {
+  uuid      String   @id @default(uuid())
+  itemId    String?  @unique
+  userId    String
+  createdAt DateTime @default(now())
+  item      Item?    @relation(fields: [itemId], references: [id], onDelete: SetNull)
+
+  @@map("kobo_entitlement")
+}
+
+// Device-reported reading state, stored verbatim (JSON strings) so the device
+// round-trips its own bookmark/statistics exactly. lastModified drives the
+// ChangedReadingState delta in /v1/library/sync.
+model KoboReadingState {
+  itemId            String   @id
+  userId            String
+  statusInfo        String // JSON — {"Status": "Reading" | "Finished" | "ReadyToRead", ...}
+  statistics        String? // JSON
+  currentBookmark   String? // JSON
+  priorityTimestamp DateTime @default(now())
+  createdAt         DateTime @default(now())
+  lastModified      DateTime @updatedAt
+  item              Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("kobo_reading_state")
 }
 
 model Highlight {
