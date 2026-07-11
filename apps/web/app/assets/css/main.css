@@ -6,6 +6,7 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 @import "./tokens.generated.css";
+@import "@app/ui/theme.css";
 
 @theme inline {
   /* Semantic surfaces */
@@ -66,14 +67,4 @@
   --shadow-focus: var(--shadow-focus);
 }
 
-:root {
-  color-scheme: light dark;
-}
-
-html[data-theme='light'] {
-  color-scheme: light;
-}
-
-html[data-theme='dark'] {
-  color-scheme: dark;
-}
+/* Highlight tokens + color-scheme rules come from @app/ui/theme.css above. */
