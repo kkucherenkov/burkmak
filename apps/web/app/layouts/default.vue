@@ -1,15 +1,25 @@
 <script setup lang="ts">
+  import { AppThemeToggle } from '@app/ui';
   import { computed } from 'vue';
 
   const { t } = useI18n();
   const route = useRoute();
   const auth = useAuth();
   const session = auth.useSession();
+  const colorMode = useColorMode();
 
   const isAuthenticated = computed(() => !!session.value.data);
 
   const NO_PAD_ROUTES = new Set(['/sign-in', '/sign-up']);
   const isNoPad = computed(() => NO_PAD_ROUTES.has(route.path));
+
+  const resolvedMode = computed<'light' | 'dark'>(() =>
+    colorMode.value === 'dark' ? 'dark' : 'light',
+  );
+
+  function onToggleTheme(): void {
+    colorMode.preference = resolvedMode.value === 'dark' ? 'light' : 'dark';
+  }
 
   async function onSignOut(): Promise<void> {
     await auth.signOut();
@@ -44,9 +54,25 @@
             </NuxtLink>
           </li>
           <li v-if="isAuthenticated" class="default-layout__nav-item">
+            <NuxtLink
+              to="/settings"
+              class="default-layout__nav-link"
+              :class="{ 'default-layout__nav-link--active': route.path === '/settings' }"
+            >
+              {{ t('nav.navSettings') }}
+            </NuxtLink>
+          </li>
+          <li v-if="isAuthenticated" class="default-layout__nav-item">
             <button type="button" class="default-layout__nav-link" @click="onSignOut">
               {{ t('nav.navSignOut') }}
             </button>
+          </li>
+          <li class="default-layout__nav-item">
+            <AppThemeToggle
+              :mode="resolvedMode"
+              :label="t('nav.toggleTheme')"
+              @toggle="onToggleTheme"
+            />
           </li>
         </ul>
       </nav>
