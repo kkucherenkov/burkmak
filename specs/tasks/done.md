@@ -2,6 +2,37 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-07-11-003 — Kobo native sync (store-API emulation)
+
+- Created: 2026-07-11
+- Completed: 2026-07-11
+- Owner: claude
+- Spec: [specs/features/2026-07-11-kobo-native-sync.md](../features/2026-07-11-kobo-native-sync.md)
+- Plan: [specs/features/2026-07-11-kobo-native-sync.plan.md](../features/2026-07-11-kobo-native-sync.plan.md)
+- Result: merged to `main` via `--no-ff` as `832559d` (2 commits `b4d367d`, `f42d3e3`); branch deleted.
+- Delivered: `/api/v1/kobo/:token/*` store mount (PAT in path — Nickel can't send auth headers): auth stubs, initialization Resources rewrite, library/sync delta engine (KoboEntitlement table for "new" detection, x-kobo-synctoken timestamps, IsRemoved tombstones, continuation at 100), metadata, KEPUB download, cover route, DELETE→archive, reading-state GET/PUT with write-back (Finished→read, ReadyToRead→unread), catch-all `{}` (no store proxy). KoboEntitlement + KoboReadingState models (hand-written migration — FTS5 drift blocks migrate dev). 36 new units (202 backend total).
+- Verified: curl device simulation end-to-end (init → sync → download → PUT Finished → readState flipped → delta re-sync → archive → IsRemoved → 401). **On-device check on a physical Kobo still pending** — documented ceiling; needs HTTPS in front of the API.
+
+## T-2026-07-11-002 — Kobo OPDS polish: covers, pagination, search
+
+- Created: 2026-07-11
+- Completed: 2026-07-11
+- Owner: claude
+- Spec: [specs/features/2026-07-11-kobo-opds-polish.md](../features/2026-07-11-kobo-opds-polish.md)
+- Result: merged to `main` via `--no-ff` as `4369deb` (5 commits `0876528`→`bd6c173`); branch deleted.
+- Delivered: `Article.coverImageKey` (first cached content image, captured at extraction; hand-written migration), OPDS entries with image/thumbnail links (remote lead-image fallback), cursor pagination (page 50, rel=next/start), OpenSearch (`/opds/opensearch.xml` + rel=search, `q` filter). Clients regenerated (`84acb05`).
+- Verified: curl with real PAT — covers 200 image/png, q filter, KEPUB 165KB from a real Wikipedia article, bad cursor → first page, no auth → 401.
+
+## T-2026-07-11-001 — dark theme fixes + theme switcher in header + tag filter reset
+
+- Created: 2026-07-11
+- Completed: 2026-07-11
+- Owner: claude
+- Spec: —
+- Result: merged to `main` via `--no-ff` as `b4a6fa2` (5 commits `7efdad8`→`4f0edc9`); branch deleted.
+- Delivered: AppChip primary soft/subtle/outline contrast fix (--brand-accent-fg misuse → dark-on-dark in dark AND white-on-peach in light), shared `@app/ui/theme.css` (highlight tokens with dark variants — previously Storybook-only, transparent in the app; class-keyed color-scheme rules), new AppThemeToggle (story+spec) in the layout header, Settings nav link, 3-way theme select on settings, AppFilterBar "All tags" reset option, en/ru keys, AppSelectOption moved to select-types.ts.
+- Verified: chromium e2e under forced dark/light — toggle, preference persistence over reload, tag filter 2→1→2 cards; 249 ui tests.
+
 ## T-2026-06-15-005 — Kobo Sync: OPDS catalog + EPUB/KEPUB (P4)
 
 - Created: 2026-06-15
