@@ -126,6 +126,9 @@ model Article {
   contentText    String
   wordCount      Int
   readingTimeMin Int
+  // Filename (<sha1>.<ext>) of the first cached content image — the OPDS
+  // cover. Null when the article has no cached images.
+  coverImageKey  String?
   extractedAt    DateTime @default(now())
   item           Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
 

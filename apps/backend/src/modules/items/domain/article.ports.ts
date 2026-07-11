@@ -24,6 +24,8 @@ export interface ArticleUpsertData {
   contentText: string;
   wordCount: number;
   readingTimeMin: number;
+  /** Filename of the first cached content image (OPDS cover); null when none. */
+  coverImageKey: string | null;
 }
 
 // ── Port interfaces ───────────────────────────────────────────────────────────
@@ -36,6 +38,11 @@ export interface IArticleRepo {
    * owned by that user.
    */
   findByItem(userId: string, itemId: string): Promise<ItemArticle | null>;
+  /**
+   * Bulk cover lookup for the OPDS feed: itemId → coverImageKey for the given
+   * user-owned items. Items without a cover are omitted from the map.
+   */
+  findCoverKeys(userId: string, itemIds: string[]): Promise<Map<string, string>>;
 }
 
 export interface IArticleExtractor {

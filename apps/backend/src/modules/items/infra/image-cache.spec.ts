@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractImgSrcs, resolveUrl, sha1 } from './image-cache';
+import { extractImgSrcs, firstCachedImageKey, resolveUrl, sha1 } from './image-cache';
 
 describe('extractImgSrcs', () => {
   it('extracts src attributes from img tags', () => {
@@ -15,6 +15,29 @@ describe('extractImgSrcs', () => {
 
   it('returns empty array when no img tags', () => {
     expect(extractImgSrcs('<p>no images here</p>')).toEqual([]);
+  });
+});
+
+describe('firstCachedImageKey', () => {
+  it('returns the first locally-cached image filename in content order', () => {
+    const html =
+      '<img src="https://ex.com/remote.jpg"/>' +
+      '<img src="/api/v1/items/it1/image/aaa.webp"/>' +
+      '<img src="/api/v1/items/it1/image/bbb.png"/>';
+    expect(firstCachedImageKey(html, 'it1')).toBe('aaa.webp');
+  });
+
+  it('ignores cached images belonging to other items', () => {
+    const html = '<img src="/api/v1/items/OTHER/image/aaa.jpg"/>';
+    expect(firstCachedImageKey(html, 'it1')).toBeNull();
+  });
+
+  it('returns null when only remote images remain', () => {
+    expect(firstCachedImageKey('<img src="https://ex.com/a.jpg"/>', 'it1')).toBeNull();
+  });
+
+  it('returns null for imageless HTML', () => {
+    expect(firstCachedImageKey('<p>text</p>', 'it1')).toBeNull();
   });
 });
 

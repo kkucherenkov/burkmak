@@ -84,6 +84,22 @@ export function extractImgSrcs(html: string): string[] {
   return [...new Set(srcs)]; // deduplicate
 }
 
+/**
+ * First locally-cached image filename (`<sha1>.<ext>`) referenced by the
+ * rewritten article HTML, in content order — used as the OPDS cover. Returns
+ * null when no image was cached for this item.
+ */
+export function firstCachedImageKey(html: string, itemId: string): string | null {
+  const prefix = `/api/v1/items/${itemId}/image/`;
+  for (const src of extractImgSrcs(html)) {
+    if (src.startsWith(prefix)) {
+      const key = src.slice(prefix.length);
+      if (key.length > 0) return key;
+    }
+  }
+  return null;
+}
+
 /** Resolve a potentially-relative URL against a base. Returns null if invalid. */
 export function resolveUrl(src: string, base: string): string | null {
   if (src.startsWith('data:')) return null; // skip inline data URIs

@@ -15,6 +15,25 @@ export class ArticleRepo implements IArticleRepo {
     });
   }
 
+  async findCoverKeys(userId: string, itemIds: string[]): Promise<Map<string, string>> {
+    if (itemIds.length === 0) return new Map();
+
+    const rows = await this.prisma.article.findMany({
+      where: {
+        itemId: { in: itemIds },
+        coverImageKey: { not: null },
+        item: { userId }, // ownership: join item and enforce userId
+      },
+      select: { itemId: true, coverImageKey: true },
+    });
+
+    const map = new Map<string, string>();
+    for (const row of rows) {
+      if (row.coverImageKey !== null) map.set(row.itemId, row.coverImageKey);
+    }
+    return map;
+  }
+
   async findByItem(userId: string, itemId: string): Promise<ItemArticle | null> {
     const article = await this.prisma.article.findFirst({
       where: {
