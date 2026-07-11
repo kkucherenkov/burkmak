@@ -1,10 +1,7 @@
 <script lang="ts">
-  /** A single choice rendered inside the dropdown. */
-  export interface AppSelectOption {
-    id: string;
-    label: string;
-    disabled?: boolean;
-  }
+  // Lives in select-types.ts so type-aware tooling can consume it without
+  // resolving a .vue module; re-exported here for existing import sites.
+  export type { AppSelectOption } from './select-types';
 
   // Opt out of the default root-level $attrs merge so id / aria-* attrs from a
   // parent (e.g. AppField's slot props) land on the inner <select> — that's
@@ -14,6 +11,8 @@
 
 <script setup lang="ts">
   import { computed, useAttrs } from 'vue';
+
+  import type { AppSelectOption } from './select-types';
 
   type Size = 'sm' | 'md' | 'lg';
 

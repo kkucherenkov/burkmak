@@ -45,4 +45,20 @@ describe('AppFilterBar', () => {
     await w.find('select').setValue('rust');
     expect(w.emitted('update:tag')?.[0]).toEqual(['rust']);
   });
+  it('renders "All tags" as the first, selectable option', () => {
+    const w = mount(AppFilterBar, { global, props: base });
+    const first = w.find('select option');
+    expect(first.text()).toBe(labels.allTags);
+    expect(first.attributes('disabled')).toBeUndefined();
+  });
+  it('shows "All tags" selected when tag is null', () => {
+    const w = mount(AppFilterBar, { global, props: base });
+    const select = w.find('select').element as HTMLSelectElement;
+    expect(select.selectedIndex).toBe(0);
+  });
+  it('emits update:tag null when "All tags" is picked', async () => {
+    const w = mount(AppFilterBar, { global, props: { ...base, tag: 'rust' } });
+    await w.find('select').setValue('__all__');
+    expect(w.emitted('update:tag')?.[0]).toEqual([null]);
+  });
 });
