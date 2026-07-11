@@ -22,11 +22,13 @@ import { buildOpdsFeed } from './infra/opds.feed';
 
 /** Convert a title to a URL/filename-safe slug. */
 function slugify(title: string): string {
-  return title
-    .toLowerCase()
-    .replaceAll(/[^a-z0-9]+/g, '-')
-    .replaceAll(/^-|-$/g, '')
-    .slice(0, 80) || 'article';
+  return (
+    title
+      .toLowerCase()
+      .replaceAll(/[^a-z0-9]+/g, '-')
+      .replaceAll(/^-|-$/g, '')
+      .slice(0, 80) || 'article'
+  );
 }
 
 @Controller({ version: '1' })
