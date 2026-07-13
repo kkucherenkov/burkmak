@@ -2,6 +2,16 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-07-14-003 — image-route containment vs untainted root (alerts #11/#12 follow-up)
+
+- Created: 2026-07-14
+- Completed: 2026-07-14
+- Owner: claude
+- Spec: — (CodeQL js/path-injection #11/#12 survived PR #12's main analysis)
+- Result: merged via [PR #13](https://github.com/kkucherenkov/burkmak/pull/13) (merge commit `e9770cf`, 1 commit `6004383`); branch deleted. Post-merge main CodeQL analysis: **0 open alerts** — the repo's code-scanning page is fully clean.
+- Delivered: image route containment now resolves against the constant images root (`startsWith(imagesRoot + sep)`) instead of a per-item dir built from the tainted id — the old check was self-referential (a traversal id relocated the base dir too); CodeQL was right to keep the alerts open. Same barrier shape that closed the `loadImages`/`EpubCache` alerts. `assertSafeItemId` remains the primary gate.
+- Verified: backend 216/216, typecheck clean; PR CI 8/8 green; main CodeQL run closed #11/#12.
+
 ## T-2026-07-14-002 — CodeQL code-scanning remediation (16 alerts)
 
 - Created: 2026-07-14
