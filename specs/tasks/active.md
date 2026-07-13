@@ -9,9 +9,9 @@
 - Spec diff: none (docs + assets only)
 - Codegen impact: no
 - Sub-steps:
-  - [ ] capture 4 real app screenshots (library, reader+highlight, save, library-dark)
-  - [ ] README content refresh (status, features, roadmap P6, mermaid, screenshots grid)
-  - [ ] relative-link check + format
-  - [ ] delete merged stale branches
+  - [x] capture 4 real app screenshots (library, reader+highlight, save, library-dark)
+  - [x] README content refresh (status, features, roadmap P6, mermaid, screenshots grid)
+  - [x] relative-link check + format
+  - [x] delete merged stale branches
 - Status: in-progress
 - Blockers: —
