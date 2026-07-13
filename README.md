@@ -9,23 +9,23 @@ roadmap up: **native Kobo sync** and **Obsidian export**. It runs on a small
 stack — NestJS + SQLite + Nuxt + Flutter — so a single binary-shaped deployment
 serves the web app, the mobile app, and your e-reader.
 
-> Status: **P1–P5 shipped** (save/organise, extraction/reader/highlights/
-> full-text search, capture surfaces, **Kobo via OPDS + EPUB/KEPUB**, and
-> **Obsidian export API + plugin**). Native Kobo store-protocol sync is a
-> documented fast-follow. See the [roadmap](#roadmap).
+> Status: **P1–P6 shipped** — save/organise, extraction/reader/highlights/
+> full-text search, capture surfaces, Kobo (OPDS **and native store-protocol
+> sync with reading-state write-back**), Obsidian export, dark theme, and
+> **auto-extraction on save**. One honest ceiling remains: native sync is
+> verified against a full protocol simulation, with the physical-device pass
+> still pending (needs HTTPS in front). See the [roadmap](#roadmap).
 
 ## Screenshots
 
-|                                                                     |                                                                                      |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| **Welcome**                                                         | **Library**                                                                          |
-| ![Welcome](assets/screenshots/welcome.png)                          | ![Library — saved items, filters, tags, live status](assets/screenshots/library.png) |
-| **Reader**                                                          | **Save a link**                                                                      |
-| ![Clean reader view with highlights](assets/screenshots/reader.png) | ![Quick save](assets/screenshots/save.png)                                           |
+|                                                                                 |                                                                     |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **Library**                                                                     | **Reader**                                                          |
+| ![Library — saved items, filters, tags, covers](assets/screenshots/library.png) | ![Clean reader view with highlights](assets/screenshots/reader.png) |
+| **Save from anywhere**                                                          | **Dark theme**                                                      |
+| ![Quick save via the /save capture page](assets/screenshots/save.png)           | ![Library in dark mode](assets/screenshots/library-dark.png)        |
 
-<sub>Screens rendered from the design mockups in
-[`specs/design/mockups/`](specs/design/mockups) — the visual contract the
-shipped UI implements.</sub>
+<sub>Live screenshots of the running app (seeded demo library).</sub>
 
 ## Features
 
@@ -35,14 +35,19 @@ shipped UI implements.</sub>
   bookmarklet — every surface hits the same `POST /items`.
 - Live metadata: title, site, excerpt, favicon and lead image fill in **without
   a refresh**, pushed over Server-Sent Events as a background job resolves them.
+- **Auto-extraction on save** — every saved article is extracted in the
+  background automatically, so the reader view, OPDS feed, and Kobo sync are
+  ready without another tap (pre-existing libraries are backfilled once).
 - Tags, read-state (`unread` / `read` / `archived`), and favorites.
 - Filtered, searchable list. **Per-user libraries** — you never see another
   user's data.
+- **Light & dark themes** — a one-tap toggle in the header plus a
+  system/light/dark preference in Settings.
 
 ### Read & highlight — _shipped (S2)_
 
-- **On-demand full-article extraction** (Readability + sanitisation) into a
-  clean, ad-free reader view — kept even if the original goes dark.
+- **Automatic full-article extraction** (Readability + sanitisation) into a
+  clean, ad-free reader view — kept even if the original goes dark. A manual re-extract button covers pages that need a retry.
 - Locally-cached article images (SSRF-guarded), served from your own server.
 - **Full-text search (SQLite FTS5)** across title, URL, **and** article body —
   same search box, now matches the text inside your saved pieces.
@@ -60,11 +65,21 @@ shipped UI implements.</sub>
 
 ### Sync & export — _shipped (S4 · S5)_
 
-- **Kobo sync** (S4): a built-in **OPDS catalog** (`GET /api/v1/opds`) +
-  **EPUB/KEPUB** generation from extracted articles (`GET /api/v1/items/{id}/epub`).
-  Add it on a stock Kobo via Settings → "Add an OPDS catalog" — no firmware
-  hacking. _Native Kobo store-protocol sync + read-state sync-back is a documented
-  fast-follow (needs a physical device to verify)._
+- **Kobo sync** (S4 + P6) — two tiers, both served straight from your library,
+  no firmware hacking:
+  - **OPDS catalog** (`GET /api/v1/opds`) with covers, cursor pagination, and
+    OpenSearch, plus EPUB/KEPUB generation
+    (`GET /api/v1/items/{id}/epub`). Add it on a stock Kobo via Settings →
+    "Add an OPDS catalog".
+  - **Native store-protocol sync** (`/api/v1/kobo/{token}/*` — the token
+    rides in the URL path because the Kobo's browser can't send auth
+    headers): the device pulls new articles automatically on connect, and
+    reading state writes back (finish a piece on the Kobo → it's `read` in
+    burkmak; archive in the app → it disappears from the device). Point
+    `api_endpoint` in `Kobo eReader.conf` at
+    `https://<your-host>/api/v1/kobo/<PAT>` — HTTPS required by the device.
+    _Verified against a full store-protocol simulation; the physical-device
+    pass is the one remaining ceiling._
 - **Obsidian export** (S5): a markdown **export API** (one note per article —
   source, metadata, highlights, notes; idempotent via a `burkmakId` frontmatter
   key) + an **[Obsidian plugin](packages/obsidian-plugin)** that syncs it into
@@ -74,17 +89,18 @@ shipped UI implements.</sub>
 
 ## Roadmap
 
-Phase order: **S0 → S1 → S2**, then **S3 / S4 / S5** in parallel. Each phase is
+Phase order: **S0 → S1 → S2**, then **S3 / S4 / S5** in parallel, then a **P6** polish wave. Each phase is
 one spec → plan → build cycle. Full detail in [`specs/roadmap.md`](specs/roadmap.md)
 and the requirements in [`specs/PRD.md`](specs/PRD.md).
 
-| Phase  | Subsystem | Ships                                                             | Status     |
-| ------ | --------- | ----------------------------------------------------------------- | ---------- |
-| **P1** | S0 + S1   | Foundation (SQLite, jobs + SSE spine) and core library            | ✅ shipped |
-| **P2** | S2        | Article extraction, reader view, FTS5 body search, highlights     | ✅ shipped |
-| **P3** | S3        | Android share-sheet capture, browser bookmarklet                  | ✅ shipped |
-| **P4** | S4        | OPDS catalog + EPUB/KEPUB download (native store sync: follow-up) | ✅ shipped |
-| **P5** | S5        | Obsidian export API + Obsidian plugin                             | ✅ shipped |
+| Phase  | Subsystem | Ships                                                                                                                         | Status     |
+| ------ | --------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| **P1** | S0 + S1   | Foundation (SQLite, jobs + SSE spine) and core library                                                                        | ✅ shipped |
+| **P2** | S2        | Article extraction, reader view, FTS5 body search, highlights                                                                 | ✅ shipped |
+| **P3** | S3        | Android share-sheet capture, browser bookmarklet                                                                              | ✅ shipped |
+| **P4** | S4        | OPDS catalog + EPUB/KEPUB download                                                                                            | ✅ shipped |
+| **P5** | S5        | Obsidian export API + Obsidian plugin                                                                                         | ✅ shipped |
+| **P6** | polish    | Native Kobo store sync + read-state write-back · OPDS covers/pagination/search · dark theme + switcher · auto-extract on save | ✅ shipped |
 
 ## Architecture
 
@@ -93,6 +109,7 @@ flowchart LR
   subgraph clients[" "]
     web["web<br/><sub>Nuxt 4 SPA · :3001</sub>"]
     mobile["mobile<br/><sub>Flutter 3.41</sub>"]
+    kobo["Kobo e-reader<br/><sub>stock device</sub>"]
   end
 
   subgraph backend_group["apps/backend · :3000/api/v1"]
@@ -107,6 +124,7 @@ flowchart LR
 
   web -->|"@app/api-client-ts"| api
   mobile -->|"app_api_client (dart)"| api
+  kobo -->|"OPDS + Kobo store API"| api
   api --> sqlite
   api --> jobs
   jobs --> sqlite
