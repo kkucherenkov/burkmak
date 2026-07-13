@@ -9,7 +9,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Owner: claude
 - Spec: [specs/features/2026-07-13-auto-extract-shelves-bookmarks.design.md](../features/2026-07-13-auto-extract-shelves-bookmarks.design.md) (slice ①)
 - Plan: [specs/features/2026-07-13-auto-extract-on-save.plan.md](../features/2026-07-13-auto-extract-on-save.plan.md)
-- Result: merged to `main` via `--no-ff` as `55221fa` (11 commits `fc06d60`→`643a0f2`); branch deleted.
+- Result: merged to `main` via `--no-ff` as `acc2f3d` (11 commits `412b10c`→`3f7b327`); branch deleted.
 - Delivered: `FetchMetadataHandler` chains `extract_article` after metadata success (guard `extractStatus === 'none'`; chain failure logs + reverts to `none` instead of riding the metadata catch into a bogus `failed`), one-shot `ExtractBackfillService` in `extract-backfill.bootstrap.ts` (marker = completed `extract_backfill` Job row; errors swallowed so boot never fails; `*.bootstrap.ts` suffix keeps the modules/\*\*/\*.service.ts Prisma DI rule intact — no eslint-disable). No wire change. 6 new units (209 backend total).
 - Verified live: backfill enqueued 2 pre-existing items (`none→ready`), marker singleton, second boot silent; fresh save `none→ready` in ~3s with `/extract` never called ("How to Do Great Work" extracted). Slices ② (Item.kind bookmarks) and ③ (shelves + Kobo collections) remain in the design doc.
 
@@ -20,7 +20,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Owner: claude
 - Spec: [specs/features/2026-07-11-kobo-native-sync.md](../features/2026-07-11-kobo-native-sync.md)
 - Plan: [specs/features/2026-07-11-kobo-native-sync.plan.md](../features/2026-07-11-kobo-native-sync.plan.md)
-- Result: merged to `main` via `--no-ff` as `832559d` (2 commits `b4d367d`, `f42d3e3`); branch deleted.
+- Result: merged to `main` via `--no-ff` as `38c44ab` (2 commits `6774139`, `6bc18b3`); branch deleted.
 - Delivered: `/api/v1/kobo/:token/*` store mount (PAT in path — Nickel can't send auth headers): auth stubs, initialization Resources rewrite, library/sync delta engine (KoboEntitlement table for "new" detection, x-kobo-synctoken timestamps, IsRemoved tombstones, continuation at 100), metadata, KEPUB download, cover route, DELETE→archive, reading-state GET/PUT with write-back (Finished→read, ReadyToRead→unread), catch-all `{}` (no store proxy). KoboEntitlement + KoboReadingState models (hand-written migration — FTS5 drift blocks migrate dev). 36 new units (202 backend total).
 - Verified: curl device simulation end-to-end (init → sync → download → PUT Finished → readState flipped → delta re-sync → archive → IsRemoved → 401). **On-device check on a physical Kobo still pending** — documented ceiling; needs HTTPS in front of the API.
 
@@ -30,8 +30,8 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Completed: 2026-07-11
 - Owner: claude
 - Spec: [specs/features/2026-07-11-kobo-opds-polish.md](../features/2026-07-11-kobo-opds-polish.md)
-- Result: merged to `main` via `--no-ff` as `4369deb` (5 commits `0876528`→`bd6c173`); branch deleted.
-- Delivered: `Article.coverImageKey` (first cached content image, captured at extraction; hand-written migration), OPDS entries with image/thumbnail links (remote lead-image fallback), cursor pagination (page 50, rel=next/start), OpenSearch (`/opds/opensearch.xml` + rel=search, `q` filter). Clients regenerated (`84acb05`).
+- Result: merged to `main` via `--no-ff` as `a22543e` (5 commits `eb587d3`→`914a995`); branch deleted.
+- Delivered: `Article.coverImageKey` (first cached content image, captured at extraction; hand-written migration), OPDS entries with image/thumbnail links (remote lead-image fallback), cursor pagination (page 50, rel=next/start), OpenSearch (`/opds/opensearch.xml` + rel=search, `q` filter). Clients regenerated (`645fad3`).
 - Verified: curl with real PAT — covers 200 image/png, q filter, KEPUB 165KB from a real Wikipedia article, bad cursor → first page, no auth → 401.
 
 ## T-2026-07-11-001 — dark theme fixes + theme switcher in header + tag filter reset
@@ -40,7 +40,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Completed: 2026-07-11
 - Owner: claude
 - Spec: —
-- Result: merged to `main` via `--no-ff` as `b4a6fa2` (5 commits `7efdad8`→`4f0edc9`); branch deleted.
+- Result: merged to `main` via `--no-ff` as `272b2af` (5 commits `9716f23`→`92e88ce`); branch deleted.
 - Delivered: AppChip primary soft/subtle/outline contrast fix (--brand-accent-fg misuse → dark-on-dark in dark AND white-on-peach in light), shared `@app/ui/theme.css` (highlight tokens with dark variants — previously Storybook-only, transparent in the app; class-keyed color-scheme rules), new AppThemeToggle (story+spec) in the layout header, Settings nav link, 3-way theme select on settings, AppFilterBar "All tags" reset option, en/ru keys, AppSelectOption moved to select-types.ts.
 - Verified: chromium e2e under forced dark/light — toggle, preference persistence over reload, tag filter 2→1→2 cards; 249 ui tests.
 
@@ -51,7 +51,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Owner: claude
 - Spec: [specs/features/2026-06-15-kobo-sync.md](../features/2026-06-15-kobo-sync.md)
 - Plan: [specs/features/2026-06-15-kobo.plan.md](../features/2026-06-15-kobo.plan.md)
-- Result: merged to `main` via `--no-ff` as `bbdafc7` (7 commits `9f0840b`→lint-fix); branch deleted. `app.module.ts` import-array conflict with the parallel obsidian-backend merge resolved (kept both `ExportModule` + `KoboModule`).
+- Result: merged to `main` via `--no-ff` as `c0d2088` (7 commits `c3bc2d2`→lint-fix); branch deleted. `app.module.ts` import-array conflict with the parallel obsidian-backend merge resolved (kept both `ExportModule` + `KoboModule`).
 - Delivered: `jszip` dep; pure `epub.builder.ts` (EPUB3, mimetype-first STORE, `urn:burkmak:<id>`, embedded images with rewritten `src`), `kepub.transform.ts` (Kobo span injection, idempotent), `opds.feed.ts` (OPDS 1.2 Atom, XML-escaped, valid empty feed), `epub.cache.ts` (disk cache `data/epub/<itemId>/<variant>-<extractedAt>.epub`), `build-epub.service.ts` (ownership → not_ready guard → cache → build); `KoboController` (`GET items/:id/epub` streams `application/epub+zip`, 404/409; `GET opds` atom-xml); `ItemsModule` exports `ITEM_REPO`/`ARTICLE_REPO`; `AppConfig.publicApiBaseUrl` getter (via ConfigService, not process.env). 9 unit tests.
 - Auth: shared `SessionGuard` (PAT Basic for OPDS) — no kobo-specific auth. Native Kobo store-API sync remains a documented fast-follow (device-unverifiable here).
 - Gates: backend lint + typecheck clean; `pnpm --filter @app/backend test` 159/159 on the merged tree (PAT + export + kobo).
@@ -63,7 +63,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Owner: claude
 - Spec: [specs/features/2026-06-15-obsidian-export.md](../features/2026-06-15-obsidian-export.md)
 - Plan: [specs/features/2026-06-15-obsidian-plugin.plan.md](../features/2026-06-15-obsidian-plugin.plan.md)
-- Result: merged to `main` via `--no-ff` (7 commits `10e8f2f`→`06d9686`); branch deleted. **Completes P5 (Obsidian export).**
+- Result: merged to `main` via `--no-ff` (7 commits `254c4fc`→`c779054`); branch deleted. **Completes P5 (Obsidian export).**
 - Delivered:
   - T1 — scaffold `packages/obsidian-plugin`: package.json, manifest.json, tsconfig.json, esbuild.config.mjs, vitest.config.ts, eslint.config.mjs, .gitignore (workspace globs `packages/*`).
   - T2 — `src/lib/export-url.ts` (`buildExportUrl` trims slash, appends `/export/markdown`, params only when set); 2 TDD tests.
@@ -82,7 +82,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Owner: claude
 - Spec: [specs/features/2026-06-15-obsidian-export.md](../features/2026-06-15-obsidian-export.md)
 - Plan: [specs/features/2026-06-15-obsidian-backend.plan.md](../features/2026-06-15-obsidian-backend.plan.md)
-- Result: merged to `main` via `--no-ff` as `b296510` (4 feature commits `e8884fd`→`afa6bfa`); branch deleted.
+- Result: merged to `main` via `--no-ff` as `716315d` (4 feature commits `c0ffdf4`→`4a3f5d7`); branch deleted.
 - Delivered:
   - T1 (`feat(backend): export filename slug (obsidian-backend)`) — `slugify.ts`: lowercase, collapse non-alnum runs to `-`, trim, append `-<id>.md`; fallback to `<id>.md` when title null/empty. 3 TDD unit tests.
   - T2 (`feat(backend): obsidian markdown renderer (obsidian-backend)`) — `render-note.ts`: YAML frontmatter (`burkmakId`, `title`, `url`, `canonicalUrl`?, `source`?, `savedAt`, `readingTimeMin`?, `tags`?), body H1 + metadata line + `## Highlights` blockquotes with notes; YAML-special title quoting; null siteName/readingTime omitted cleanly. 3 TDD tests (6 assertions).
@@ -98,8 +98,8 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Owner: claude
 - Spec: [specs/features/2026-06-15-personal-access-tokens.md](../features/2026-06-15-personal-access-tokens.md)
 - Plan: [specs/features/2026-06-15-pat.plan.md](../features/2026-06-15-pat.plan.md)
-- Result: merged to `main` via `--no-ff` as `e5979a2` (7 commits `523a94b`→`21498bf`); branch deleted. Shared enabler — unblocks P4 (Kobo OPDS, Basic auth) + P5 (Obsidian plugin, Bearer auth).
-- Delivered (web, Task 6, `21498bf`): `useApi` create/list/revokeToken; `app/utils/token-view.ts` (formatLastUsed, tokenRows) + 7 TDD specs; `settings.vue` Personal-access-tokens card (create / copy-once / revoke); `settings.tokens.*` i18n (en+ru). Gates: web 31 tests, container typecheck + nuxt build, lint, stylelint, format ✓.
+- Result: merged to `main` via `--no-ff` as `be787ed` (7 commits `9df340b`→`8cb5a7d`); branch deleted. Shared enabler — unblocks P4 (Kobo OPDS, Basic auth) + P5 (Obsidian plugin, Bearer auth).
+- Delivered (web, Task 6, `8cb5a7d`): `useApi` create/list/revokeToken; `app/utils/token-view.ts` (formatLastUsed, tokenRows) + 7 TDD specs; `settings.vue` Personal-access-tokens card (create / copy-once / revoke); `settings.tokens.*` i18n (en+ru). Gates: web 31 tests, container typecheck + nuxt build, lint, stylelint, format ✓.
 - Delivered (backend, Tasks 1–5):
   - T1 (`feat(backend): PersonalAccessToken model + migration (pat)`) — `PersonalAccessToken` Prisma model + `User.personalAccessTokens` back-relation; migration `20260615101952_personal_access_tokens`; verified with `prisma migrate diff` (empty diff); `prisma generate` + typecheck green. WAL lock from running container required offline diff fallback.
   - T2 (`feat(backend): PAT token crypto (pat)`) — `pat.crypto.ts`: `PAT_PREFIX`, `hashToken`, `generateToken` (sha256, base64url, prefix slice); 2 unit tests TDD.
@@ -115,19 +115,19 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Completed: 2026-06-15
 - Owner: claude
 - Spec: [specs/features/2026-06-15-s3-mobile.plan.md](../features/2026-06-15-s3-mobile.plan.md)
-- Result: merged to `main` via `--no-ff` as `652c912` (11 feature commits `22fddaa`→`95aa251`); branch deleted.
+- Result: merged to `main` via `--no-ff` as `f88cc3c` (11 feature commits `eae1dad`→`09d2b81`); branch deleted.
 - Delivered:
-  - Task 1 (`22fddaa`) — `flutter create --platforms=android,ios` scaffolds `android/` + `ios/` inside `apps/mobile`; existing `lib/` untouched, package name stays `app_mobile`.
-  - Task 2 (`c0ff7bd`) — `share_url_parser.dart` (`extractFirstUrl`) with TDD: 4 tests green.
-  - Task 3 (`1f60314`) — `PendingShareStore` (single-slot consume-once) + `appNavigatorKey` (`GlobalKey<NavigatorState>`).
-  - Task 4 (`6e97344`) — `receive_sharing_intent 1.8.1` added; API matches plan exactly (`getInitialMedia`/`getMediaStream`/`SharedMediaFile.path`).
-  - Task 5 (`1c7ad3d`) — `quickSave_{en,el,ru,uk}.i18n.json` source files; `dart run slang` regenerates gitignored `strings.g.dart` with `context.t.quickSave.*` accessors.
-  - Task 6 (`ff5431f`) — `QuickSaveScreen` reuses `AddLinkCubit`, auto-fires `save(url)` on init, handles idle/saving/saved/error states with retry + open-library actions.
-  - Task 7 (`1b0bee6`) — `AppRoutes.quickSave = '/quick-save'` + route handler in `onGenerateRoute`.
-  - Task 8 (`217f7e8`) — `ShareIntentService` (listens cold-start + warm stream, routes to quickSave or PendingShareStore by token presence); `PendingShareStore` + `ShareIntentService` registered as lazy singletons in DI.
-  - Task 9 (`faf10d6`) — `App` converted to `StatefulWidget`; `navigatorKey: appNavigatorKey` on `MaterialApp`; `ShareIntentService.start()` called `addPostFrameCallback`; `AuthGate` authenticated branch consumes `PendingShareStore.take()` post-frame and pushes quick-save if URL held.
-  - Task 10 (`e53082f`) — `ACTION_SEND text/*` intent-filter added to `AndroidManifest.xml` (per receive_sharing_intent README; `text/*` not `text/plain` to match lib guidance).
-  - Task 11 (`95aa251`) — `dart format` cleanup; final `flutter analyze` 0 issues; `flutter test` 30/30 green.
+  - Task 1 (`eae1dad`) — `flutter create --platforms=android,ios` scaffolds `android/` + `ios/` inside `apps/mobile`; existing `lib/` untouched, package name stays `app_mobile`.
+  - Task 2 (`7e56ccd`) — `share_url_parser.dart` (`extractFirstUrl`) with TDD: 4 tests green.
+  - Task 3 (`8cac176`) — `PendingShareStore` (single-slot consume-once) + `appNavigatorKey` (`GlobalKey<NavigatorState>`).
+  - Task 4 (`4cd0e72`) — `receive_sharing_intent 1.8.1` added; API matches plan exactly (`getInitialMedia`/`getMediaStream`/`SharedMediaFile.path`).
+  - Task 5 (`5e60113`) — `quickSave_{en,el,ru,uk}.i18n.json` source files; `dart run slang` regenerates gitignored `strings.g.dart` with `context.t.quickSave.*` accessors.
+  - Task 6 (`4de3af4`) — `QuickSaveScreen` reuses `AddLinkCubit`, auto-fires `save(url)` on init, handles idle/saving/saved/error states with retry + open-library actions.
+  - Task 7 (`af7ac80`) — `AppRoutes.quickSave = '/quick-save'` + route handler in `onGenerateRoute`.
+  - Task 8 (`9349ad6`) — `ShareIntentService` (listens cold-start + warm stream, routes to quickSave or PendingShareStore by token presence); `PendingShareStore` + `ShareIntentService` registered as lazy singletons in DI.
+  - Task 9 (`365e191`) — `App` converted to `StatefulWidget`; `navigatorKey: appNavigatorKey` on `MaterialApp`; `ShareIntentService.start()` called `addPostFrameCallback`; `AuthGate` authenticated branch consumes `PendingShareStore.take()` post-frame and pushes quick-save if URL held.
+  - Task 10 (`e88ccd1`) — `ACTION_SEND text/*` intent-filter added to `AndroidManifest.xml` (per receive_sharing_intent README; `text/*` not `text/plain` to match lib guidance).
+  - Task 11 (`09d2b81`) — `dart format` cleanup; final `flutter analyze` 0 issues; `flutter test` 30/30 green.
 - Verification: `flutter analyze` — `No issues found!`; `flutter test` — `+30: All tests passed!`; android/ + ios/ tracked in git; `strings.g.dart` and `strings_*.g.dart` NOT committed (gitignored by root `.gitignore` lines 73-74).
 
 ## T-2026-06-15-001 — S3-web: Bookmarklet & /save Popup
@@ -135,7 +135,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-15
 - Completed: 2026-06-15
 - Owner: claude
-- Result: merged to `main` via `--no-ff` as `c5cd9d7` (6 feature commits); branch deleted.
+- Result: merged to `main` via `--no-ff` as `238d547` (6 feature commits); branch deleted.
 - Spec: [specs/features/2026-06-15-s3-web.plan.md](../features/2026-06-15-s3-web.plan.md)
 - Delivered:
   - Task 1: `app/utils/bookmarklet.ts` + 3 unit tests (buildSaveUrl, buildBookmarkletHref)
@@ -151,12 +151,12 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (`--no-ff` merge `17265b1`, branch `chore/s2-web-followups`, 4 commits `b8928fc`→`6fa5c6e`). Cleanup — follow-ups carried from T-014 + the S2-web Task-4 review.
+- Result: merged locally to `main` (`--no-ff` merge `0a8cceb`, branch `chore/s2-web-followups`, 4 commits `61ad01e`→`7ed1395`). Cleanup — follow-ups carried from T-014 + the S2-web Task-4 review.
 - Spec: none.
 - Delivered:
-  - **A** (`325b9c9`) — `@app/ui` highlight types (`AppHighlightColor`/`AppHighlightData`/`AppHighlightCardHighlight`) moved out of `.vue` SFCs into `AppArticleReader/highlight-types.ts`; package barrel + components + stories/specs all import from it. The web reader page now imports these from `@app/ui` directly and the OpenAPI-derived workaround shapes/comment are gone. Retires the cross-package `.vue` type-import trap (typescript-eslint `projectService` resolved `.vue` type exports to `error`).
-  - **B** (`a0779a0`) — closed the latent library-Sass gap behind T-013: added a full `@app/ui` CI job (`design:build` → lint/typecheck/test/**build**/audit; `@app/ui` previously had only `audit:components` in CI), and made the documented gates include the library build (`CLAUDE.md` → `turbo run build lint test typecheck`; HANDOFF per-slice UI gate → `{build,test,typecheck,lint}`; `testing.md` PR checklist). Validated the full gate sequence locally.
-  - **C** (`6fa5c6e`) — reader UX polish: selection popover dismisses on outside-click (capture `pointerdown`, containment-guarded, symmetric `onMounted`/`onBeforeUnmount` cleanup); optimistic tag add/remove (new `useItems.addTag`/`removeTag` mirroring `toggleFavorite`, reconciled with the server item); failed actions surface a token-styled dismissible `role="alert"` error banner (`runAction` wrapper, `reader.actionFailed`/`reader.dismiss` en+ru); removed an unnecessary `as` cast.
+  - **A** (`1668b57`) — `@app/ui` highlight types (`AppHighlightColor`/`AppHighlightData`/`AppHighlightCardHighlight`) moved out of `.vue` SFCs into `AppArticleReader/highlight-types.ts`; package barrel + components + stories/specs all import from it. The web reader page now imports these from `@app/ui` directly and the OpenAPI-derived workaround shapes/comment are gone. Retires the cross-package `.vue` type-import trap (typescript-eslint `projectService` resolved `.vue` type exports to `error`).
+  - **B** (`8c91874`) — closed the latent library-Sass gap behind T-013: added a full `@app/ui` CI job (`design:build` → lint/typecheck/test/**build**/audit; `@app/ui` previously had only `audit:components` in CI), and made the documented gates include the library build (`CLAUDE.md` → `turbo run build lint test typecheck`; HANDOFF per-slice UI gate → `{build,test,typecheck,lint}`; `testing.md` PR checklist). Validated the full gate sequence locally.
+  - **C** (`7ed1395`) — reader UX polish: selection popover dismisses on outside-click (capture `pointerdown`, containment-guarded, symmetric `onMounted`/`onBeforeUnmount` cleanup); optimistic tag add/remove (new `useItems.addTag`/`removeTag` mirroring `toggleFavorite`, reconciled with the server item); failed actions surface a token-styled dismissible `role="alert"` error banner (`runAction` wrapper, `reader.actionFailed`/`reader.dismiss` en+ru); removed an unnecessary `as` cast.
 - Reviews: per-task verification + a consolidated final review (ready to merge — no Critical/Important/Minor).
 - Verification: `@app/ui` `design:build` → lint/typecheck/**242 tests**/build/audit green; web container `vue-tsc` typecheck, host **17/17**, production `nuxt build` green.
 
@@ -165,7 +165,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (`--no-ff` merge `3531f94`, branch `feat/s2-web`, 7 commits `404446f`→`342147f`). **Completes S2 (P2 Extraction & Reading) — all five slices shipped.**
+- Result: merged locally to `main` (`--no-ff` merge `1d1ea8c`, branch `feat/s2-web`, 7 commits `642c0bf`→`b8c8c5d`). **Completes S2 (P2 Extraction & Reading) — all five slices shipped.**
 - Spec: [specs/features/2026-06-14-s2-extraction-and-reading.md](../features/2026-06-14-s2-extraction-and-reading.md) · Plan: [specs/features/2026-06-14-s2-web.plan.md](../features/2026-06-14-s2-web.plan.md)
 - Delivered: `/items/[id]` is now a full web reader. `useApi` article+highlight methods (over `@app/specs` types); `useArticle` (article + extractStatus state, SSE-decoupled — page feeds `syncStatus`, in-flight guard against double-fetch) + `useHighlights` (CRUD, optimistic remove) composables; page rewrite composing the four shipped `@app/ui` composites (`AppExtractState`, `AppArticleReader`, `AppHighlightPopover`, `AppHighlightCard`) with live `extracting→ready` over the existing `useItems`+`useEvents` SSE rail, selection popover positioned from the live `Selection` rect via a `:style` CSS-var binding, cross-origin image-src rewrite, note add/edit/clear (PATCH `note:null`), `reader`/`highlight` i18n (en/ru). Metadata controls re-routed through the shared store.
 - Reviews: per-task spec-compliance ✅ + code-quality ✅ (Tasks 1–4), final holistic review ✅ "ready to merge". Code-review fixes applied: `loadArticle` 404-scoped catch + `extract()` stuck-state guard (Task 3), `loadArticle` concurrent-double-fetch guard (Task 4 race), variable-shadow cleanup.
@@ -177,7 +177,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (`--no-ff` merge `ba3a2d2`, branch `fix/ui-article-reader-deep-scss`, 1 commit `240c629`). Preflight fix discovered starting S2-web.
+- Result: merged locally to `main` (`--no-ff` merge `cecb097`, branch `fix/ui-article-reader-deep-scss`, 1 commit `f4f88f1`). Preflight fix discovered starting S2-web.
 - Spec: none (build bugfix) — see HANDOFF.md.
 - Root cause: `AppArticleReader.vue` nested the highlight color modifiers as `&--<color>` under `:deep(.app-highlight)`, which makes Dart Sass append the `--<color>` suffix to a selector ending in the `:deep(...)` pseudo — an error ("can't add a suffix to a pseudo-selector"). The library `vite build` failed. It shipped green in T-010 only because the `@app/ui` slice gate runs test/typecheck/lint and turbo's `dependsOn: ["^build"]` never builds the package itself; `vue-tsc`/vitest don't compile SCSS through Dart Sass. The break surfaces via `@app/web#typecheck` (`^build → @app/ui#build`), so it also blocked the S2-web `nuxt build` gate.
 - Fix: each modifier is now its own full `:deep(.app-highlight--<color>)` selector, matching the classes emitted by `highlight-mark.ts`.
@@ -189,9 +189,9 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (`--no-ff` merge `dd82d09`, branch `fix/auth-sqlite-provider`, 1 commit `92a048d`).
+- Result: merged locally to `main` (`--no-ff` merge `f94b8f3`, branch `fix/auth-sqlite-provider`, 1 commit `0b9791d`).
 - Spec: none (config bugfix) — see HANDOFF.md gotcha "Better Auth provider now matches the SQLite datasource".
-- Root cause: `prismaAdapter(prisma, { provider: 'postgresql' })` was a monorepo-template leftover (`9fbcbcf`) that the "switch Prisma to SQLite" migration (`b8ec7a3`) never updated. The documented "can't boot the full Nest app in vitest without Postgres" blocker was **stale** — the app boots fine because Prisma reaches SQLite via the `@prisma/adapter-better-sqlite3` driver adapter, so the wrong provider never crashed. A config lie that pushed the team into repo-layer-only tests for no live reason.
+- Root cause: `prismaAdapter(prisma, { provider: 'postgresql' })` was a monorepo-template leftover (`7e71b30`) that the "switch Prisma to SQLite" migration (`415881b`) never updated. The documented "can't boot the full Nest app in vitest without Postgres" blocker was **stale** — the app boots fine because Prisma reaches SQLite via the `@prisma/adapter-better-sqlite3` driver adapter, so the wrong provider never crashed. A config lie that pushed the team into repo-layer-only tests for no live reason.
 - Fix: provider → `'sqlite'` (matches `schema.prisma` datasource, with a comment tying the two); added `test/auth-sqlite-boot.spec.ts` (boots the full `AppModule` over a migrated temp SQLite DB + email sign-up + bearer session round-trip — the integration test wrongly believed impossible); corrected the false "no app boot" claim in `s2.isolation.spec.ts` + `HANDOFF.md`.
 - Verification: full backend suite **132/132** (29 files); typecheck + lint clean. Not a `template-fixes.md` entry — local migration miss, not a universal template bug.
 
@@ -200,10 +200,10 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (`--no-ff` merge `c602af4`, branch `feat/s2-mobile`, 6 commits `2d937c6`→`f8344b7`).
+- Result: merged locally to `main` (`--no-ff` merge `57afca9`, branch `feat/s2-mobile`, 6 commits `d707504`→`68ed915`).
 - Spec: [specs/features/2026-06-14-s2-extraction-and-reading.md](../features/2026-06-14-s2-extraction-and-reading.md) · Plan: [specs/features/2026-06-14-s2-mobile.plan.md](../features/2026-06-14-s2-mobile.plan.md)
 - Delivered: item-detail reader — `ArticleRepository` over the generated `ExtractionApi`/`HighlightsApi`; pure tested `injectHighlights` util (read-only `<mark>` injection); `DetailCubit` with article/extract/SSE/highlights (live `extracting→ready` via the existing SSE `item.updated`); `flutter_html` reader screen with `mark.hl-{yellow,green,blue,pink}` theming + image-origin rewrite; new slang `reader` namespace (en/ru/uk/el). No mobile highlight authoring (S2 cut).
-- Reviews: spec-compliance ✅ (scope clean; baseline-fix for missing `extractStatus` confirmed legit; deviations type-safer than plan) → code-quality ✅ "merge-ready" → fixes `f8344b7` (negative-path SSE guard tests, non-destructive refetch error, `uri.origin`).
+- Reviews: spec-compliance ✅ (scope clean; baseline-fix for missing `extractStatus` confirmed legit; deviations type-safer than plan) → code-quality ✅ "merge-ready" → fixes `68ed915` (negative-path SSE guard tests, non-destructive refetch error, `uri.origin`).
 - Verification: `flutter analyze` 0 issues; `flutter test` **26/26**. (Generated slang `strings.g.dart` is gitignored — run `dart run slang` after pulling i18n source changes.)
 
 ## T-2026-06-14-010 — S2-ui (reader & highlight @app/ui composites)
@@ -211,10 +211,10 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (`--no-ff` merge `9bc210d`, branch `feat/s2-ui`, 6 commits `e981604`→`2ecf26e`).
+- Result: merged locally to `main` (`--no-ff` merge `36fca8e`, branch `feat/s2-ui`, 6 commits `03399b6`→`6dd4c9c`).
 - Spec: [specs/features/2026-06-14-s2-extraction-and-reading.md](../features/2026-06-14-s2-extraction-and-reading.md) · Plan: [specs/features/2026-06-14-s2-ui.plan.md](../features/2026-06-14-s2-ui.plan.md) · Mockup: `specs/design/mockups/reader-highlights.vue`
 - Delivered: four `@app/ui` composites — `AppExtractState` (status machine), `AppArticleReader` (server-sanitized `v-html` + DOM-range highlight marks + selection `select` emit), `AppHighlightPopover` (4-swatch selection popover), `AppHighlightCard` (view + inline `AppTextarea` note editor); `--highlight-{yellow,green,blue,pink}` (+ `*-rail`) tokens; barrel exports + `AppHighlightData`/`AppHighlightColor` types. Storybook story + colocated spec per component, tokens-only, strings-as-props.
-- Reviews: spec-compliance ✅ (extracting→`pending` badge justified) → code-quality "merge-with-fixes" → fixes `2ecf26e`: real anchoring bug fixed (`highlight-mark.ts` now anchors ALL quote occurrences per text node, not just the first — a short quote appearing twice was silently dropped), added the missing colocated `highlight-mark.spec.ts` (the two-in-one-node test failed pre-fix, passes post-fix), fixed the broken `WithHighlights` story, swapped native `<textarea>`→`AppTextarea`, lint cleanups.
+- Reviews: spec-compliance ✅ (extracting→`pending` badge justified) → code-quality "merge-with-fixes" → fixes `6dd4c9c`: real anchoring bug fixed (`highlight-mark.ts` now anchors ALL quote occurrences per text node, not just the first — a short quote appearing twice was silently dropped), added the missing colocated `highlight-mark.spec.ts` (the two-in-one-node test failed pre-fix, passes post-fix), fixed the broken `WithHighlights` story, swapped native `<textarea>`→`AppTextarea`, lint cleanups.
 - Verification: **242 tests** (22 files), typecheck 0 errors, lint 0 errors. Unblocks S2-web.
 
 ## T-2026-06-14-009 — S2-backend (P2 extraction & reading)
@@ -222,10 +222,10 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (merge commit `d84737d`, branch `feat/s2-backend`, 21 commits). All phases A–E complete. 28 test files / 129 tests green. Typecheck clean. Live smoke passed.
-  Key commits: 6e7e29b (schema), 84b08eb (FTS), 85dea28 (spec+codegen),
-  2b4fc91 03161a8 76b0e1c dd02dad (extractor+repo), 19450dc 18f7d37 (job+controller),
-  highlights phases (ecefa5d e2ba7bc), de599a2 (isolation test), 526e9d3 (extractStatus fix).
+- Result: merged locally to `main` (merge commit `5e63964`, branch `feat/s2-backend`, 21 commits). All phases A–E complete. 28 test files / 129 tests green. Typecheck clean. Live smoke passed.
+  Key commits: adceb03 (schema), 6319c60 (FTS), 75a1b9b (spec+codegen),
+  561e37a 58a228e 21d1a9e 38ee64e (extractor+repo), 33104f0 7a8b3c8 (job+controller),
+  highlights phases (9233226 888c1f5), 3329d9d (isolation test), 45704f3 (extractStatus fix).
 - Live smoke: Wikipedia article saved → extract → ready (2s); article 200 (wordCount=216,
   readingTimeMin=2, 0 `<script` tags); image 200 + `X-Content-Type-Options: nosniff`;
   FTS `?q=read-it-later` → item returned; highlight CRUD (201/200/200/204).
@@ -239,7 +239,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (merge commit `bddc18b`, branch `feat/s2-design`, 2 commits `95068c8`+`a60247c`).
+- Result: merged locally to `main` (merge commit `b269146`, branch `feat/s2-design`, 2 commits `afc0c33`+`5521e34`).
 - Spec: [specs/features/2026-06-14-s2-extraction-and-reading.md](../features/2026-06-14-s2-extraction-and-reading.md) §Mockups · Plan: [specs/features/2026-06-14-s2-design.plan.md](../features/2026-06-14-s2-design.plan.md)
 - Delivered: `specs/design/mockups/reader-highlights.vue` — one self-contained reader scene composing all three new S2 pieces (annotated for S2-ui): `ready`-state reader column (Literata `--font-reading`/`--leading-relaxed`, ~44rem measure) with 2 inline highlight marks → `AppArticleReader`; floating selection popover (4 color swatches + Add-note) → `AppHighlightPopover`; highlights side panel of 3 cards (colored quote + note + edit/delete + timestamp) → `AppHighlightCard`; inline note editor (textarea + save/cancel) → `AppHighlightCard (editing)`. Tokens-only, responsive collapse at 56rem.
 - Verification: spec-compliance review (subagent) = GO after one fix — caught 4 undocumented card-rail hexes; all 8 content hexes (4 swatch fills + 4 rails) now documented in hex→role comments (rails kept as a sibling content-color set since `color-mix` toward `--text-fg` only mutes the pale swatch, can't reach the vivid tone). 59 `var(--…)` tokens all validated against `tokens.generated.css`; no forbidden/removed names; self-contained (only imports `vue`).
@@ -250,7 +250,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (branch `feat/s1-docker-e2e`: `7edfc22` backend fix + `e247bb2` e2e spec).
+- Result: merged locally to `main` (branch `feat/s1-docker-e2e`: `99cb798` backend fix + `3d0b5c2` e2e spec).
 - Brought up the docker stack (`docker compose -f docker/compose.yml up -d --build`) — backend + web both healthy (`200`); compose was already the simplified SQLite stack (no postgres/redis/centrifugo).
 - **Bug fixed (caught by the running stack):** the express-openapi-validator middleware (`app.use('/api', …)`) registered in `bootstrap` ran BEFORE Nest's built-in body parser, so POST/PATCH to API routes (`/items`, etc.) hit the validator with an empty `req.body` → `400 must have required property 'body'`. Auth routes worked only because they bypass the validator (`ignorePaths`) and reach the controller after Nest's parser. Fix: `bodyParser:false` + explicit `json()`/`urlencoded()` before the validator (`apps/backend/src/main.ts`). Integration tests missed it (in-process supertest, different parser order).
 - Verified live: sign-up `200` → save item `201` (`pending`) → `ready` ("Example Domain") via the job worker; web pages all serve + Nuxt mounts. 51 backend tests still pass.
@@ -262,7 +262,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: commit `5b48b2b` on branch `feat/s1-toolchain` (fixes the Vite 8 + @nuxtjs/i18n `<i18n>`-block build failure tracked in T-2026-06-14-004 follow-ups)
+- Result: commit `641830b` on branch `feat/s1-toolchain` (fixes the Vite 8 + @nuxtjs/i18n `<i18n>`-block build failure tracked in T-2026-06-14-004 follow-ups)
 - nuxt build: Σ Total size: 2.64 MB (✓). 17/17 tests pass. lint + typecheck green.
 - Docs updated: `.claude/docs/i18n.md`, `.claude/agents/frontend-engineer.md`.
 
@@ -271,7 +271,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (merge commit `2e3d8d3`, branch `feat/s1-mobile`, 17 commits).
+- Result: merged locally to `main` (merge commit `d0eaf5e`, branch `feat/s1-mobile`, 17 commits).
 - Spec: [specs/features/2026-06-13-foundation-and-core.md](../features/2026-06-13-foundation-and-core.md) §B5 · Plan: [specs/features/2026-06-13-s1-mobile.plan.md](../features/2026-06-13-s1-mobile.plan.md)
 - Delivered: feature-first Flutter — `ItemsRepository` over the generated `app_api_client` (typed built_value builders); `LibraryCubit`/`DetailCubit`/`AddLinkCubit` + Equatable states; `EventsClient` (Dio `ResponseType.stream` SSE → `Stream<AppEvent>`, pending→ready live via `LibraryCubit.subscribe`/`applyEvent`); `LibraryScreen` (+ item card + filter bar) / `ItemDetailScreen` (metadata only; reader S2) / `AddLinkScreen`; `onGenerateRoute` for library/itemDetail/addLink + AuthGate → `LibraryScreen` (fills the post-auth landing the S1-auth slice pointed at); slang i18n `library`/`itemDetail`/`addLink` × en/ru/uk/el. DI factories for the 3 cubits.
 - **Codegen pipeline fix (shipped here):** `packages/specs/scripts/codegen.ts` now runs `dart run build_runner build` after `dart pub get`, so the dart-dio built_value `*.g.dart` (Builder classes + serializers) are generated and committed — the generated Dart client never actually compiled before (latent since S0). Also fixed `apps/mobile/pubspec.yaml` to point `app_api_client` at `lib/generated`.
@@ -283,7 +283,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (merge commit `3d8b6a6`, branch `feat/s1-web`, 8 commits).
+- Result: merged locally to `main` (merge commit `54f19e8`, branch `feat/s1-web`, 8 commits).
 - Spec: [specs/features/2026-06-13-foundation-and-core.md](../features/2026-06-13-foundation-and-core.md) §B4 · Plan: [specs/features/2026-06-13-s1-web.plan.md](../features/2026-06-13-s1-web.plan.md)
 - Delivered: `useApi` item/tag methods (typed from `@app/specs`); pure `items-store` (`upsertItem`/`removeItemById`/`routeEvent`) + `to-card-data` utils (8 unit tests); `useItems`/`useTags`/`useEvents` composables (useState stores + native `EventSource` → store, pending→ready live); `/library` page (AppFilterBar + AppItemCard list + AppEmptyState + AppSkeleton + inline AppAddBar + AddLinkModal w/ header trigger); `/items/[id]` metadata detail (reader deferred to S2); minimal `/settings` (theme + en/ru). `auth` middleware guards all three.
 - Verification: 17 web unit tests; typecheck + lint (0 errors) + stylelint clean. Slice reviewed = GO. (Per-task implementation was gate-driven; one dead-UI modal-trigger gap caught in slice review + fixed.)
@@ -294,7 +294,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (merge commit `e0b7b3a`, branch `feat/s1-auth`, 13 commits).
+- Result: merged locally to `main` (merge commit `4436106`, branch `feat/s1-auth`, 13 commits).
 - Spec: [specs/features/2026-06-13-foundation-and-core.md](../features/2026-06-13-foundation-and-core.md) §B4/B5 · Plan: [specs/features/2026-06-13-s1-auth.plan.md](../features/2026-06-13-s1-auth.plan.md)
 - Delivered: **web** — welcome/sign-in/sign-up pages (email/password via Better Auth `signIn.email`/`signUp.email`) + `auth`/`guest` route middleware + `index.vue` redirect (authed→/library, else /welcome); app-local `AppBrand`/`AppFormError`/`AppStrength`; pure `auth-validation` + `password-strength` utils (9 tests); `login.vue` removed, sign-out → `/sign-in`. **mobile** — `sign_in_screen` reskinned phone-OTP→email/password, `sign_up_screen` real form built (was a stub redirect), `welcome_screen` polished to mockup; email `signIn` i18n keys (en/ru/uk/el); `AuthCubit` signIn/signUp `blocTest` cases (8 tests). Email/password is now the production auth on both platforms (confirmed decision); phone-OTP cubit methods retained but unsurfaced.
 - Verification: web 9 unit tests + typecheck/lint/stylelint clean; mobile `flutter analyze` clean + 8 tests. Web half and mobile half independently reviewed = GO.
@@ -305,7 +305,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (merge commit `6c267bf`, branch `feat/s1-tokens-reconcile`). User-directed follow-up to S1-ui.
+- Result: merged locally to `main` (merge commit `e11e287`, branch `feat/s1-tokens-reconcile`). User-directed follow-up to S1-ui.
 - Goal: rewrite every token consumer onto the emitter's canonical taxonomy so no CSS references an undefined token.
 - Delivered: 283 token refs across 27 files (UI primitives, the `@theme inline` alias layers in `styles.css`/`main.css`, all `specs/design/mockups/*`, web pages/layout) rewritten consumed→emitted: surface `bg→page`/`bg-subtle,bg-muted→surface`/`surface-alt→raised`; text `fg-muted→secondary`/`fg-subtle→tertiary`/`fg-disabled→disabled`/`fg-inverse→inverse`; status `X→X-fg`/`X-soft→X-subtle`/`danger→error`; brand `soft→subtle`/`soft-hover→subtle`/`border→accent`; ease `standard→default`/`decelerate→out`; `border-soft→default`; `tracking-snug→tight`. Dropped the unused `--brand-accent-50..950` `@theme` scale. Fixed two pre-existing raw-px lint errors. The six new S1-ui components already used emitted names and were untouched.
 - Verification: 215 `@app/ui` tests green; stylelint clean; lint 0 errors (ui+web); web typecheck clean. Focused independent review = GO (no cross-contamination, zero undefined refs, CSS valid).
@@ -315,7 +315,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-14
 - Completed: 2026-06-14
 - Owner: claude
-- Result: merged locally to `main` (merge commit `dfc30e0`, branch `feat/s1-ui`, 11 commits). No remote configured → local merge (user-authorized).
+- Result: merged locally to `main` (merge commit `a233627`, branch `feat/s1-ui`, 11 commits). No remote configured → local merge (user-authorized).
 - Spec: [specs/features/2026-06-13-foundation-and-core.md](../features/2026-06-13-foundation-and-core.md) §B4
 - Plan: [specs/features/2026-06-13-s1-ui.plan.md](../features/2026-06-13-s1-ui.plan.md)
 - Delivered: six composite `@app/ui` components — AppStatusBadge, AppTagChip, AppSkeleton, AppEmptyState, AppItemCard, AppFilterBar — each Storybook-first (CSF3 `Compositions/*`) + colocated vitest spec, strings-as-props, token-only SCSS, exported from the package barrel. Plus a typography-token source fix: `typography.json` now carries the DESIGN.md brand faces (sans→Hanken Grotesk; added display→Fraunces, reading→Literata) so `--font-display`/`--font-reading` emit.
@@ -327,7 +327,7 @@ _Archive of shipped tasks. Never delete entries — cancelled tasks go here with
 - Created: 2026-06-13
 - Completed: 2026-06-13
 - Owner: claude
-- Result: merged locally to `main` (branch tip `9bb758b`; 35 commits). No remote configured, so no PR — user authorized local merge.
+- Result: merged locally to `main` (branch tip `b179cf2`; 35 commits). No remote configured, so no PR — user authorized local merge.
 - Spec: [specs/features/2026-06-13-foundation-and-core.md](../features/2026-06-13-foundation-and-core.md)
 - Plans: [S0](../features/2026-06-13-s0-foundation.plan.md) · [S1-backend](../features/2026-06-13-s1-backend.plan.md)
 - Delivered: simplified stack (SQLite/WAL via better-sqlite3, native SSE `GET /api/v1/events`, in-process DB-backed Job worker with retry/backoff — no Centrifugo/Redis/Grafana/Sentry/OTel/AsyncAPI); db-only health; items + tags core library (CQRS, ownership-scoped repos, async `fetch_metadata` job → SSE `item.updated`); OpenAPI items/tags surface + regenerated TS/Dart clients; HttpExceptionFilter maps validator status errors.

@@ -8,7 +8,7 @@
 
 **Tech Stack:** NestJS 11, Prisma 7 (SQLite), Vitest, existing Job worker (retry ×3 + backoff).
 
-**Spec:** `specs/features/2026-07-13-auto-extract-shelves-bookmarks.design.md` (slice ①). Branch: `feat/auto-extract-on-save` (already created; design doc committed at `fc06d60`).
+**Spec:** `specs/features/2026-07-13-auto-extract-shelves-bookmarks.design.md` (slice ①). Branch: `feat/auto-extract-on-save` (already created; design doc committed at `412b10c`).
 
 ## Global Constraints
 
