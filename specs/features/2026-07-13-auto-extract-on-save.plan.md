@@ -240,6 +240,14 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 
 ### Task 3: One-shot extract backfill service
 
+> **Deviation (review-driven):** the file pair shipped as
+> `extract-backfill.bootstrap.ts` / `extract-backfill.bootstrap.spec.ts`, not
+> `*.service.ts` — the `modules/**/*.service.ts` ESLint rule bans direct
+> `PrismaService` imports, and the repo's structural convention for startup
+> plumbing that legitimately touches Prisma is the `*.bootstrap.ts` suffix
+> (`fts.bootstrap.ts`). Class name `ExtractBackfillService` unchanged. The
+> marker-lookup test also asserts the exact `findFirst` where-clause.
+
 **Files:**
 
 - Create: `apps/backend/src/modules/items/infra/extract-backfill.service.ts`
