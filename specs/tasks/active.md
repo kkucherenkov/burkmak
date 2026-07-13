@@ -1,3 +1,19 @@
 # Active tasks
 
-_No tasks in progress. Start here when beginning new work._
+## T-2026-07-14-004 — Docker release images + homelab deploy
+
+- Created: 2026-07-14
+- Owner: claude
+- Spec: [specs/features/2026-07-14-docker-release-images.design.md](../features/2026-07-14-docker-release-images.design.md)
+- Plan: [specs/features/2026-07-14-docker-release-images.plan.md](../features/2026-07-14-docker-release-images.plan.md)
+- Goal: pushing tag `vX.Y.Z` publishes backend+web images to GHCR (amd64+arm64) and creates the GitHub Release; a homelab installs via `deploy/compose.yml`.
+- Spec diff: none (no HTTP API changes)
+- Codegen impact: no
+- Sub-steps:
+  - [ ] Task 1 — backend production Dockerfile (+ `prisma` → dependencies)
+  - [ ] Task 2 — web production Dockerfile
+  - [ ] Task 3 — `deploy/` homelab stack (compose, .env.example, README)
+  - [ ] Task 4 — `release.yml` + `docker-build.yml` workflows
+  - [ ] Final whole-branch review + PR
+- Status: in-progress
+- Blockers: —
