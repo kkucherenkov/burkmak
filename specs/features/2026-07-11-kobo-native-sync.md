@@ -43,17 +43,17 @@ and Finished status back** to burkmak.
 
 ## Endpoints (all under `/api/v1/kobo/:token`)
 
-| Method | Path | Behaviour |
-| --- | --- | --- |
-| POST | `/v1/auth/device`, `/v1/auth/refresh` | Stub tokens (random base64 AccessToken/RefreshToken, `TokenType: Bearer`, TrackingId uuid, echo UserKey) |
-| GET | `/v1/initialization` | Static Kobo `Resources` map with `image_host`, `image_url_template`, `image_url_quality_template`, `library_sync` (+ download/state hosts) rewritten to this mount |
-| GET | `/v1/library/sync` | Delta sync (below); `x-kobo-synctoken` request/response header; `x-kobo-sync: continue` when a full page (100) was emitted |
-| GET | `/v1/library/:uuid/metadata` | `[BookMetadata]` for one entitlement |
-| GET/PUT | `/v1/library/:uuid/state` | Reading state read / write-back (`RequestResult`/`UpdateResults` response) |
-| DELETE | `/v1/library/:uuid` | Archive the item in burkmak (device-initiated removal) |
-| GET | `/v1/download/:uuid.kepub.epub` | Stream the KEPUB (BuildEpubService; token is in the path, no Basic needed) |
-| GET | `/:uuid/:width/:height/:grey/image.jpg` (+ quality variant) | Stream the cover (size params ignored; 404 when the item has none) |
-| ANY | anything else under the mount | `200 {}` |
+| Method  | Path                                                        | Behaviour                                                                                                                                                          |
+| ------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| POST    | `/v1/auth/device`, `/v1/auth/refresh`                       | Stub tokens (random base64 AccessToken/RefreshToken, `TokenType: Bearer`, TrackingId uuid, echo UserKey)                                                           |
+| GET     | `/v1/initialization`                                        | Static Kobo `Resources` map with `image_host`, `image_url_template`, `image_url_quality_template`, `library_sync` (+ download/state hosts) rewritten to this mount |
+| GET     | `/v1/library/sync`                                          | Delta sync (below); `x-kobo-synctoken` request/response header; `x-kobo-sync: continue` when a full page (100) was emitted                                         |
+| GET     | `/v1/library/:uuid/metadata`                                | `[BookMetadata]` for one entitlement                                                                                                                               |
+| GET/PUT | `/v1/library/:uuid/state`                                   | Reading state read / write-back (`RequestResult`/`UpdateResults` response)                                                                                         |
+| DELETE  | `/v1/library/:uuid`                                         | Archive the item in burkmak (device-initiated removal)                                                                                                             |
+| GET     | `/v1/download/:uuid.kepub.epub`                             | Stream the KEPUB (BuildEpubService; token is in the path, no Basic needed)                                                                                         |
+| GET     | `/:uuid/:width/:height/:grey/image.jpg` (+ quality variant) | Stream the cover (size params ignored; 404 when the item has none)                                                                                                 |
+| ANY     | anything else under the mount                               | `200 {}`                                                                                                                                                           |
 
 ## Sync payload
 

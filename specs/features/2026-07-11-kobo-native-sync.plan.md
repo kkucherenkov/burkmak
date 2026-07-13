@@ -13,16 +13,16 @@
 
 ## Phase B — store module (`apps/backend/src/modules/kobo/store/`)
 
-| File | Contents |
-| --- | --- |
-| `kobo-token.guard.ts` | CanActivate: `req.params.token` → `PatService.resolveSecret` → `req.userId`; 401 problem+json on miss |
-| `sync-token.ts` | Pure codec `{booksLastModified, readingStateLastModified, archiveLastModified}` ⇄ base64url JSON; zero-epoch default on absent/garbage |
-| `entitlement.builder.ts` | Pure: `buildBookEntitlement`, `buildBookMetadata`, `buildReadingStatePayload` — exact Calibre-Web key names |
-| `kobo-sync.repo.ts` | PrismaService projections: unsynced ready items (no entitlement row, limit), changed items since ts, orphaned entitlements, reading states since ts; entitlement upsert/purge |
-| `kobo-sync.service.ts` | Delta assembly + new sync token + continuation flag |
-| `kobo-reading-state.service.ts` | GET state payload; PUT: upsert JSON, `Finished`→`read` / `ReadyToRead`→`unread` via ITEM_REPO.update; build UpdateResults |
-| `kobo-store.controller.ts` | All routes from the spec table incl. catch-all `@All('kobo/:token/*')` → `{}`; download route reuses BuildEpubService; image route streams `dataDir/images/<itemId>/<coverImageKey>` |
-| `initialization.resources.ts` | Static Resources map builder (mount-rewritten keys) |
+| File                            | Contents                                                                                                                                                                             |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `kobo-token.guard.ts`           | CanActivate: `req.params.token` → `PatService.resolveSecret` → `req.userId`; 401 problem+json on miss                                                                                |
+| `sync-token.ts`                 | Pure codec `{booksLastModified, readingStateLastModified, archiveLastModified}` ⇄ base64url JSON; zero-epoch default on absent/garbage                                               |
+| `entitlement.builder.ts`        | Pure: `buildBookEntitlement`, `buildBookMetadata`, `buildReadingStatePayload` — exact Calibre-Web key names                                                                          |
+| `kobo-sync.repo.ts`             | PrismaService projections: unsynced ready items (no entitlement row, limit), changed items since ts, orphaned entitlements, reading states since ts; entitlement upsert/purge        |
+| `kobo-sync.service.ts`          | Delta assembly + new sync token + continuation flag                                                                                                                                  |
+| `kobo-reading-state.service.ts` | GET state payload; PUT: upsert JSON, `Finished`→`read` / `ReadyToRead`→`unread` via ITEM_REPO.update; build UpdateResults                                                            |
+| `kobo-store.controller.ts`      | All routes from the spec table incl. catch-all `@All('kobo/:token/*')` → `{}`; download route reuses BuildEpubService; image route streams `dataDir/images/<itemId>/<coverImageKey>` |
+| `initialization.resources.ts`   | Static Resources map builder (mount-rewritten keys)                                                                                                                                  |
 
 Wire into `KoboModule` (imports ItemsModule for ITEM_REPO/ARTICLE_REPO).
 Route order caveat: register specific `/v1/*` routes before the catch-all;
