@@ -2,6 +2,17 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-07-13-001 — auto-extract articles on save
+
+- Created: 2026-07-13
+- Completed: 2026-07-13
+- Owner: claude
+- Spec: [specs/features/2026-07-13-auto-extract-shelves-bookmarks.design.md](../features/2026-07-13-auto-extract-shelves-bookmarks.design.md) (slice ①)
+- Plan: [specs/features/2026-07-13-auto-extract-on-save.plan.md](../features/2026-07-13-auto-extract-on-save.plan.md)
+- Result: merged to `main` via `--no-ff` as `55221fa` (11 commits `fc06d60`→`643a0f2`); branch deleted.
+- Delivered: `FetchMetadataHandler` chains `extract_article` after metadata success (guard `extractStatus === 'none'`; chain failure logs + reverts to `none` instead of riding the metadata catch into a bogus `failed`), one-shot `ExtractBackfillService` in `extract-backfill.bootstrap.ts` (marker = completed `extract_backfill` Job row; errors swallowed so boot never fails; `*.bootstrap.ts` suffix keeps the modules/\*\*/\*.service.ts Prisma DI rule intact — no eslint-disable). No wire change. 6 new units (209 backend total).
+- Verified live: backfill enqueued 2 pre-existing items (`none→ready`), marker singleton, second boot silent; fresh save `none→ready` in ~3s with `/extract` never called ("How to Do Great Work" extracted). Slices ② (Item.kind bookmarks) and ③ (shelves + Kobo collections) remain in the design doc.
+
 ## T-2026-07-11-003 — Kobo native sync (store-API emulation)
 
 - Created: 2026-07-11

@@ -1,17 +1,3 @@
 # Active tasks
 
-## T-2026-07-13-001 — auto-extract articles on save
-
-- Created: 2026-07-13
-- Owner: claude
-- Spec: [specs/features/2026-07-13-auto-extract-shelves-bookmarks.design.md](../features/2026-07-13-auto-extract-shelves-bookmarks.design.md) (slice ①)
-- Goal: saved articles reach reader/OPDS/Kobo without the manual extract button; existing library backfilled once.
-- Spec diff: none (no wire change)
-- Codegen impact: no
-- Sub-steps:
-  - [x] chain extract_article after fetch_metadata success (guard: extractStatus none)
-  - [x] one-shot marker-guarded ExtractBackfillService
-  - [x] gates (lint, format, tests in container)
-  - [x] live verification: backfill log line, fresh save auto-extracts, restart no-op
-- Status: in-progress
-- Blockers: —
+_No tasks in progress. Start here when beginning new work._
