@@ -9,9 +9,9 @@
 - Spec diff: none (no wire change)
 - Codegen impact: no
 - Sub-steps:
-  - [ ] chain extract_article after fetch_metadata success (guard: extractStatus none)
-  - [ ] one-shot marker-guarded ExtractBackfillService
-  - [ ] gates (lint, format, tests in container)
-  - [ ] live verification: backfill log line, fresh save auto-extracts, restart no-op
+  - [x] chain extract_article after fetch_metadata success (guard: extractStatus none)
+  - [x] one-shot marker-guarded ExtractBackfillService
+  - [x] gates (lint, format, tests in container)
+  - [x] live verification: backfill log line, fresh save auto-extracts, restart no-op
 - Status: in-progress
 - Blockers: —

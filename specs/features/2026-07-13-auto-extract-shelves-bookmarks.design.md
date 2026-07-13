@@ -1,7 +1,7 @@
 # Design: auto-extract on save · bookmarks vs read-later · shelves
 
 Date: 2026-07-13
-Status: draft — awaiting user review
+Status: approved 2026-07-13 — slice ① implemented
 Scope: three slices, built in order ① → ② → ③, each on its own branch/PR.
 
 ## Goals
