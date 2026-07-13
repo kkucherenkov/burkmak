@@ -2,6 +2,16 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-07-14-001 — fix CI security-audit criticals (better-auth, shell-quote)
+
+- Created: 2026-07-14
+- Completed: 2026-07-14
+- Owner: claude
+- Spec: — (advisories [GHSA-pw9m-5jxm-xr6h](https://github.com/advisories/GHSA-pw9m-5jxm-xr6h), [GHSA-w7jw-789q-3m8p](https://github.com/advisories/GHSA-w7jw-789q-3m8p))
+- Result: merged via [PR #8](https://github.com/kkucherenkov/burkmak/pull/8) (merge commit `5cdf76f`, 1 commit `b850bb1`); branch deleted. First green CI on GitHub.
+- Delivered: `better-auth` floor `^1.6.8`→`^1.6.11` in backend + web (lockfile resolves 1.6.23; OAuth refresh-token replay in oidc-provider/mcp plugins — not mounted here, upgraded anyway); root pnpm override `shell-quote >=1.8.4` (resolves 1.10.0; transitive via nuxt→@nuxt/devtools→launch-editor). No audit-gate softening.
+- Verified: `pnpm audit --audit-level=critical` exit 0; backend 209/209 in container, web 31/31; live sign-up smoke 200 on restarted stack (containers need their own `pnpm install` — node_modules volumes don't see host installs). Remaining 121 sub-critical advisories left to Dependabot PRs.
+
 ## T-2026-07-13-002 — README refresh + GitHub publication tidy
 
 - Created: 2026-07-13
