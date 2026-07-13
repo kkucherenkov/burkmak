@@ -2,6 +2,17 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-07-13-002 — README refresh + GitHub publication tidy
+
+- Created: 2026-07-13
+- Completed: 2026-07-14
+- Owner: claude
+- Spec: [specs/features/2026-07-13-readme-refresh.design.md](../features/2026-07-13-readme-refresh.design.md)
+- Plan: [specs/features/2026-07-13-readme-refresh.plan.md](../features/2026-07-13-readme-refresh.plan.md)
+- Result: merged to `main` via `--no-ff` as `34ec25a` (8 commits `c3a9208`→`034f0f9`); branch deleted.
+- Delivered: README brought to P6 truth — status blockquote P1–P6, auto-extraction + theme bullets, "automatic with manual re-extract" wording, two-tier Kobo section (OPDS catalog + native store sync with `Kobo eReader.conf` `api_endpoint` setup, physical-device ceiling kept honest), roadmap P6 row, mermaid kobo node/edge. 4 real app screenshots (library light/dark, reader with live highlight, save flow; fresh seeded user, devtools-free, no broken images) replace the mockup renders; `welcome.png` removed. 3 merged stale branches deleted; 24 relative links verified.
+- Found for future code branches: helmet's CORP `same-origin` header blocks locally-cached article images cross-origin (web:3001 vs api:3000 — hits any split-origin deploy; relax CORP on the image-cache route); `POST /items/{id}/tags` returns 201 but the spec allows only 200, so the validator 400s a successful mutation.
+
 ## T-2026-07-13-001 — auto-extract articles on save
 
 - Created: 2026-07-13
