@@ -130,4 +130,32 @@ describe('FetchMetadataHandler', () => {
     await expect(h.handle(job)).rejects.toThrow('timeout');
     expect(jobs.enqueue).not.toHaveBeenCalled();
   });
+
+  it('keeps metadata ready and reverts extractStatus when chain enqueue fails', async () => {
+    const fetcher = { fetch: vi.fn().mockResolvedValue(META) };
+    const repo = {
+      findById: vi
+        .fn()
+        .mockResolvedValue({ id: 'itm_1', url: 'https://x.com', extractStatus: 'none' }),
+      applyMetadata: vi.fn(),
+      setExtractStatus: vi.fn().mockResolvedValue(undefined),
+    };
+    const events = { publish: vi.fn() };
+    const jobs = { enqueue: vi.fn().mockRejectedValue(new Error('db busy')) };
+    const h = new FetchMetadataHandler(
+      repo as never,
+      fetcher as never,
+      events as never,
+      jobs as never,
+    );
+    await h.handle(job); // resolves — chain failure is swallowed
+    expect(repo.applyMetadata).toHaveBeenCalledWith(
+      'itm_1',
+      expect.objectContaining({ status: 'ready' }),
+    );
+    expect(repo.applyMetadata).not.toHaveBeenCalledWith('itm_1', { status: 'failed' });
+    expect(repo.setExtractStatus).toHaveBeenNthCalledWith(1, 'itm_1', 'extracting');
+    expect(repo.setExtractStatus).toHaveBeenNthCalledWith(2, 'itm_1', 'none');
+    expect(events.publish).toHaveBeenCalledWith('u1', 'item.updated', { id: 'itm_1' });
+  });
 });

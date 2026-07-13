@@ -250,8 +250,8 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 
 **Files:**
 
-- Create: `apps/backend/src/modules/items/infra/extract-backfill.service.ts`
-- Test: `apps/backend/src/modules/items/infra/extract-backfill.service.spec.ts`
+- Create: `apps/backend/src/modules/items/infra/extract-backfill.bootstrap.ts`
+- Test: `apps/backend/src/modules/items/infra/extract-backfill.bootstrap.spec.ts`
 - Modify: `apps/backend/src/modules/items/items.module.ts` (add provider)
 
 **Interfaces:**
@@ -261,7 +261,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 
 - [ ] **Step 1: Write the failing tests**
 
-Create `apps/backend/src/modules/items/infra/extract-backfill.service.spec.ts`:
+Create `apps/backend/src/modules/items/infra/extract-backfill.bootstrap.spec.ts`:
 
 ```ts
 import { describe, it, expect, vi } from 'vitest';
@@ -340,11 +340,11 @@ describe('ExtractBackfillService', () => {
 docker exec burkmak-backend-1 pnpm --filter @app/backend test -- extract-backfill
 ```
 
-Expected: FAIL — `Cannot find module './extract-backfill.service'` (or equivalent import error).
+Expected: FAIL — `Cannot find module './extract-backfill.bootstrap'` (or equivalent import error).
 
 - [ ] **Step 3: Implement the service**
 
-Create `apps/backend/src/modules/items/infra/extract-backfill.service.ts`:
+Create `apps/backend/src/modules/items/infra/extract-backfill.bootstrap.ts`:
 
 ```ts
 import { Injectable, Logger, type OnApplicationBootstrap } from '@nestjs/common';
@@ -417,7 +417,7 @@ export class ExtractBackfillService implements OnApplicationBootstrap {
 In `apps/backend/src/modules/items/items.module.ts`: add the import (alphabetical position — after `ArticleRepo`, before `ExtractArticleHandler`):
 
 ```ts
-import { ExtractBackfillService } from './infra/extract-backfill.service';
+import { ExtractBackfillService } from './infra/extract-backfill.bootstrap';
 ```
 
 and add `ExtractBackfillService,` to the `providers` array (after `ExtractArticleHandler,`). Do NOT register it with the job worker — it is not a `JobHandler`.

@@ -68,5 +68,6 @@ describe('ExtractBackfillService', () => {
     const svc = new ExtractBackfillService(prisma as never, jobs as never, events as never);
     await expect(svc.onApplicationBootstrap()).resolves.toBeUndefined();
     expect(jobs.enqueue).not.toHaveBeenCalled();
+    expect(prisma.job.create).not.toHaveBeenCalled();
   });
 });
