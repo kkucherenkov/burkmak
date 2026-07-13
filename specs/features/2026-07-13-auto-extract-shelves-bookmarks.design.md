@@ -8,7 +8,7 @@ Scope: three slices, built in order ① → ② → ③, each on its own branch/
 
 1. **Auto-extract on save** — every saved article reaches reader view / OPDS / Kobo
    without pressing the manual extract button.
-2. **Bookmarks vs saved-for-later** — a bookmark is a *reference link* (tool, docs,
+2. **Bookmarks vs saved-for-later** — a bookmark is a _reference link_ (tool, docs,
    video): it never enters the reading queue, never syncs to the device, opens at
    its source URL. Saved-for-later items keep today's behavior.
 3. **Shelves** — curated, many-to-many collections of articles, surfaced in the web
@@ -42,7 +42,7 @@ if (item.extractStatus === 'none' && item.kind === 'article')   // kind gate lan
   retry/backoff, and each retry re-enters the chain — the `extractStatus === 'none'`
   guard makes the chain idempotent.
 - `extract_article` semantics unchanged: retry ×3, terminal `extractStatus:
-  'failed'`, `item.updated` SSE on completion.
+'failed'`, `item.updated` SSE on completion.
 
 ### Backfill (one-shot)
 
@@ -176,14 +176,14 @@ model KoboShelfTombstone {
 
 ### API (spec-first, SessionGuard)
 
-| Method | Path | Purpose |
-| --- | --- | --- |
-| GET | `/api/v1/shelves` | list with item counts |
-| POST | `/api/v1/shelves` | create `{name}` (409 on duplicate name) |
-| PATCH | `/api/v1/shelves/{id}` | rename |
-| DELETE | `/api/v1/shelves/{id}` | delete (+ tombstone) |
-| PUT | `/api/v1/shelves/{id}/items/{itemId}` | add item — idempotent |
-| DELETE | `/api/v1/shelves/{id}/items/{itemId}` | remove item |
+| Method | Path                                  | Purpose                                 |
+| ------ | ------------------------------------- | --------------------------------------- |
+| GET    | `/api/v1/shelves`                     | list with item counts                   |
+| POST   | `/api/v1/shelves`                     | create `{name}` (409 on duplicate name) |
+| PATCH  | `/api/v1/shelves/{id}`                | rename                                  |
+| DELETE | `/api/v1/shelves/{id}`                | delete (+ tombstone)                    |
+| PUT    | `/api/v1/shelves/{id}/items/{itemId}` | add item — idempotent                   |
+| DELETE | `/api/v1/shelves/{id}/items/{itemId}` | remove item                             |
 
 Plus: `GET /items` gains `?shelf={id}` filter; `ItemDetail` gains
 `shelves: [{id, name}]`.
@@ -198,8 +198,8 @@ Calibre-Web wire format (`Tag` entitlements):
 - `NewTag` — shelf with `createdAt > token.tagsLastModified`.
 - `ChangedTag` — shelf with `lastModified > token.tagsLastModified`.
 - Payload: `{"Tag": {"Id": <shelf uuid>, "Name", "Type": "UserTag", "Created",
-  "LastModified", "Items": [{"RevisionId": <entitlement uuid>,
-  "Type": "ProductRevisionTagItem"}]}}` — `Items` lists only members that have
+"LastModified", "Items": [{"RevisionId": <entitlement uuid>,
+"Type": "ProductRevisionTagItem"}]}}` — `Items` lists only members that have
   a Kobo entitlement (i.e. extracted, synced articles).
 - `DeletedTag` — from tombstones with `deletedAt > token.tagsLastModified`;
   tombstone purged after emission (same single-device assumption as the item
@@ -254,11 +254,11 @@ Calibre-Web wire format (`Tag` entitlements):
 
 ## Build order & branches
 
-| # | Branch | Content |
-| --- | --- | --- |
-| ① | `feat/auto-extract-on-save` | chain + backfill + tests |
-| ② | `feat/item-kind-bookmarks` | schema, spec+codegen, backend filter, web /bookmarks |
-| ③ | `feat/shelves` | schema, spec+codegen, CRUD, Kobo tags, OPDS nav, web pages |
+| #   | Branch                      | Content                                                    |
+| --- | --------------------------- | ---------------------------------------------------------- |
+| ①   | `feat/auto-extract-on-save` | chain + backfill + tests                                   |
+| ②   | `feat/item-kind-bookmarks`  | schema, spec+codegen, backend filter, web /bookmarks       |
+| ③   | `feat/shelves`              | schema, spec+codegen, CRUD, Kobo tags, OPDS nav, web pages |
 
 Each slice: spec → codegen commit → implementation → gates
 (`turbo run build lint test typecheck` semantics per repo rules) → PR-style

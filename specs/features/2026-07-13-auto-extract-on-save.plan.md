@@ -27,9 +27,11 @@
 ### Task 1: Push task-stack entry
 
 **Files:**
+
 - Modify: `specs/tasks/active.md`
 
 **Interfaces:**
+
 - Consumes: template in `specs/tasks/README.md`.
 - Produces: T-2026-07-13-001 entry that later tasks check boxes in.
 
@@ -70,10 +72,12 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 2: Chain `extract_article` after metadata success
 
 **Files:**
+
 - Modify: `apps/backend/src/modules/items/infra/fetch-metadata.handler.ts`
 - Test: `apps/backend/src/modules/items/infra/fetch-metadata.handler.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `IItemRepo.setExtractStatus(itemId: string, status: ExtractStatus): Promise<void>` (exists, unscoped — ownership already proven by the `findById(job.userId, job.itemId)` call above it); `JobsService.enqueue(type: string, input: {userId: string; itemId?: string | null; payload?: unknown}): Promise<Job>` (exists); `ItemDetail.extractStatus: 'none' | 'extracting' | 'ready' | 'failed'`.
 - Produces: `FetchMetadataHandler` constructor gains a 4th parameter `jobs: JobsService`. Nest resolves it automatically (JobsService is provided by the global jobs module); only test call sites change.
 
@@ -102,7 +106,12 @@ it('auto-enqueues extract_article when extractStatus is none', async () => {
   };
   const events = { publish: vi.fn() };
   const jobs = { enqueue: vi.fn() };
-  const h = new FetchMetadataHandler(repo as never, fetcher as never, events as never, jobs as never);
+  const h = new FetchMetadataHandler(
+    repo as never,
+    fetcher as never,
+    events as never,
+    jobs as never,
+  );
   await h.handle(job);
   expect(repo.setExtractStatus).toHaveBeenCalledWith('itm_1', 'extracting');
   expect(jobs.enqueue).toHaveBeenCalledWith('extract_article', { userId: 'u1', itemId: 'itm_1' });
@@ -119,7 +128,12 @@ it('does not chain extraction when extractStatus is not none', async () => {
   };
   const events = { publish: vi.fn() };
   const jobs = { enqueue: vi.fn() };
-  const h = new FetchMetadataHandler(repo as never, fetcher as never, events as never, jobs as never);
+  const h = new FetchMetadataHandler(
+    repo as never,
+    fetcher as never,
+    events as never,
+    jobs as never,
+  );
   await h.handle(job);
   expect(repo.setExtractStatus).not.toHaveBeenCalled();
   expect(jobs.enqueue).not.toHaveBeenCalled();
@@ -136,7 +150,12 @@ it('does not chain extraction when metadata fetch fails', async () => {
   };
   const events = { publish: vi.fn() };
   const jobs = { enqueue: vi.fn() };
-  const h = new FetchMetadataHandler(repo as never, fetcher as never, events as never, jobs as never);
+  const h = new FetchMetadataHandler(
+    repo as never,
+    fetcher as never,
+    events as never,
+    jobs as never,
+  );
   await expect(h.handle(job)).rejects.toThrow('timeout');
   expect(jobs.enqueue).not.toHaveBeenCalled();
 });
@@ -222,11 +241,13 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 3: One-shot extract backfill service
 
 **Files:**
+
 - Create: `apps/backend/src/modules/items/infra/extract-backfill.service.ts`
 - Test: `apps/backend/src/modules/items/infra/extract-backfill.service.spec.ts`
 - Modify: `apps/backend/src/modules/items/items.module.ts` (add provider)
 
 **Interfaces:**
+
 - Consumes: `PrismaService` (`../../../common/prisma/prisma.service`) — `job.findFirst`, `item.findMany`, `item.update`, `job.create`; `JobsService.enqueue` (as in Task 2); `EventsService.publish(userId: string, type: string, payload: unknown): void` (`../../events/events.service`).
 - Produces: `ExtractBackfillService` — `OnApplicationBootstrap` provider, no exports; nothing else depends on it.
 
@@ -414,6 +435,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 4: Gates
 
 **Files:**
+
 - Modify: none expected (fixer output only).
 
 **Interfaces:** n/a.
@@ -448,6 +470,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 5: Live verification on the dev stack
 
 **Files:**
+
 - Modify: `specs/tasks/active.md` (check sub-boxes), `specs/features/2026-07-13-auto-extract-shelves-bookmarks.design.md` (flip Status line).
 
 **Interfaces:** n/a — observational task.
