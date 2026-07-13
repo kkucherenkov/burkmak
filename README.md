@@ -18,12 +18,12 @@ serves the web app, the mobile app, and your e-reader.
 
 ## Screenshots
 
-|                                                                                 |                                                                     |
-| ------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| **Library**                                                                     | **Reader**                                                          |
-| ![Library — saved items, filters, tags, covers](assets/screenshots/library.png) | ![Clean reader view with highlights](assets/screenshots/reader.png) |
-| **Save from anywhere**                                                          | **Dark theme**                                                      |
-| ![Quick save via the /save capture page](assets/screenshots/save.png)           | ![Library in dark mode](assets/screenshots/library-dark.png)        |
+|                                                                         |                                                                     |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **Library**                                                             | **Reader**                                                          |
+| ![Library — saved items, filters, tags](assets/screenshots/library.png) | ![Clean reader view with highlights](assets/screenshots/reader.png) |
+| **Save from anywhere**                                                  | **Dark theme**                                                      |
+| ![Quick save via the /save capture page](assets/screenshots/save.png)   | ![Library in dark mode](assets/screenshots/library-dark.png)        |
 
 <sub>Live screenshots of the running app (seeded demo library).</sub>
 
@@ -63,7 +63,7 @@ serves the web app, the mobile app, and your e-reader.
   same-origin `/save` popup that reuses your session.
 - Spec: [`specs/features/2026-06-14-capture-surfaces.md`](specs/features/2026-06-14-capture-surfaces.md).
 
-### Sync & export — _shipped (S4 · S5)_
+### Sync & export — _shipped (S4 · S5 · P6)_
 
 - **Kobo sync** (S4 + P6) — two tiers, both served straight from your library,
   no firmware hacking:
