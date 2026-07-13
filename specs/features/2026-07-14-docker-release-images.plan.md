@@ -93,6 +93,9 @@ RUN pnpm --filter @app/backend build
 # Self-contained production dir: backend files + pruned prod node_modules.
 # --legacy is required on pnpm 10 (new deploy mode needs injected workspaces).
 RUN pnpm --filter @app/backend deploy --prod --legacy /prod
+# deploy selects files npm-pack-style, which respects .gitignore — the
+# gitignored build artifact dist/ must be copied in explicitly.
+RUN cp -a apps/backend/dist /prod/dist && test -f /prod/dist/main.js
 # The deploy re-installs node_modules, so the Prisma client must be
 # regenerated against them (CLI is a prod dependency).
 RUN cd /prod && node_modules/.bin/prisma generate
