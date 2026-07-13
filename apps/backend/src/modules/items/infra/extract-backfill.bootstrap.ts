@@ -1,7 +1,6 @@
 import { Injectable, Logger, type OnApplicationBootstrap } from '@nestjs/common';
 
 import { JobsService } from '../../../common/jobs/jobs.service';
-// eslint-disable-next-line no-restricted-syntax -- system bootstrap service, direct Prisma access required (similar to FtsBootstrapService)
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { EventsService } from '../../events/events.service';
 

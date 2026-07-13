@@ -14,7 +14,7 @@ import { ListItemsHandler } from './application/queries/list-items.handler';
 import { ARTICLE_EXTRACTOR, ARTICLE_REPO, IMAGE_CACHE } from './domain/article.ports';
 import { ITEM_REPO } from './domain/items.ports';
 import { ArticleRepo } from './infra/article.repo';
-import { ExtractBackfillService } from './infra/extract-backfill.service';
+import { ExtractBackfillService } from './infra/extract-backfill.bootstrap';
 import { ExtractArticleHandler } from './infra/extract-article.handler';
 import { FetchMetadataHandler } from './infra/fetch-metadata.handler';
 import { LocalImageCache } from './infra/image-cache';

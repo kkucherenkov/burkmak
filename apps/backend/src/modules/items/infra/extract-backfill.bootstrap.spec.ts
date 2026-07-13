@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ExtractBackfillService } from './extract-backfill.service';
+import { ExtractBackfillService } from './extract-backfill.bootstrap';
 
 function makePrisma(overrides: {
   marker?: { id: string } | null;
@@ -24,6 +24,10 @@ describe('ExtractBackfillService', () => {
     const events = { publish: vi.fn() };
     const svc = new ExtractBackfillService(prisma as never, jobs as never, events as never);
     await svc.onApplicationBootstrap();
+    expect(prisma.job.findFirst).toHaveBeenCalledWith({
+      where: { type: 'extract_backfill', status: 'done' },
+      select: { id: true },
+    });
     expect(prisma.item.findMany).not.toHaveBeenCalled();
     expect(jobs.enqueue).not.toHaveBeenCalled();
     expect(prisma.job.create).not.toHaveBeenCalled();
