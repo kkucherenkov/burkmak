@@ -15,6 +15,7 @@ import type { Response } from 'express';
 
 import { AppConfig } from '../../common/config/app-config';
 import { SessionGuard, type AuthenticatedRequest } from '../../common/auth/auth.guard';
+import { assertSafeItemId } from '../../common/security/safe-id';
 import { ARTICLE_REPO, type IArticleRepo } from '../items/domain/article.ports';
 import { ITEM_REPO, type IItemRepo } from '../items/domain/items.ports';
 import { Inject } from '@nestjs/common';
@@ -53,6 +54,9 @@ export class KoboController {
     @Query('format') format: string | undefined,
     @Res() res: Response,
   ): Promise<void> {
+    // The id becomes a path segment in the EPUB/image caches — reject
+    // anything that is not a plain cuid before it reaches the filesystem.
+    assertSafeItemId(id);
     const variant = format === 'epub' ? 'epub' : 'kepub';
 
     const result = await this.buildEpubService.getEpub(req.userId, id, variant);

@@ -32,15 +32,21 @@ function xmlEscape(text: string): string {
     .replaceAll("'", '&apos;');
 }
 
+/** Escape all RegExp metacharacters so external values can be embedded in a pattern. */
+function escapeRegExp(text: string): string {
+  return text.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+}
+
 /**
  * Rewrite image src attributes from the API path to local EPUB paths.
  * `/api/v1/items/<id>/image/<key>` → `images/<key>`
  */
 function rewriteImageSrcs(html: string, itemId: string): string {
   const prefix = `/api/v1/items/${itemId}/image/`;
-  // Escape forward-slashes for the RegExp pattern using a pre-built pattern string
-  const escapedPrefix = prefix.replaceAll('/', String.raw`\/`);
-  return html.replaceAll(new RegExp(`src="${escapedPrefix}([^"]+)"`, 'g'), 'src="images/$1"');
+  return html.replaceAll(
+    new RegExp(`src="${escapeRegExp(prefix)}([^"]+)"`, 'g'),
+    'src="images/$1"',
+  );
 }
 
 function buildContainer(): string {

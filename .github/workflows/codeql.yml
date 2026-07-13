@@ -32,6 +32,11 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           queries: security-extended
+          config: |
+            paths-ignore:
+              # Static design mockups — reference artifacts for humans, never
+              # served, bundled, or imported by any app.
+              - specs/design/mockups
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4

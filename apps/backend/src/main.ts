@@ -25,7 +25,15 @@ async function bootstrap(): Promise<void> {
   const { port, nodeEnv, corsOrigins } = config.runtime;
 
   app.set('trust proxy', 'loopback');
-  app.use(nodeEnv === 'production' ? helmet() : helmet({ contentSecurityPolicy: false }));
+  app.use(
+    helmet({
+      // The API serves embeddable resources (cached article images, EPUBs) to
+      // the web app, which may live on another origin (dev: :3001 vs :3000).
+      // Helmet's default CORP `same-origin` makes browsers refuse those <img>
+      // loads entirely; access control is enforced by auth, not by CORP.
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
 
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });

@@ -20,8 +20,14 @@ export class EpubCache {
   cachePath(itemId: string, variant: EpubVariant, extractedAt: string): string {
     // Make extractedAt safe for a filename (replace colons and dots with dashes)
     const safe = extractedAt.replaceAll(':', '-').replaceAll('.', '-');
-    const epubDir = path.join(this.config.dataDir, 'epub', itemId);
-    return path.join(epubDir, `${variant}-${safe}.epub`);
+    const epubRoot = path.resolve(this.config.dataDir, 'epub');
+    const filePath = path.resolve(epubRoot, itemId, `${variant}-${safe}.epub`);
+    // Containment check: itemId/extractedAt are validated upstream, but a
+    // path built from external segments never leaves this method unverified.
+    if (!filePath.startsWith(epubRoot + path.sep)) {
+      throw new Error(`EpubCache: unsafe cache path for item ${itemId}`);
+    }
+    return filePath;
   }
 
   exists(filePath: string): boolean {
