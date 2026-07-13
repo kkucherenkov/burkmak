@@ -1,4 +1,4 @@
-import { execSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -43,13 +43,22 @@ const tmp = mkdtempSync(path.join(tmpdir(), 'oasdiff-'));
 const baseSpec = path.join(tmp, 'base.yaml');
 const headSpec = path.join(tmp, 'head.yaml');
 
+/** `git show <ref>:<file>` via argument array (no shell — refs come from argv). */
+function gitShow(ref: string, file: string): Buffer {
+  const result = spawnSync('git', ['show', `${ref}:${file}`], {
+    cwd: repoRoot,
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  if (result.status !== 0) {
+    throw new Error(`git show ${ref}:${file} failed: ${result.stderr.toString().trim()}`);
+  }
+  return result.stdout;
+}
+
 try {
   const specPath = 'packages/specs/openapi/openapi.yaml';
-  const baseContent = execSync(`git show ${base}:${specPath}`, { cwd: repoRoot });
-  writeFileSync(baseSpec, baseContent);
-
-  const headContent = execSync(`git show HEAD:${specPath}`, { cwd: repoRoot });
-  writeFileSync(headSpec, headContent);
+  writeFileSync(baseSpec, gitShow(base, specPath));
+  writeFileSync(headSpec, gitShow('HEAD', specPath));
 
   console.warn(`[spec:diff] base=${base} head=HEAD`);
 

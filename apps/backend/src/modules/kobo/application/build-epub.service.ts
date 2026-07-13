@@ -4,6 +4,7 @@ import path from 'node:path';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import { AppConfig } from '../../../common/config/app-config';
+import { isSafeItemId } from '../../../common/security/safe-id';
 import { ARTICLE_REPO, type IArticleRepo } from '../../items/domain/article.ports';
 import { ITEM_REPO, type IItemRepo } from '../../items/domain/items.ports';
 import { buildEpub } from '../infra/epub.builder';
@@ -39,6 +40,13 @@ export class BuildEpubService {
     itemId: string,
     variant: EpubVariant,
   ): Promise<{ path: string } | { error: 'not_found' | 'not_ready' }> {
+    // 0. The id becomes a path segment (EPUB + image caches) — a malformed
+    //    id cannot exist, and must never reach the filesystem. Guarded here
+    //    so every caller (session route, Kobo store download) is covered.
+    if (!isSafeItemId(itemId)) {
+      return { error: 'not_found' };
+    }
+
     // 1. Ownership check
     const item = await this.itemRepo.findById(userId, itemId);
     if (!item) {
@@ -91,7 +99,13 @@ export class BuildEpubService {
   private async loadImages(
     itemId: string,
   ): Promise<{ name: string; mediaType: string; data: Uint8Array }[]> {
-    const imageDir = path.join(this.config.dataDir, 'images', itemId);
+    // Containment check: the resolved dir must stay inside the images root
+    // (defense-in-depth on top of the isSafeItemId gate in getEpub).
+    const imagesRoot = path.resolve(this.config.dataDir, 'images');
+    const imageDir = path.resolve(imagesRoot, itemId);
+    if (!imageDir.startsWith(imagesRoot + path.sep)) {
+      return [];
+    }
     let files: string[];
     try {
       files = await readdir(imageDir);

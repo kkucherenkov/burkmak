@@ -23,6 +23,7 @@ import type { Response } from 'express';
 
 import { AppConfig } from '../../common/config/app-config';
 import { SessionGuard, type AuthenticatedRequest } from '../../common/auth/auth.guard';
+import { assertSafeItemId } from '../../common/security/safe-id';
 import { AddItemTagCommand } from './application/commands/add-item-tag.command';
 import { DeleteItemCommand } from './application/commands/delete-item.command';
 import { ExtractItemCommand } from './application/commands/extract-item.command';
@@ -162,8 +163,11 @@ export class ItemsController {
     @Param('key') key: string,
     @Res() res: Response,
   ): Promise<void> {
-    // 1. Validate key format: sha1 hex (40 chars) + dot + known raster extension.
-    //    Reject anything else (no path separators, no `..`).
+    // 1. Validate both path segments before they touch the filesystem: the id
+    //    must be a cuid (the ownership check below can't sanitize the path —
+    //    a traversal id would move `imageDir` itself outside the data dir),
+    //    the key sha1 hex + dot + known raster extension.
+    assertSafeItemId(id);
     if (!IMAGE_KEY_RE.test(key)) {
       throw new NotFoundException();
     }
