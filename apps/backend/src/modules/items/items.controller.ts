@@ -178,11 +178,13 @@ export class ItemsController {
       throw new NotFoundException();
     }
 
-    // 3. Resolve absolute path and confirm it stays inside the item's image dir
-    //    (defense-in-depth against path traversal despite key validation above).
-    const imageDir = path.resolve(this.config.dataDir, 'images', id);
-    const filePath = path.resolve(imageDir, key);
-    if (!filePath.startsWith(imageDir + path.sep) && filePath !== imageDir) {
+    // 3. Resolve absolute path and confirm it stays inside the images ROOT.
+    //    The comparison base must be untainted: a per-item dir built from the
+    //    id would itself move under a traversal id, making the check
+    //    self-referential (defense-in-depth on top of the id/key validation).
+    const imagesRoot = path.resolve(this.config.dataDir, 'images');
+    const filePath = path.resolve(imagesRoot, id, key);
+    if (!filePath.startsWith(imagesRoot + path.sep)) {
       throw new NotFoundException();
     }
 
