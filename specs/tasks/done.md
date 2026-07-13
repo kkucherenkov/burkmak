@@ -2,6 +2,16 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-07-14-002 — CodeQL code-scanning remediation (16 alerts)
+
+- Created: 2026-07-14
+- Completed: 2026-07-14
+- Owner: claude
+- Spec: — (https://github.com/kkucherenkov/burkmak/security/code-scanning)
+- Result: merged via [PR #12](https://github.com/kkucherenkov/burkmak/pull/12) (merge commit `136f16c`, 1 commit `3b50e04`); branch deleted. PR-head CodeQL analysis: **0 open alerts** (was 16).
+- Delivered: `common/security/safe-id.ts` (cuid charset gate, 404 on mismatch) applied at items image route, kobo EPUB route, and `BuildEpubService.getEpub` (covers Kobo store download); resolve+containment checks in `EpubCache.cachePath` + `loadImages` — the image route's old prefix check was bypassable in principle (traversal id relocated the base dir); full regex-metachar escaping in `rewriteImageSrcs`; helmet CSP on in every env + CORP `cross-origin` (root-causes the split-origin cached-image blocking bug from the README work); specs scripts `execSync` shell strings → `spawnSync` arg arrays; codeql.yml `paths-ignore` for `specs/design/mockups`. Alerts #3 (bookmarklet test assertion — FP) and #14 (image cache write is the feature) dismissed with comments.
+- Verified: backend typecheck clean, 216/216 (7 new traversal/containment tests); `spec:diff` smoke-run after rewrite; live CSP + CORP headers on restarted stack; PR CI 0 failed.
+
 ## T-2026-07-14-001 — fix CI security-audit criticals (better-auth, shell-quote)
 
 - Created: 2026-07-14
