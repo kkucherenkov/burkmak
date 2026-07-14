@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **String** | Unique item ID (cuid) | 
 **url** | **String** | Original URL submitted by the user | 
+**kind** | [**Kind**](Kind.md) |  | 
 **canonicalUrl** | **String** | Canonical URL resolved during metadata extraction | [optional] 
 **title** | **String** | Page title | [optional] 
 **siteName** | **String** | Name of the publishing site | [optional] 

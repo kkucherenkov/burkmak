@@ -4,16 +4,18 @@
 
 // ignore_for_file: unused_element
 import 'package:app_api_client/src/model/read_state.dart';
+import 'package:app_api_client/src/model/kind.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
 part 'update_item_request.g.dart';
 
-/// At least one of `readState` or `favorite` must be provided.
+/// At least one of `readState`, `favorite`, or `kind` must be provided.
 ///
 /// Properties:
 /// * [readState] 
 /// * [favorite] - Set or clear the favourite flag
+/// * [kind] - Promote a bookmark into the reading queue, or demote an article to a bookmark
 @BuiltValue()
 abstract class UpdateItemRequest implements Built<UpdateItemRequest, UpdateItemRequestBuilder> {
   @BuiltValueField(wireName: r'readState')
@@ -23,6 +25,11 @@ abstract class UpdateItemRequest implements Built<UpdateItemRequest, UpdateItemR
   /// Set or clear the favourite flag
   @BuiltValueField(wireName: r'favorite')
   bool? get favorite;
+
+  /// Promote a bookmark into the reading queue, or demote an article to a bookmark
+  @BuiltValueField(wireName: r'kind')
+  Kind? get kind;
+  // enum kindEnum {  article,  bookmark,  };
 
   UpdateItemRequest._();
 
@@ -61,6 +68,13 @@ class _$UpdateItemRequestSerializer implements PrimitiveSerializer<UpdateItemReq
         specifiedType: const FullType(bool),
       );
     }
+    if (object.kind != null) {
+      yield r'kind';
+      yield serializers.serialize(
+        object.kind,
+        specifiedType: const FullType(Kind),
+      );
+    }
   }
 
   @override
@@ -97,6 +111,13 @@ class _$UpdateItemRequestSerializer implements PrimitiveSerializer<UpdateItemReq
             specifiedType: const FullType(bool),
           ) as bool;
           result.favorite = valueDes;
+          break;
+        case r'kind':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(Kind),
+          ) as Kind;
+          result.kind = valueDes;
           break;
         default:
           unhandled.add(key);

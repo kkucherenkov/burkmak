@@ -48,7 +48,7 @@ export const streamEvents = <ThrowOnError extends boolean = false>(options?: Opt
 /**
  * List saved items with optional filtering
  *
- * Returns a cursor-paginated list of the authenticated user's saved items. Supports filtering by read state, tag, favourite flag, and full-text search.
+ * Returns a cursor-paginated list of the authenticated user's saved items. Supports filtering by read state, tag, favourite flag, full-text search, and kind.
  */
 export const listItems = <ThrowOnError extends boolean = false>(options?: Options<ListItemsData, ThrowOnError>) => (options?.client ?? client).get<ListItemsResponses, ListItemsErrors, ThrowOnError>({
     security: [{

@@ -6,6 +6,7 @@
 import 'package:app_api_client/src/model/item_status.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:app_api_client/src/model/read_state.dart';
+import 'package:app_api_client/src/model/kind.dart';
 import 'package:app_api_client/src/model/extract_status.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
@@ -17,6 +18,7 @@ part 'item.g.dart';
 /// Properties:
 /// * [id] - Unique item ID (cuid)
 /// * [url] - Original URL submitted by the user
+/// * [kind] 
 /// * [canonicalUrl] - Canonical URL resolved during metadata extraction
 /// * [title] - Page title
 /// * [siteName] - Name of the publishing site
@@ -39,6 +41,10 @@ abstract class Item implements Built<Item, ItemBuilder> {
   /// Original URL submitted by the user
   @BuiltValueField(wireName: r'url')
   String get url;
+
+  @BuiltValueField(wireName: r'kind')
+  Kind get kind;
+  // enum kindEnum {  article,  bookmark,  };
 
   /// Canonical URL resolved during metadata extraction
   @BuiltValueField(wireName: r'canonicalUrl')
@@ -124,6 +130,11 @@ class _$ItemSerializer implements PrimitiveSerializer<Item> {
     yield serializers.serialize(
       object.url,
       specifiedType: const FullType(String),
+    );
+    yield r'kind';
+    yield serializers.serialize(
+      object.kind,
+      specifiedType: const FullType(Kind),
     );
     if (object.canonicalUrl != null) {
       yield r'canonicalUrl';
@@ -240,6 +251,13 @@ class _$ItemSerializer implements PrimitiveSerializer<Item> {
             specifiedType: const FullType(String),
           ) as String;
           result.url = valueDes;
+          break;
+        case r'kind':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(Kind),
+          ) as Kind;
+          result.kind = valueDes;
           break;
         case r'canonicalUrl':
           final valueDes = serializers.deserialize(

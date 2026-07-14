@@ -37,6 +37,7 @@ export 'package:app_api_client/src/model/highlight_list.dart';
 export 'package:app_api_client/src/model/item.dart';
 export 'package:app_api_client/src/model/item_list.dart';
 export 'package:app_api_client/src/model/item_status.dart';
+export 'package:app_api_client/src/model/kind.dart';
 export 'package:app_api_client/src/model/personal_access_token.dart';
 export 'package:app_api_client/src/model/personal_access_token_created.dart';
 export 'package:app_api_client/src/model/problem.dart';
