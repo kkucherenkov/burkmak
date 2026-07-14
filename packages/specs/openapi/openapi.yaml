@@ -2027,8 +2027,7 @@ components:
           description: Optional tag slugs to attach immediately
         kind:
           $ref: "#/components/schemas/Kind"
-          default: article
-          description: Save as a readable article (default) or a reference bookmark
+          description: Save as a readable article or a reference bookmark. Omitted → article (the server default).
 
     UpdateItemRequest:
       type: object
