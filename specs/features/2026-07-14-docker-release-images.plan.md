@@ -114,6 +114,11 @@ ENV NODE_ENV=production \
 
 WORKDIR /app
 COPY --from=build --chown=node:node /prod /app
+# COPY --chown only chowns the files/dirs it copies in, not the /app
+# directory entry itself (WORKDIR already created it as root:root). Without
+# this, the non-root user below can write into existing subpaths but not
+# create new top-level ones (e.g. the mock storage service's ./.storage).
+RUN chown node:node /app
 
 # SQLite + extracted-article caches live here; pre-owning the mount point
 # makes the named volume writable for the non-root user on first use.
