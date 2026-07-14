@@ -68,7 +68,7 @@
       />
     </header>
 
-    <AppAddBar @save="store.save($event)" />
+    <AppAddBar @save="store.save" />
 
     <AppFilterBar
       :segment="store.filters.value.segment"
@@ -106,7 +106,7 @@
       :description="t('library.emptyHint')"
     />
 
-    <AddLinkModal :open="modalOpen" @save="store.save($event)" @close="modalOpen = false" />
+    <AddLinkModal :open="modalOpen" @save="store.save" @close="modalOpen = false" />
   </div>
 </template>
 

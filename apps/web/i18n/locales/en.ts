@@ -159,6 +159,7 @@ export default {
   addBar: {
     placeholder: 'https://example.com/article',
     save: 'Save',
+    asBookmark: 'Bookmark',
   },
 
   addModal: {
@@ -166,11 +167,26 @@ export default {
     placeholder: 'https://example.com/article',
     cancel: 'Cancel',
     save: 'Save',
+    asBookmark: 'Save as bookmark',
+  },
+
+  bookmarks: {
+    title: 'Bookmarks',
+    empty: 'No bookmarks yet',
+    emptyHint: 'Save a link as a bookmark to keep it here for reference.',
+    search: 'Search bookmarks',
+    error: "Couldn't load your bookmarks.",
+    retry: 'Retry',
+    act: {
+      favorite: 'Favorite',
+      delete: 'Delete',
+    },
   },
 
   nav: {
     appName: 'burkmak',
     navHome: 'Home',
+    navBookmarks: 'Bookmarks',
     navLogin: 'Login',
     navSettings: 'Settings',
     navSignOut: 'Sign out',

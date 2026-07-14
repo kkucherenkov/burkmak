@@ -1,13 +1,14 @@
 <script setup lang="ts">
-  import { AppInput, AppButton } from '@app/ui';
+  import { AppInput, AppButton, AppSwitch } from '@app/ui';
   import { ref, watch, nextTick } from 'vue';
 
   const props = defineProps<{ open: boolean }>();
-  const emit = defineEmits<{ save: [url: string]; close: [] }>();
+  const emit = defineEmits<{ save: [url: string, kind: 'article' | 'bookmark']; close: [] }>();
 
   const { t } = useI18n();
 
   const url = ref('');
+  const asBookmark = ref(false);
   const saving = ref(false);
   const inputRef = ref<HTMLInputElement | null>(null);
 
@@ -36,7 +37,8 @@
     if (!looksValid.value) return;
     saving.value = true;
     try {
-      emit('save', url.value.trim());
+      emit('save', url.value.trim(), asBookmark.value ? 'bookmark' : 'article');
+      asBookmark.value = false;
       emit('close');
     } finally {
       saving.value = false;
@@ -69,6 +71,7 @@
             type="url"
             :placeholder="t('addModal.placeholder')"
           />
+          <AppSwitch v-model="asBookmark" :label="t('addModal.asBookmark')" size="sm" />
           <div class="add-link-modal__actions">
             <AppButton
               type="button"
