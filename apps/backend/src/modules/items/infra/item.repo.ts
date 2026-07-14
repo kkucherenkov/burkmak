@@ -6,6 +6,7 @@ import type {
   ExtractStatus,
   IItemRepo,
   ItemDetail,
+  ItemKind,
   ItemMetadataPatch,
   ListItemsFilter,
 } from '../domain/items.ports';
@@ -22,6 +23,7 @@ function toDetail(row: Item & { tags?: { tag: { slug: string } }[] }): ItemDetai
   return {
     id: row.id,
     url: row.url,
+    kind: row.kind as ItemDetail['kind'],
     canonicalUrl: row.canonicalUrl,
     title: row.title,
     siteName: row.siteName,
@@ -61,12 +63,31 @@ export function escapeFtsQuery(raw: string): string {
     .join(' ');
 }
 
+/**
+ * Build the Prisma `where` for item queries, shared by the plain and FTS paths.
+ * A missing `kind` means "all kinds" — the list endpoint stays backward-compatible.
+ */
+export function buildItemWhere(f: ListItemsFilter): Record<string, unknown> {
+  const where: Record<string, unknown> = { userId: f.userId };
+  if (f.readState) where['readState'] = f.readState;
+  if (f.favorite !== undefined) where['favorite'] = f.favorite;
+  if (f.tag) where['tags'] = { some: { tag: { slug: f.tag, userId: f.userId } } };
+  if (f.kind) where['kind'] = f.kind;
+  return where;
+}
+
 @Injectable()
 export class ItemRepo implements IItemRepo {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(input: { userId: string; url: string }): Promise<string> {
-    const item = await this.prisma.item.create({ data: { userId: input.userId, url: input.url } });
+  async create(input: { userId: string; url: string; kind?: ItemKind }): Promise<string> {
+    const item = await this.prisma.item.create({
+      data: {
+        userId: input.userId,
+        url: input.url,
+        ...(input.kind !== undefined && { kind: input.kind }),
+      },
+    });
     return item.id;
   }
 
@@ -91,10 +112,7 @@ export class ItemRepo implements IItemRepo {
   private async findManyPlain(
     f: ListItemsFilter,
   ): Promise<{ items: ItemDetail[]; nextCursor: string | null }> {
-    const where: Record<string, unknown> = { userId: f.userId };
-    if (f.readState) where['readState'] = f.readState;
-    if (f.favorite !== undefined) where['favorite'] = f.favorite;
-    if (f.tag) where['tags'] = { some: { tag: { slug: f.tag, userId: f.userId } } };
+    const where = buildItemWhere(f);
 
     const rows = await this.prisma.item.findMany({
       where,
@@ -156,13 +174,7 @@ export class ItemRepo implements IItemRepo {
     }
 
     // Build additional filters (userId is mandatory for ownership)
-    const where: Record<string, unknown> = {
-      userId: f.userId,
-      id: { in: candidateIds },
-    };
-    if (f.readState) where['readState'] = f.readState;
-    if (f.favorite !== undefined) where['favorite'] = f.favorite;
-    if (f.tag) where['tags'] = { some: { tag: { slug: f.tag, userId: f.userId } } };
+    const where = { ...buildItemWhere(f), id: { in: candidateIds } };
 
     const rows = await this.prisma.item.findMany({
       where,
