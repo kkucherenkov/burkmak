@@ -73,9 +73,11 @@ deploy --prod /out` to prune to production deps.
 - Standalone workflow (native `on.pull_request.paths` filtering — no
   path-filter action needed), amd64 only, `push: false`, triggered by
   `apps/*/Dockerfile`, `deploy/**`, `.github/workflows/release.yml`, the
-  workflow itself, plus lockfile/prisma changes. Shares the buildx `gha`
-  cache scope with `release.yml`. Guarantees a release tag is never the
-  first time a production Dockerfile builds.
+  workflow itself, plus lockfile/prisma changes. Uses the same buildx `gha`
+  cache scope as `release.yml`, warmed by post-merge `main` builds (this
+  workflow also runs `on: push` to `main`) — PR-ref caches are
+  branch-isolated and unreadable from tag pushes. Guarantees a release tag
+  is never the first time a production Dockerfile builds.
 
 ### 5. `deploy/` (new)
 

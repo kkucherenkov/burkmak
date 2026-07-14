@@ -196,6 +196,12 @@ volume, so edits hot-reload — don't also run `pnpm dev` against the same ports
 
 For the mobile app: `cd apps/mobile && flutter run` (Flutter 3.41 + Dart 3.8).
 
+### Deploy on your homelab
+
+Every release publishes ready-to-run Docker images (amd64 + arm64) to GitHub
+Packages — no clone or toolchain needed. Install with a single
+`docker compose up -d`: see [`deploy/README.md`](deploy/README.md).
+
 ### Requirements
 
 - Node.js ≥ 24 · pnpm ≥ 10
