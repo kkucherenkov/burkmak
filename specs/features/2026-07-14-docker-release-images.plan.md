@@ -462,7 +462,7 @@ git commit -m "feat(deploy): homelab docker-compose stack — GHCR images, one d
 **Interfaces:**
 
 - Consumes: `apps/backend/Dockerfile`, `apps/web/Dockerfile` (Tasks 1–2), image names from Global Constraints.
-- Produces: on tag `vX.Y.Z` — GHCR packages `burkmak-backend`/`burkmak-web` tagged `X.Y.Z` + `latest` and a GitHub Release; on PRs touching docker files — an amd64 smoke build sharing the buildx cache scope with releases.
+- Produces: on tag `vX.Y.Z` — GHCR packages `burkmak-backend`/`burkmak-web` tagged `X.Y.Z` + `latest` and a GitHub Release; on PRs touching docker files (and on push to `main`) — an amd64 smoke build using the same buildx cache scope as releases, warmed by the post-merge `main` build since PR-ref caches are branch-isolated and unreadable from tag pushes.
 
 - [ ] **Step 1: Create `.github/workflows/release.yml`**
 
@@ -557,6 +557,8 @@ on:
       - .github/workflows/docker-build.yml
       - pnpm-lock.yaml
       - apps/backend/prisma/**
+      - .dockerignore
+      - package.json
 
 concurrency:
   group: docker-build-${{ github.ref }}
@@ -584,7 +586,9 @@ jobs:
           file: ${{ matrix.dockerfile }}
           platforms: linux/amd64
           push: false
-          # Same scope as release.yml so release builds reuse PR layers.
+          # Post-merge main builds (this workflow's push trigger) warm the
+          # gha cache that release tag builds read; PR-ref caches are
+          # branch-isolated and unreadable from tag pushes.
           cache-from: type=gha,scope=${{ matrix.image }}
           cache-to: type=gha,mode=max,scope=${{ matrix.image }}
 ```
