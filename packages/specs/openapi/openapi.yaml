@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: App API
-  version: 0.4.0
+  version: 0.5.0
   description: |
     Spec-first HTTP API. Paths include the versioned prefix (`/api/v1`) so
     generated clients can be used without additional base-URL rewriting.
@@ -123,7 +123,7 @@ paths:
     get:
       operationId: listItems
       summary: List saved items with optional filtering
-      description: Returns a cursor-paginated list of the authenticated user's saved items. Supports filtering by read state, tag, favourite flag, and full-text search.
+      description: Returns a cursor-paginated list of the authenticated user's saved items. Supports filtering by read state, tag, favourite flag, full-text search, and kind.
       tags: [items]
       security:
         - cookieAuth: []
@@ -135,6 +135,12 @@ paths:
           schema:
             $ref: "#/components/schemas/ReadState"
           description: Filter by read state
+        - name: kind
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/Kind"
+          description: Filter by kind (article or bookmark). Omit to return all kinds.
         - name: tag
           in: query
           required: false
@@ -181,6 +187,7 @@ paths:
                     items:
                       - id: clxabc123
                         url: https://example.com/article
+                        kind: article
                         canonicalUrl: null
                         title: "An interesting article"
                         siteName: "Example"
@@ -240,6 +247,7 @@ paths:
                   value:
                     id: clxabc123
                     url: https://example.com/article
+                    kind: article
                     canonicalUrl: null
                     title: null
                     siteName: null
@@ -309,6 +317,7 @@ paths:
                   value:
                     id: clxabc123
                     url: https://example.com/article
+                    kind: article
                     canonicalUrl: https://example.com/article
                     title: "An interesting article"
                     siteName: "Example"
@@ -383,6 +392,7 @@ paths:
                   value:
                     id: clxabc123
                     url: https://example.com/article
+                    kind: article
                     canonicalUrl: https://example.com/article
                     title: "An interesting article"
                     siteName: "Example"
@@ -515,6 +525,7 @@ paths:
                   value:
                     id: clxabc123
                     url: https://example.com/article
+                    kind: article
                     canonicalUrl: null
                     title: "An interesting article"
                     siteName: "Example"
@@ -1900,9 +1911,14 @@ components:
       enum: [unread, read, archived]
       description: The user's read progress for an item
 
+    Kind:
+      type: string
+      enum: [article, bookmark]
+      description: Whether the item is a readable article (default) or a reference bookmark
+
     Item:
       type: object
-      required: [id, url, status, extractStatus, readState, favorite, savedAt, tags]
+      required: [id, url, kind, status, extractStatus, readState, favorite, savedAt, tags]
       properties:
         id:
           type: string
@@ -1911,6 +1927,8 @@ components:
           type: string
           format: uri
           description: Original URL submitted by the user
+        kind:
+          $ref: "#/components/schemas/Kind"
         canonicalUrl:
           type: ["string", "null"]
           format: uri
@@ -2007,17 +2025,24 @@ components:
           items:
             type: string
           description: Optional tag slugs to attach immediately
+        kind:
+          $ref: "#/components/schemas/Kind"
+          default: article
+          description: Save as a readable article (default) or a reference bookmark
 
     UpdateItemRequest:
       type: object
       minProperties: 1
-      description: At least one of `readState` or `favorite` must be provided.
+      description: At least one of `readState`, `favorite`, or `kind` must be provided.
       properties:
         readState:
           $ref: "#/components/schemas/ReadState"
         favorite:
           type: boolean
           description: Set or clear the favourite flag
+        kind:
+          $ref: "#/components/schemas/Kind"
+          description: Promote a bookmark into the reading queue, or demote an article to a bookmark
 
     AddTagRequest:
       type: object
