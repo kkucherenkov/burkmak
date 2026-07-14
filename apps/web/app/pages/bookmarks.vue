@@ -8,7 +8,7 @@
   const { t } = useI18n();
 
   const store = useItems('bookmark');
-  useEvents();
+  useEvents('bookmark');
 
   const errored = ref(false);
 

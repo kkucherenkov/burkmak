@@ -78,7 +78,11 @@ export function useItems(kind: Kind = 'article'): UseItemsReturn {
 
   async function refetchOne(id: string): Promise<void> {
     try {
-      items.value = upsertItem(items.value, await api.getItem(id));
+      const fetched = await api.getItem(id);
+      // An item only belongs in this scope's list while its kind matches.
+      // A promoted/demoted item (PATCH kind) leaves this list instead.
+      items.value =
+        fetched.kind === kind ? upsertItem(items.value, fetched) : removeItemById(items.value, id);
     } catch {
       // item may have been deleted between event and fetch — ignore
     }

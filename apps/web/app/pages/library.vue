@@ -11,7 +11,7 @@
 
   const store = useItems('article');
   const tagStore = useTags();
-  useEvents();
+  useEvents('article');
 
   const modalOpen = ref(false);
 
