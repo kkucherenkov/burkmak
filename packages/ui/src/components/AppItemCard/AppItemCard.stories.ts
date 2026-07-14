@@ -91,3 +91,17 @@ export const Fresh: Story = {
     fresh: true,
   },
 };
+
+export const Bookmark: Story = {
+  args: {
+    item: {
+      ...baseItem,
+      id: 'itm_6',
+      title: 'A handy CLI reference',
+      excerpt: 'Reference link — opens at its source, never enters the reading queue.',
+      tags: ['tool'],
+    },
+    labels,
+    variant: 'bookmark',
+  },
+};

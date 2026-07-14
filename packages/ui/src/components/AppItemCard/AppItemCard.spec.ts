@@ -67,4 +67,24 @@ describe('AppItemCard', () => {
     expect(w.find('.app-skeleton').exists()).toBe(true);
     expect(w.find('.app-item-card__excerpt').exists()).toBe(false);
   });
+  it('hides the archive action in the bookmark variant', () => {
+    const w = mount(AppItemCard, {
+      global,
+      props: { item: base, labels, variant: 'bookmark' },
+    });
+    expect(w.find('[data-testid="arc"]').exists()).toBe(false);
+    expect(w.find('[data-testid="fav"]').exists()).toBe(true);
+    expect(w.find('[data-testid="del"]').exists()).toBe(true);
+  });
+  it('still emits open in the bookmark variant', async () => {
+    const w = mount(AppItemCard, {
+      global,
+      props: { item: base, labels, variant: 'bookmark' },
+    });
+    await w.find('.app-item-card__title').trigger('click');
+    expect(w.emitted('open')?.[0]).toEqual(['itm_1']);
+  });
+  it('renders the archive action in the default (article) variant', () => {
+    expect(mountCard().find('[data-testid="arc"]').exists()).toBe(true);
+  });
 });

@@ -26,8 +26,9 @@
       item: AppItemCardData;
       labels: { status: string; favorite: string; archive: string; delete: string };
       fresh?: boolean;
+      variant?: 'article' | 'bookmark';
     }>(),
-    { fresh: false },
+    { fresh: false, variant: 'article' },
   );
 
   const emit = defineEmits<{
@@ -102,6 +103,7 @@
           @click="emit('toggleFavorite', item.id)"
         />
         <AppButton
+          v-if="props.variant === 'article'"
           variant="ghost"
           size="sm"
           icon="i-lucide-archive"
