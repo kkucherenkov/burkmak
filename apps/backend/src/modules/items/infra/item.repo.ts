@@ -200,7 +200,7 @@ export class ItemRepo implements IItemRepo {
   async update(
     userId: string,
     id: string,
-    patch: { readState?: 'unread' | 'read' | 'archived'; favorite?: boolean },
+    patch: { readState?: 'unread' | 'read' | 'archived'; favorite?: boolean; kind?: ItemKind },
   ): Promise<boolean> {
     const data: Record<string, unknown> = { ...patch };
     if (patch.readState === 'read') data['readAt'] = new Date();
