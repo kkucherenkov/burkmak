@@ -12,6 +12,7 @@ Item _item(String id) => Item(
   (b) => b
     ..id = id
     ..url = 'https://x/$id'
+    ..kind = Kind.article
     ..status = ItemStatus.pending
     ..extractStatus = ExtractStatus.none
     ..readState = ReadState.unread
