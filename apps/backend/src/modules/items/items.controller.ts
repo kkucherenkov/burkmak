@@ -68,7 +68,7 @@ export class ItemsController {
   @HttpCode(HttpStatus.CREATED)
   async save(@Req() req: AuthenticatedRequest, @Body() dto: SaveItemDto): Promise<ItemDetail> {
     const created: { id: string } = await this.commandBus.execute(
-      new SaveItemCommand(req.userId, dto.url, dto.tags ?? []),
+      new SaveItemCommand(req.userId, dto.url, dto.tags ?? [], dto.kind ?? 'article'),
     );
     return this.queryBus.execute(new GetItemQuery(req.userId, created.id));
   }

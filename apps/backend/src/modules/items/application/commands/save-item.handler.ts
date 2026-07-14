@@ -15,7 +15,7 @@ export class SaveItemHandler implements ICommandHandler<SaveItemCommand, { id: s
   ) {}
 
   async execute(cmd: SaveItemCommand): Promise<{ id: string }> {
-    const id = await this.repo.create({ userId: cmd.userId, url: cmd.url });
+    const id = await this.repo.create({ userId: cmd.userId, url: cmd.url, kind: cmd.kind });
     for (const tag of cmd.tags) {
       await this.repo.addTag(cmd.userId, id, tag);
     }
