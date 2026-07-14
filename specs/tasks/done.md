@@ -2,6 +2,17 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-07-14-004 — Docker release images + homelab deploy
+
+- Created: 2026-07-14
+- Completed: 2026-07-14
+- Owner: claude
+- Spec: [specs/features/2026-07-14-docker-release-images.design.md](../features/2026-07-14-docker-release-images.design.md)
+- Plan: [specs/features/2026-07-14-docker-release-images.plan.md](../features/2026-07-14-docker-release-images.plan.md)
+- Result: merged via [PR #14](https://github.com/kkucherenkov/burkmak/pull/14) (merge commit `749a353`); branch deleted.
+- Delivered: tag push `vX.Y.Z` publishes `ghcr.io/kkucherenkov/burkmak-{backend,web}` (amd64+arm64, `X.Y.Z`+`latest`) and creates the GitHub Release (`release.yml`); paths-filtered PR/main smoke build warms the buildx cache (`docker-build.yml`); homelab installs via `deploy/compose.yml` + `.env.example` + README (plain LAN HTTP, SQLite on `/data` volume, migrate-on-boot, non-root images). Dep fixes surfaced by the pruned production install: `prisma` devDeps→deps, `express` declared (was an undeclared direct import — boot crash in the pruned image).
+- Verified: real local builds + smoke tests for both images (health 200, migrations on boot, runtime `NUXT_PUBLIC_*` injection proven, non-root), full compose integration test on :3300/:3301, actionlint clean, backend 216/216; per-task reviews + whole-branch final review, all findings fixed and re-verified.
+
 ## T-2026-07-14-003 — image-route containment vs untainted root (alerts #11/#12 follow-up)
 
 - Created: 2026-07-14
