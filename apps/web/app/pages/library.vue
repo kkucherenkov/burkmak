@@ -9,7 +9,7 @@
   definePageMeta({ middleware: 'auth' });
   const { t } = useI18n();
 
-  const store = useItems();
+  const store = useItems('article');
   const tagStore = useTags();
   useEvents();
 

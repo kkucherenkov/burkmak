@@ -18,6 +18,7 @@ type TagList = components['schemas']['TagList'];
 type SaveItemRequest = components['schemas']['SaveItemRequest'];
 type UpdateItemRequest = components['schemas']['UpdateItemRequest'];
 type ReadState = components['schemas']['ReadState'];
+type Kind = components['schemas']['Kind'];
 type ExtractAccepted = components['schemas']['ExtractAccepted'];
 type Article = components['schemas']['Article'];
 type Highlight = components['schemas']['Highlight'];
@@ -34,6 +35,7 @@ export interface ItemsQuery {
   tag?: string;
   favorite?: boolean;
   q?: string;
+  kind?: Kind;
   cursor?: string;
   limit?: number;
 }
