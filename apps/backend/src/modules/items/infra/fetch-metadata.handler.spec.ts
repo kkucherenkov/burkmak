@@ -69,9 +69,12 @@ describe('FetchMetadataHandler', () => {
   it('auto-enqueues extract_article when extractStatus is none', async () => {
     const fetcher = { fetch: vi.fn().mockResolvedValue(META) };
     const repo = {
-      findById: vi
-        .fn()
-        .mockResolvedValue({ id: 'itm_1', url: 'https://x.com', extractStatus: 'none' }),
+      findById: vi.fn().mockResolvedValue({
+        id: 'itm_1',
+        url: 'https://x.com',
+        kind: 'article',
+        extractStatus: 'none',
+      }),
       applyMetadata: vi.fn(),
       setExtractStatus: vi.fn(),
     };
@@ -134,9 +137,12 @@ describe('FetchMetadataHandler', () => {
   it('keeps metadata ready and reverts extractStatus when chain enqueue fails', async () => {
     const fetcher = { fetch: vi.fn().mockResolvedValue(META) };
     const repo = {
-      findById: vi
-        .fn()
-        .mockResolvedValue({ id: 'itm_1', url: 'https://x.com', extractStatus: 'none' }),
+      findById: vi.fn().mockResolvedValue({
+        id: 'itm_1',
+        url: 'https://x.com',
+        kind: 'article',
+        extractStatus: 'none',
+      }),
       applyMetadata: vi.fn(),
       setExtractStatus: vi.fn().mockResolvedValue(undefined),
     };
@@ -156,6 +162,38 @@ describe('FetchMetadataHandler', () => {
     expect(repo.applyMetadata).not.toHaveBeenCalledWith('itm_1', { status: 'failed' });
     expect(repo.setExtractStatus).toHaveBeenNthCalledWith(1, 'itm_1', 'extracting');
     expect(repo.setExtractStatus).toHaveBeenNthCalledWith(2, 'itm_1', 'none');
+    expect(events.publish).toHaveBeenCalledWith('u1', 'item.updated', { id: 'itm_1' });
+  });
+
+  it('does not auto-extract a bookmark even when extractStatus is none', async () => {
+    const fetcher = { fetch: vi.fn().mockResolvedValue(META) };
+    const repo = {
+      findById: vi.fn().mockResolvedValue({
+        id: 'itm_1',
+        url: 'https://tool.dev',
+        kind: 'bookmark',
+        extractStatus: 'none',
+      }),
+      applyMetadata: vi.fn(),
+      setExtractStatus: vi.fn(),
+    };
+    const events = { publish: vi.fn() };
+    const jobs = { enqueue: vi.fn() };
+    const h = new FetchMetadataHandler(
+      repo as never,
+      fetcher as never,
+      events as never,
+      jobs as never,
+    );
+    await h.handle(job);
+    // metadata still written…
+    expect(repo.applyMetadata).toHaveBeenCalledWith(
+      'itm_1',
+      expect.objectContaining({ status: 'ready' }),
+    );
+    // …but no extract chain for a bookmark.
+    expect(repo.setExtractStatus).not.toHaveBeenCalled();
+    expect(jobs.enqueue).not.toHaveBeenCalled();
     expect(events.publish).toHaveBeenCalledWith('u1', 'item.updated', { id: 'itm_1' });
   });
 });

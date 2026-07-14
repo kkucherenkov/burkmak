@@ -34,7 +34,10 @@ export class ExtractBackfillService implements OnApplicationBootstrap {
       if (marker) return;
 
       const candidates = await this.prisma.item.findMany({
-        where: { status: 'ready', extractStatus: { in: ['none', 'failed'] } },
+        // kind:'article' is defensive — the marker means this never re-runs on
+        // existing installs, and a fresh install has no bookmarks at first boot,
+        // but the pipeline must never enqueue extraction for a bookmark.
+        where: { status: 'ready', extractStatus: { in: ['none', 'failed'] }, kind: 'article' },
         select: { id: true, userId: true },
       });
 
