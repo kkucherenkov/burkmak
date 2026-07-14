@@ -20,6 +20,7 @@ class ItemsRepository {
       q: q,
       cursor: cursor,
       limit: 20,
+      kind: Kind.article,
     );
     return res.data!;
   }
