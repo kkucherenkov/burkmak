@@ -14,6 +14,6 @@
   - [x] Task 2 — web production Dockerfile
   - [x] Task 3 — `deploy/` homelab stack (compose, .env.example, README)
   - [x] Task 4 — `release.yml` + `docker-build.yml` workflows
-  - [ ] Final whole-branch review + PR
-- Status: in-progress
+  - [x] Final whole-branch review + PR
+- Status: in-review — [PR #14](https://github.com/kkucherenkov/burkmak/pull/14) awaiting merge
 - Blockers: —
