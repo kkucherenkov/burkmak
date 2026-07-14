@@ -94,6 +94,7 @@ export class KoboController {
     const { items, nextCursor } = await this.itemRepo.findMany({
       userId: req.userId,
       limit: OPDS_PAGE_SIZE,
+      kind: 'article',
       ...(cursor === undefined ? {} : { cursor }),
       ...(q === undefined ? {} : { q }),
     });

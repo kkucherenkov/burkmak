@@ -85,6 +85,7 @@ export class KoboSyncRepo {
     const rows = await this.prisma.item.findMany({
       where: {
         userId,
+        kind: 'article',
         extractStatus: 'ready',
         readState: { not: 'archived' },
         koboEntitlement: { is: null },
