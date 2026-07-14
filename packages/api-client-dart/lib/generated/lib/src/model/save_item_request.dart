@@ -15,7 +15,7 @@ part 'save_item_request.g.dart';
 /// Properties:
 /// * [url] - URL to save
 /// * [tags] - Optional tag slugs to attach immediately
-/// * [kind] - Save as a readable article (default) or a reference bookmark
+/// * [kind] - Save as a readable article or a reference bookmark. Omitted → article (the server default).
 @BuiltValue()
 abstract class SaveItemRequest implements Built<SaveItemRequest, SaveItemRequestBuilder> {
   /// URL to save
@@ -26,7 +26,7 @@ abstract class SaveItemRequest implements Built<SaveItemRequest, SaveItemRequest
   @BuiltValueField(wireName: r'tags')
   BuiltList<String>? get tags;
 
-  /// Save as a readable article (default) or a reference bookmark
+  /// Save as a readable article or a reference bookmark. Omitted → article (the server default).
   @BuiltValueField(wireName: r'kind')
   Kind? get kind;
   // enum kindEnum {  article,  bookmark,  };
@@ -36,8 +36,7 @@ abstract class SaveItemRequest implements Built<SaveItemRequest, SaveItemRequest
   factory SaveItemRequest([void updates(SaveItemRequestBuilder b)]) = _$SaveItemRequest;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(SaveItemRequestBuilder b) => b
-      ..kind = Kind.article;
+  static void _defaults(SaveItemRequestBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
   static Serializer<SaveItemRequest> get serializer => _$SaveItemRequestSerializer();

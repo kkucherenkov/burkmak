@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **url** | **String** | URL to save | 
 **tags** | **BuiltList&lt;String&gt;** | Optional tag slugs to attach immediately | [optional] 
-**kind** | [**Kind**](Kind.md) | Save as a readable article (default) or a reference bookmark | [optional] [default to Kind.article]
+**kind** | [**Kind**](Kind.md) | Save as a readable article or a reference bookmark. Omitted → article (the server default). | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

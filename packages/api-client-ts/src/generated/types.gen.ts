@@ -144,7 +144,7 @@ export type SaveItemRequest = {
      */
     tags?: Array<string>;
     /**
-     * Save as a readable article (default) or a reference bookmark
+     * Save as a readable article or a reference bookmark. Omitted → article (the server default).
      */
     kind?: Kind;
 };

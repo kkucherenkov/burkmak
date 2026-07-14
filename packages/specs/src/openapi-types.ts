@@ -654,11 +654,8 @@ export interface components {
             url: string;
             /** @description Optional tag slugs to attach immediately */
             tags?: string[];
-            /**
-             * @description Save as a readable article (default) or a reference bookmark
-             * @default article
-             */
-            kind: components["schemas"]["Kind"];
+            /** @description Save as a readable article or a reference bookmark. Omitted → article (the server default). */
+            kind?: components["schemas"]["Kind"];
         };
         /** @description At least one of `readState`, `favorite`, or `kind` must be provided. */
         UpdateItemRequest: {
