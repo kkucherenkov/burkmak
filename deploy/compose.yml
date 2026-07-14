@@ -1,0 +1,36 @@
+name: burkmak
+
+services:
+  backend:
+    image: ghcr.io/kkucherenkov/burkmak-backend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATABASE_URL: file:/data/burkmak.db
+      DATA_DIR: /data
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET in .env}
+      BETTER_AUTH_URL: http://${BURKMAK_HOST:?set BURKMAK_HOST in .env}:${BACKEND_PORT:-3000}
+      BETTER_AUTH_BASE_PATH: /api/v1/auth
+      CORS_ORIGINS: http://${BURKMAK_HOST}:${WEB_PORT:-3001}
+    volumes:
+      - burkmak-data:/data
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    # The image defines its own HEALTHCHECK; compose inherits it for
+    # `depends_on: condition: service_healthy` below.
+
+  web:
+    image: ghcr.io/kkucherenkov/burkmak-web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NUXT_PUBLIC_API_BASE_URL: http://${BURKMAK_HOST}:${BACKEND_PORT:-3000}/api/v1
+      NUXT_PUBLIC_AUTH_BASE_URL: http://${BURKMAK_HOST}:${BACKEND_PORT:-3000}
+    ports:
+      - "${WEB_PORT:-3001}:3001"
+
+volumes:
+  burkmak-data:
