@@ -12,7 +12,7 @@
 - Sub-steps:
   - [x] Task 1 — backend production Dockerfile (+ `prisma` → dependencies)
   - [x] Task 2 — web production Dockerfile
-  - [ ] Task 3 — `deploy/` homelab stack (compose, .env.example, README)
+  - [x] Task 3 — `deploy/` homelab stack (compose, .env.example, README)
   - [ ] Task 4 — `release.yml` + `docker-build.yml` workflows
   - [ ] Final whole-branch review + PR
 - Status: in-progress
