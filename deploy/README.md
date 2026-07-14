@@ -31,11 +31,21 @@ Pin a specific version instead of `latest` by setting `IMAGE_TAG=0.1.0` in
 ## Backup
 
 Everything lives in the `burkmak-data` volume (SQLite database + cached
-articles, images, and EPUBs):
+articles, images, and EPUBs). Stop the backend first so the SQLite database
+isn't mid-write (WAL) during the tar — a live tar can produce a silently
+torn backup:
+
+```sh
+docker compose stop backend
+```
 
 ```sh
 docker run --rm -v burkmak_burkmak-data:/data -v "$PWD":/backup alpine \
   tar czf /backup/burkmak-backup.tar.gz -C /data .
+```
+
+```sh
+docker compose start backend
 ```
 
 ## Limitations over plain HTTP
