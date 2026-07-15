@@ -162,3 +162,19 @@ describe('ShelfRepo', () => {
     expect((await shelves.findById('userA', id))?.itemCount).toBe(0);
   });
 });
+
+describe('ItemDetail.shelves', () => {
+  it('is empty for an unshelved item', async () => {
+    const id = await items.create({ userId: 'userA', url: 'https://a.example.com/unshelved' });
+    const item = await items.findById('userA', id);
+    expect(item?.shelves).toEqual([]);
+  });
+
+  it('lists the shelves an item is on', async () => {
+    const itemId = await items.create({ userId: 'userA', url: 'https://a.example.com/shelved' });
+    const shelfId = await shelves.create('userA', 'Listed');
+    await shelves.addItem('userA', shelfId, itemId);
+    const item = await items.findById('userA', itemId);
+    expect(item?.shelves).toEqual([{ id: shelfId, name: 'Listed' }]);
+  });
+});

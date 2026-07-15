@@ -19,7 +19,12 @@ function toSlug(name: string): string {
     .replaceAll(/^-|-$/g, '');
 }
 
-function toDetail(row: Item & { tags?: { tag: { slug: string } }[] }): ItemDetail {
+function toDetail(
+  row: Item & {
+    tags?: { tag: { slug: string } }[];
+    shelves?: { shelf: { id: string; name: string } }[];
+  },
+): ItemDetail {
   return {
     id: row.id,
     url: row.url,
@@ -37,6 +42,7 @@ function toDetail(row: Item & { tags?: { tag: { slug: string } }[] }): ItemDetai
     savedAt: row.savedAt.toISOString(),
     readAt: row.readAt ? row.readAt.toISOString() : null,
     tags: (row.tags ?? []).map((t) => t.tag.slug),
+    shelves: (row.shelves ?? []).map((s) => ({ id: s.shelf.id, name: s.shelf.name })),
   };
 }
 
@@ -94,7 +100,10 @@ export class ItemRepo implements IItemRepo {
   async findById(userId: string, id: string): Promise<ItemDetail | null> {
     const row = await this.prisma.item.findFirst({
       where: { id, userId },
-      include: { tags: { include: { tag: true } } },
+      include: {
+        tags: { include: { tag: true } },
+        shelves: { select: { shelf: { select: { id: true, name: true } } } },
+      },
     });
     return row ? toDetail(row) : null;
   }
@@ -116,7 +125,10 @@ export class ItemRepo implements IItemRepo {
 
     const rows = await this.prisma.item.findMany({
       where,
-      include: { tags: { include: { tag: true } } },
+      include: {
+        tags: { include: { tag: true } },
+        shelves: { select: { shelf: { select: { id: true, name: true } } } },
+      },
       orderBy: { savedAt: 'desc' },
       take: f.limit + 1,
       ...(f.cursor ? { cursor: { id: f.cursor }, skip: 1 } : {}),
@@ -178,7 +190,10 @@ export class ItemRepo implements IItemRepo {
 
     const rows = await this.prisma.item.findMany({
       where,
-      include: { tags: { include: { tag: true } } },
+      include: {
+        tags: { include: { tag: true } },
+        shelves: { select: { shelf: { select: { id: true, name: true } } } },
+      },
       // Preserve FTS rank order — re-sort by position in candidateIds
       // (Prisma doesn't support ORDER BY FIELD; sort in JS after fetch)
     });

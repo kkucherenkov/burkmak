@@ -22,6 +22,7 @@ export interface ItemDetail {
   savedAt: string;
   readAt: string | null;
   tags: string[]; // slugs
+  shelves: { id: string; name: string }[];
 }
 
 export interface ItemMetadataPatch {
