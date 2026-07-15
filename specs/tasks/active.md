@@ -10,13 +10,13 @@
 - Spec diff: yes (Shelf/ShelfSummary/ShelfList/Create/Rename schemas; 6 paths; listItems gains shelf; Item.shelves required) — version 0.5.0 → 0.6.0
 - Codegen impact: yes (ts + dart clients)
 - Sub-steps:
-  - [ ] drift guard: openapi query params ↔ DTOs (prerequisite)
-  - [ ] spec: shelves schemas + paths + ?shelf= + Item.shelves + regen (own commit)
-  - [ ] schema + hand-written migration (shelf, shelf_item)
-  - [ ] domain ports + errors (first 409 DomainError)
-  - [ ] ShelfRepo + real-DB isolation specs
-  - [ ] CQRS commands/queries + DTOs + controller + module wiring
-  - [ ] Item.shelves on the item response
+  - [x] drift guard: openapi query params ↔ DTOs (prerequisite)
+  - [x] spec: shelves schemas + paths + ?shelf= + Item.shelves + regen (own commit)
+  - [x] schema + hand-written migration (shelf, shelf_item)
+  - [x] domain ports + errors (first 409 DomainError)
+  - [x] ShelfRepo + real-DB isolation specs
+  - [x] CQRS commands/queries + DTOs + controller + module wiring
+  - [x] Item.shelves on the item response
   - [x] GET /items?shelf= (filter + repo + DTO + controller)
   - [ ] web: useApi/useShelves + /shelves pages + picker + nav + i18n
   - [ ] ui: AppShelfRow + AppShelfPicker (+ stories + specs)
