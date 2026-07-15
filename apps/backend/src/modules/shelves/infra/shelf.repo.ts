@@ -31,19 +31,10 @@ export class ShelfRepo implements IShelfRepo {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(userId: string, name: string): Promise<string> {
-    try {
-      const row = await this.prisma.shelf.create({ data: { userId, name } });
-      return row.id;
-    } catch (error) {
-      // Catch the constraint rather than pre-checking: a SELECT-then-INSERT races.
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === UNIQUE_VIOLATION
-      ) {
-        throw new ShelfNameConflictError(name);
-      }
-      throw error;
-    }
+    const row = await this.withNameConflictGuard(name, () =>
+      this.prisma.shelf.create({ data: { userId, name } }),
+    );
+    return row.id;
   }
 
   async findById(userId: string, id: string): Promise<ShelfDetail | null> {
@@ -64,21 +55,10 @@ export class ShelfRepo implements IShelfRepo {
   }
 
   async rename(userId: string, id: string, name: string): Promise<boolean> {
-    try {
-      const { count } = await this.prisma.shelf.updateMany({
-        where: { id, userId },
-        data: { name },
-      });
-      return count > 0;
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === UNIQUE_VIOLATION
-      ) {
-        throw new ShelfNameConflictError(name);
-      }
-      throw error;
-    }
+    const { count } = await this.withNameConflictGuard(name, () =>
+      this.prisma.shelf.updateMany({ where: { id, userId }, data: { name } }),
+    );
+    return count > 0;
   }
 
   async delete(userId: string, id: string): Promise<boolean> {
@@ -103,6 +83,25 @@ export class ShelfRepo implements IShelfRepo {
     await this.prisma.shelfItem.deleteMany({ where: { shelfId, itemId } });
     await this.touch(shelfId);
     return true;
+  }
+
+  /**
+   * Runs a shelf-name-mutating call and remaps Prisma's unique-constraint
+   * violation to `ShelfNameConflictError`. Catching rather than pre-checking
+   * avoids a SELECT-then-write race between two concurrent callers.
+   */
+  private async withNameConflictGuard<T>(name: string, fn: () => Promise<T>): Promise<T> {
+    try {
+      return await fn();
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === UNIQUE_VIOLATION
+      ) {
+        throw new ShelfNameConflictError(name);
+      }
+      throw error;
+    }
   }
 
   /** Both the shelf and the item must belong to this user. */

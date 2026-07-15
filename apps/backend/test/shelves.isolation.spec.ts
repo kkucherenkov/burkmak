@@ -98,6 +98,39 @@ describe('ShelfRepo', () => {
     expect((await shelves.findById('userA', id))?.itemCount).toBe(0);
   });
 
+  it('removeItem drops the membership', async () => {
+    const id = await shelves.create('userA', 'Removable');
+    await shelves.addItem('userA', id, aItemId);
+    expect((await shelves.findById('userA', id))?.itemCount).toBe(1);
+    expect(await shelves.removeItem('userA', id, aItemId)).toBe(true);
+    expect((await shelves.findById('userA', id))?.itemCount).toBe(0);
+  });
+
+  it('bumps lastModified on removeItem', async () => {
+    const id = await shelves.create('userA', 'TouchedOnRemove');
+    await shelves.addItem('userA', id, aItemId);
+    const before = (await shelves.findById('userA', id))!.lastModified;
+    await new Promise((r) => setTimeout(r, 1100)); // SQLite DATETIME is second-resolution
+    await shelves.removeItem('userA', id, aItemId);
+    const after = (await shelves.findById('userA', id))!.lastModified;
+    expect(new Date(after).getTime()).toBeGreaterThan(new Date(before).getTime());
+  });
+
+  it("will not add to another user's shelf", async () => {
+    const id = await shelves.create('userA', 'NotYours');
+    // userB owns bItemId, so ownsBoth's item-side check passes for them — this
+    // isolates the shelf-side half, which no other test covers.
+    expect(await shelves.addItem('userB', id, bItemId)).toBe(false);
+    expect((await shelves.findById('userA', id))?.itemCount).toBe(0);
+  });
+
+  it("will not remove from another user's shelf", async () => {
+    const id = await shelves.create('userA', 'Guarded');
+    await shelves.addItem('userA', id, aItemId);
+    expect(await shelves.removeItem('userB', id, bItemId)).toBe(false);
+    expect((await shelves.findById('userA', id))?.itemCount).toBe(1);
+  });
+
   it("will not touch another user's shelf", async () => {
     const id = await shelves.create('userA', 'Private');
     expect(await shelves.rename('userB', id, 'Hijacked')).toBe(false);
