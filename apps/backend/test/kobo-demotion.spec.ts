@@ -8,8 +8,10 @@
  * fires for an item that already owns an entitlement row. These tests cover the
  * *retraction* path.
  *
- * Mirrors the pattern from items.isolation.spec.ts / s2.isolation.spec.ts:
- *  - temp SQLite DB via `prisma db push`
+ * Scaffolding follows auth-sqlite-boot.spec.ts, not the older isolation specs:
+ *  - temp SQLite DB built from the committed migrations (migrations-only
+ *    policy: no `prisma db push`), so the tests run against the schema that
+ *    ships rather than a `schema.prisma` snapshot
  *  - real repos + real KoboSyncService against that DB (no Prisma mocks — a
  *    mocked `where` assertion cannot prove Prisma honours the clause)
  */
@@ -77,7 +79,7 @@ function isChangedEntry(entry: unknown): entry is ChangedEntry {
 beforeAll(async () => {
   cleanup();
 
-  execSync('./node_modules/.bin/prisma db push --accept-data-loss', {
+  execSync('./node_modules/.bin/prisma migrate deploy', {
     cwd: BACKEND_DIR,
     env: { ...process.env, DATABASE_URL: DB_URL },
     stdio: 'pipe',
