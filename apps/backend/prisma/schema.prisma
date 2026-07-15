@@ -246,5 +246,8 @@ model ShelfItem {
   item    Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@id([shelfId, itemId])
+  // `@@id` leads with shelfId, so shelf -> items rides the PK but item -> shelves
+  // does not. ItemTag needs no equivalent: its @@id leads with itemId.
+  @@index([itemId])
   @@map("shelf_item")
 }
