@@ -203,8 +203,10 @@ export default {
     deleteError: 'Не удалось удалить полку.',
     retry: 'Повторить',
     shelfEmpty: 'На этой полке пока пусто.',
+    addToShelf: 'Добавить на полку',
     removeFromShelf: 'Убрать с полки',
     backToShelves: 'Все полки',
+    pickerEmpty: 'Полок пока нет.',
   },
 
   nav: {

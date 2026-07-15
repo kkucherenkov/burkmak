@@ -200,8 +200,10 @@ export default {
     deleteError: "Couldn't delete the shelf.",
     retry: 'Try again',
     shelfEmpty: 'Nothing on this shelf yet.',
+    addToShelf: 'Add to shelf',
     removeFromShelf: 'Remove from shelf',
     backToShelves: 'All shelves',
+    pickerEmpty: 'No shelves yet.',
   },
 
   nav: {
