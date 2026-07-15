@@ -85,6 +85,7 @@ export class ItemsController {
         userId: req.userId,
         limit,
         ...(dto.readState !== undefined && { readState: dto.readState }),
+        ...(dto.kind !== undefined && { kind: dto.kind }),
         ...(dto.tag !== undefined && { tag: dto.tag }),
         ...(dto.favorite !== undefined && { favorite: dto.favorite === 'true' }),
         ...(dto.q !== undefined && { q: dto.q }),

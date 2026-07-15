@@ -6,6 +6,10 @@ export class ListItemsDto {
   readState?: 'unread' | 'read' | 'archived';
 
   @IsOptional()
+  @IsIn(['article', 'bookmark'])
+  kind?: 'article' | 'bookmark';
+
+  @IsOptional()
   @IsString()
   tag?: string;
 
