@@ -80,3 +80,52 @@ describe('multi-user item isolation', () => {
     expect(bTags.some((t) => t.slug === 'tech-news')).toBe(false);
   });
 });
+
+/**
+ * `buildItemWhere`'s kind clause against a real database. Asserting the shape of
+ * the returned object literal (see item.repo.spec.ts) passes whether or not
+ * Prisma honours the clause — only a real query proves the filter.
+ *
+ * The FTS (`q`) branch of the same helper is covered in s2.isolation.spec.ts,
+ * which owns the FTS5 DDL.
+ */
+describe('ItemRepo.findMany kind filter (plain path)', () => {
+  let articleId: string;
+  let bookmarkId: string;
+
+  beforeAll(async () => {
+    articleId = await items.create({
+      userId: 'userK',
+      url: 'https://k.example.com/article',
+      kind: 'article',
+    });
+    bookmarkId = await items.create({
+      userId: 'userK',
+      url: 'https://k.example.com/bookmark',
+      kind: 'bookmark',
+    });
+  });
+
+  it('kind: article returns only articles', async () => {
+    const { items: rows } = await items.findMany({ userId: 'userK', limit: 50, kind: 'article' });
+    const ids = rows.map((i) => i.id);
+    expect(ids).toContain(articleId);
+    expect(ids).not.toContain(bookmarkId);
+    expect(rows.every((i) => i.kind === 'article')).toBe(true);
+  });
+
+  it('kind: bookmark returns only bookmarks', async () => {
+    const { items: rows } = await items.findMany({ userId: 'userK', limit: 50, kind: 'bookmark' });
+    const ids = rows.map((i) => i.id);
+    expect(ids).toContain(bookmarkId);
+    expect(ids).not.toContain(articleId);
+    expect(rows.every((i) => i.kind === 'bookmark')).toBe(true);
+  });
+
+  it('no kind filter returns both kinds (list stays backward-compatible)', async () => {
+    const { items: rows } = await items.findMany({ userId: 'userK', limit: 50 });
+    const ids = rows.map((i) => i.id);
+    expect(ids).toContain(articleId);
+    expect(ids).toContain(bookmarkId);
+  });
+});
