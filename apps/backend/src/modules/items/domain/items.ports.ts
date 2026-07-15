@@ -39,6 +39,7 @@ export interface ListItemsFilter {
   userId: string;
   readState?: ReadState;
   tag?: string; // slug
+  shelf?: string; // shelf ID
   favorite?: boolean;
   q?: string;
   kind?: ItemKind;

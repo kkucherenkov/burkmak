@@ -14,6 +14,10 @@ export class ListItemsDto {
   tag?: string;
 
   @IsOptional()
+  @IsString()
+  shelf?: string;
+
+  @IsOptional()
   @IsBooleanString()
   favorite?: string;
 

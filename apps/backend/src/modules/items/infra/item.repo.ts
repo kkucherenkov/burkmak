@@ -78,6 +78,7 @@ export function buildItemWhere(f: ListItemsFilter): Record<string, unknown> {
   if (f.readState) where['readState'] = f.readState;
   if (f.favorite !== undefined) where['favorite'] = f.favorite;
   if (f.tag) where['tags'] = { some: { tag: { slug: f.tag, userId: f.userId } } };
+  if (f.shelf) where['shelves'] = { some: { shelfId: f.shelf } };
   if (f.kind) where['kind'] = f.kind;
   return where;
 }

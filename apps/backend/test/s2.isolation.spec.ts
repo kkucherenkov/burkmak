@@ -26,6 +26,7 @@ import { PrismaService } from '../src/common/prisma/prisma.service';
 import { ArticleRepo } from '../src/modules/items/infra/article.repo';
 import { ItemRepo } from '../src/modules/items/infra/item.repo';
 import { HighlightRepo } from '../src/modules/highlights/infra/highlight.repo';
+import { ShelfRepo } from '../src/modules/shelves/infra/shelf.repo';
 import { ItemNotFoundError } from '../src/modules/items/domain/items.errors';
 import { HighlightNotFoundError } from '../src/modules/highlights/domain/highlights.errors';
 
@@ -40,6 +41,12 @@ const UNIQUE_PHRASE = 'ztxqwophrase';
 /** Unique token shared by K's article + bookmark — exercises the FTS kind filter. */
 const KIND_PHRASE = 'zkindphrase';
 
+/** Unique token shared by S's two items — exercises the shelf filter on the FTS path. */
+const SHELF_PHRASE = 'zshelfphrase';
+let sShelfId: string;
+let sOnShelfId: string;
+let sOffShelfId: string;
+
 function cleanup(): void {
   for (const f of [DB_FILE, `${DB_FILE}-wal`, `${DB_FILE}-shm`]) {
     if (existsSync(f)) rmSync(f);
@@ -50,6 +57,7 @@ let prisma: PrismaService;
 let items: ItemRepo;
 let articles: ArticleRepo;
 let highlights: HighlightRepo;
+let shelfRepo: ShelfRepo;
 
 // Seeded IDs — populated in beforeAll
 let bItemId: string;
@@ -106,6 +114,7 @@ beforeAll(async () => {
   items = new ItemRepo(prisma);
   articles = new ArticleRepo(prisma);
   highlights = new HighlightRepo(prisma);
+  shelfRepo = new ShelfRepo(prisma);
 
   // ── Seed A ───────────────────────────────────────────────────────────────
   aItemId = await items.create({ userId: 'userA', url: 'https://a.example.com/article' });
@@ -153,6 +162,18 @@ beforeAll(async () => {
     url: `https://k.example.com/${KIND_PHRASE}/bookmark`,
     kind: 'bookmark',
   });
+
+  // ── Seed S: two items matching one FTS token, only one of them shelved ──
+  sOnShelfId = await items.create({
+    userId: 'userS',
+    url: `https://s.example.com/${SHELF_PHRASE}/on`,
+  });
+  sOffShelfId = await items.create({
+    userId: 'userS',
+    url: `https://s.example.com/${SHELF_PHRASE}/off`,
+  });
+  sShelfId = await shelfRepo.create('userS', 'Seeded');
+  await shelfRepo.addItem('userS', sShelfId, sOnShelfId);
 }, 60_000);
 
 afterAll(async () => {
@@ -337,5 +358,41 @@ describe('ItemRepo.findMany kind filter (FTS path)', () => {
     const ids = rows.map((i) => i.id);
     expect(ids).toContain(kArticleId);
     expect(ids).toContain(kBookmarkId);
+  });
+});
+
+/**
+ * The `?shelf=` clause on both list paths. `buildItemWhere` feeds findManyPlain
+ * AND findManyFts, so both need real-DB proof — asserting the shape of the
+ * returned object literal (see item.repo.spec.ts) passes whether or not Prisma
+ * honours the clause.
+ */
+describe('ItemRepo.findMany shelf filter', () => {
+  it('returns only items on the shelf', async () => {
+    const { items: rows } = await items.findMany({ userId: 'userS', limit: 50, shelf: sShelfId });
+    const ids = rows.map((i) => i.id);
+    expect(ids).toContain(sOnShelfId);
+    expect(ids).not.toContain(sOffShelfId);
+  });
+
+  it('combines with q on the FTS path, and carries the shelves array', async () => {
+    const { items: rows } = await items.findMany({
+      userId: 'userS',
+      limit: 50,
+      q: SHELF_PHRASE,
+      shelf: sShelfId,
+    });
+    const ids = rows.map((i) => i.id);
+    expect(ids).toEqual([sOnShelfId]);
+    // `Item.shelves` is required by the spec; findManyFts is the one
+    // ItemDetail-producing path with no other direct test of that field.
+    expect(rows[0]?.shelves).toEqual([{ id: sShelfId, name: 'Seeded' }]);
+  });
+
+  it('unfiltered returns both', async () => {
+    const { items: rows } = await items.findMany({ userId: 'userS', limit: 50 });
+    const ids = rows.map((i) => i.id);
+    expect(ids).toContain(sOnShelfId);
+    expect(ids).toContain(sOffShelfId);
   });
 });
