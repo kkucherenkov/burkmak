@@ -105,7 +105,8 @@ export class KoboSyncService {
       booksLastModified = laterIso(booksLastModified, item.updatedAt.toISOString());
     }
 
-    // 3. Tombstones: entitlements whose item was deleted (itemId SET NULL) — emit removal, then purge.
+    // 3. Tombstones: entitlements that must leave the device — item deleted (itemId
+    //    SET NULL) or demoted to a bookmark — emit removal, then purge.
     const orphans = await this.repo.findOrphanedEntitlements(userId);
     for (const orphan of orphans) {
       const bookEntitlement = buildBookEntitlement({

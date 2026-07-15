@@ -121,11 +121,19 @@ export class KoboSyncRepo {
     return row.uuid;
   }
 
-  /** Entitled items whose Item.updatedAt advanced past `sinceIso`. */
+  /**
+   * Entitled *articles* whose Item.updatedAt advanced past `sinceIso`.
+   *
+   * The `kind` filter matters: demoting an article bumps `updatedAt` (Prisma
+   * `@updatedAt`), so without it a freshly-demoted bookmark would be pushed to
+   * the device as a live ChangedEntitlement. Retraction is `findOrphanedEntitlements`'
+   * job — a demoted item must never emit a change.
+   */
   async findChangedItems(userId: string, sinceIso: string): Promise<ChangedItem[]> {
     const rows = await this.prisma.item.findMany({
       where: {
         userId,
+        kind: 'article',
         updatedAt: { gt: new Date(sinceIso) },
         koboEntitlement: { isNot: null },
       },
@@ -163,10 +171,18 @@ export class KoboSyncRepo {
     return result;
   }
 
-  /** Entitlement rows whose item was deleted (`itemId` went `SET NULL`). */
+  /**
+   * Entitlement rows that should no longer exist on the device, i.e. either:
+   *  - the item was deleted (`itemId` went `SET NULL` via `onDelete: SetNull`), or
+   *  - the item was demoted to a bookmark — bookmarks never live on the device.
+   *
+   * The caller emits a removal for each row and then purges it (see
+   * `KoboSyncService.sync`), so a later re-promotion to `article` is simply
+   * re-entitled by `findUnsyncedReadyItems`.
+   */
   async findOrphanedEntitlements(userId: string): Promise<OrphanedEntitlement[]> {
     return this.prisma.koboEntitlement.findMany({
-      where: { userId, itemId: null },
+      where: { userId, OR: [{ itemId: null }, { item: { kind: 'bookmark' } }] },
       select: { uuid: true, createdAt: true },
     });
   }
@@ -214,10 +230,17 @@ export class KoboSyncRepo {
     return result;
   }
 
-  /** Single entitlement lookup, scoped to userId — feeds metadata/state/download/delete/cover routes. */
+  /**
+   * Single entitlement lookup, scoped to userId — feeds metadata/state/download/delete/cover routes.
+   *
+   * `item: { kind: 'article' }` is defence in depth: a demoted item's entitlement
+   * is retracted and purged on the next sync, but until then the device must not
+   * be served its metadata/state/cover/download. Every caller already 404s on a
+   * null result (an orphaned entitlement whose item is gone matches neither).
+   */
   async findEntitlementByUuid(userId: string, uuid: string): Promise<EntitlementWithItem | null> {
     const row = await this.prisma.koboEntitlement.findFirst({
-      where: { uuid, userId },
+      where: { uuid, userId, item: { kind: 'article' } },
       select: {
         uuid: true,
         itemId: true,
