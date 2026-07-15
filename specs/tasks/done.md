@@ -2,6 +2,29 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-07-15-006 — shelves core (slice ③a)
+
+- Created: 2026-07-15
+- Completed: 2026-07-16
+- Owner: claude
+- Spec: [specs/features/2026-07-13-auto-extract-shelves-bookmarks.design.md](../features/2026-07-13-auto-extract-shelves-bookmarks.design.md) (slice ③)
+- Plan: [specs/features/2026-07-15-shelves.plan.md](../features/2026-07-15-shelves.plan.md)
+- Result: merged via [PR #17](https://github.com/kkucherenkov/burkmak/pull/17) (merge commit `02953b0`). **Part of [#11](https://github.com/kkucherenkov/burkmak/issues/11)** — does not close it; ③b and ③c remain.
+- Delivered: `Shelf` + `ShelfItem` (hand-written migration; `prisma migrate diff --from-migrations … --to-schema` reports "No difference detected"); spec `0.5.0` → `0.6.0` + codegen in its own commit; `ShelfRepo` behind `SHELF_REPO`; CQRS handlers; six `/api/v1/shelves*` routes; `GET /items?shelf=`; `Item.shelves` (required) on all three `ItemDetail` paths; `useShelves`; `/shelves` + `/shelves/{id}`; item-detail shelf picker; `AppShelfRow` + `AppShelfPicker` (stories + specs); nav link; i18n en+ru with a real 4-form Russian plural rule.
+- Verified: backend **286**, web **52**, ui **264**, mobile **31**, typecheck 0, lint 0 errors, `audit:components` 24/24. Repo tests run against a real SQLite DB built from the **committed migration** (`migrate deploy`, not the prohibited `db push`). Browser-verified 12/12 in light and dark. Live HTTP: create 201 · duplicate 409 · empty 400 · rename bumps `lastModified` · unknown 404 · `PUT` add 204 and 204 on repeat · `?shelf=` 200 returning only shelved articles.
+- Decisions worth keeping:
+  - **`ShelfNameConflictError` is this backend's first 409 `DomainError`.** No filter change was needed — `HttpExceptionFilter.toProblem` already maps an arbitrary `DomainError.status`. Duplicate names catch Prisma's `P2002` rather than pre-checking, because a `SELECT`-then-`INSERT` races.
+  - **`ShelfItem` declares `@@index([itemId])` where `ItemTag` has none.** Not an inconsistency: `ItemTag`'s `@@id([itemId, tagId])` leads with `itemId`, so item→tags rides the PK; `ShelfItem`'s leads with `shelfId`, leaving item→shelves uncovered — and `Item.shelves` traverses from that side on every item response. Same-looking tables, opposite needs.
+  - **`Shelf.id` is a `uuid`, not a `cuid`** like `Item.id` — it doubles as the Kobo `Tag.Id` in ③b.
+  - **`AppItemCard` gained `archivable?: boolean`.** `variant` names what the item _is_ (its `Item.kind`); `archivable` controls the action. Do **not** read `variant === 'bookmark'` as "hide the archive button".
+  - **`ru-plural.ts` registers a real 4-form Russian plural rule** for `ru` only. vue-i18n's built-in is effectively `Math.min(choice, 2)` — right for English, wrong for Russian (21 reads as _one_, 2–4 _few_, 5–20 and 0 _many_).
+- Lessons (each cost real debugging):
+  - **A constraint stated in a plan preamble needs a task and a test, or it does not exist.** The plan declared "shelves are article-only" and assigned it to no task. Nothing enforced it: `PUT /shelves/{id}/items/{bookmarkId}` returned **204** with a fully green suite, caught only by the whole-branch review. This is structurally identical to slice ②'s `?kind=` 400 — and was committed in the very plan whose Task 1 exists to guard that class. The drift guard closes it for **query params only**.
+  - **Filters guard entry; they never retract state already written.** Third instance. The article-only write guard (`ownsBoth` requires `kind: 'article'`) is insufficient alone: an _already-shelved_ article demoted via `PATCH kind=bookmark` becomes a bookmark on a shelf without touching the write path. Hence the read guard in `buildItemWhere`, composed as `AND: [{shelves: {some: {shelfId}}}, {kind: 'article'}]` — nested under `AND` deliberately, since a flat `where.kind` would collide with `?kind=`'s own clause. It also makes demote/re-promote round-trip: the membership row lingers, invisible, and returns on re-promotion.
+  - **A test that passes whether or not the code is right is worse than no test.** The review caught `sortShelves(['zeta','Alpha'])` passing under plain ASCII (`'A'`=65 < `'z'`=122), never exercising `localeCompare`.
+  - **`prisma migrate status` does not prove a hand-written migration matches the schema** — it compares migration-history checksums and never diffs. Use `prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma --exit-code` (0 = agree). It found real drift this slice created.
+  - Six plan bugs were found by the agents executing the plan, not its author: a wrong path prefix (`/shelves` vs `/api/v1/shelves`), a `put` helper idiom that doesn't exist, `migrate status` proving nothing, a spec/DTO ordering that would have committed a red suite for nine tasks, stale test arithmetic, and the article-only gap. The reasoning held; the transcribed details and stated invariants did not.
+
 ## T-2026-07-15-007 — CI: dependency scanning + pnpm advisories
 
 - Created: 2026-07-15
