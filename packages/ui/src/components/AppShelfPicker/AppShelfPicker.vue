@@ -52,7 +52,7 @@
         <label :for="checkboxId(shelf.id)" class="app-shelf-picker__label">
           {{ shelf.name }}
         </label>
-        <span class="app-shelf-picker__state">
+        <span class="app-shelf-picker__state" aria-hidden="true">
           {{ isSelected(shelf.id) ? labels.remove : labels.add }}
         </span>
       </li>

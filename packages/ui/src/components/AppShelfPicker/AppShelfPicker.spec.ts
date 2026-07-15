@@ -33,4 +33,10 @@ describe('AppShelfPicker', () => {
     const w = mount(AppShelfPicker, { props: { shelves: [], selectedIds: [], labels } });
     expect(w.text()).toContain('No shelves yet');
   });
+
+  it('hides the add/remove hint word from assistive tech (the checkbox already conveys state)', () => {
+    const w = mount(AppShelfPicker, { props: { shelves, selectedIds: ['s1'], labels } });
+    const hint = w.find('.app-shelf-picker__state');
+    expect(hint.attributes('aria-hidden')).toBe('true');
+  });
 });
