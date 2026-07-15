@@ -17,7 +17,7 @@
   - [ ] ShelfRepo + real-DB isolation specs
   - [ ] CQRS commands/queries + DTOs + controller + module wiring
   - [ ] Item.shelves on the item response
-  - [ ] GET /items?shelf= (filter + repo + DTO + controller)
+  - [x] GET /items?shelf= (filter + repo + DTO + controller)
   - [ ] web: useApi/useShelves + /shelves pages + picker + nav + i18n
   - [ ] ui: AppShelfRow + AppShelfPicker (+ stories + specs)
   - [ ] gates + live verification (HTTP + browser, light/dark)
