@@ -19,6 +19,8 @@ type SaveItemRequest = components['schemas']['SaveItemRequest'];
 type UpdateItemRequest = components['schemas']['UpdateItemRequest'];
 type ReadState = components['schemas']['ReadState'];
 type Kind = components['schemas']['Kind'];
+type Shelf = components['schemas']['Shelf'];
+type ShelfList = components['schemas']['ShelfList'];
 type ExtractAccepted = components['schemas']['ExtractAccepted'];
 type Article = components['schemas']['Article'];
 type Highlight = components['schemas']['Highlight'];
@@ -38,6 +40,7 @@ export interface ItemsQuery {
   kind?: Kind;
   cursor?: string;
   limit?: number;
+  shelf?: string;
 }
 
 export interface ApiClient {
@@ -57,6 +60,14 @@ export interface ApiClient {
   getTags(): Promise<TagList>;
   renameTag(id: string, name: string): Promise<void>;
   deleteTag(id: string): Promise<void>;
+
+  // shelves
+  listShelves(): Promise<ShelfList>;
+  createShelf(name: string): Promise<Shelf>;
+  renameShelf(id: string, name: string): Promise<Shelf>;
+  deleteShelf(id: string): Promise<void>;
+  addItemToShelf(shelfId: string, itemId: string): Promise<void>;
+  removeItemFromShelf(shelfId: string, itemId: string): Promise<void>;
 
   // extraction
   extractArticle(id: string): Promise<ExtractAccepted>;
@@ -111,6 +122,16 @@ export function useApi(): ApiClient {
     getTags: () => request<TagList>('/tags'),
     renameTag: (id, name) => request<undefined>(`/tags/${id}`, { method: 'PATCH', body: { name } }),
     deleteTag: (id) => request<undefined>(`/tags/${id}`, { method: 'DELETE' }),
+
+    listShelves: () => request<ShelfList>('/shelves'),
+    createShelf: (name) => request<Shelf>('/shelves', { method: 'POST', body: { name } }),
+    renameShelf: (id, name) =>
+      request<Shelf>(`/shelves/${id}`, { method: 'PATCH', body: { name } }),
+    deleteShelf: (id) => request<undefined>(`/shelves/${id}`, { method: 'DELETE' }),
+    addItemToShelf: (shelfId, itemId) =>
+      request<undefined>(`/shelves/${shelfId}/items/${itemId}`, { method: 'PUT' }),
+    removeItemFromShelf: (shelfId, itemId) =>
+      request<undefined>(`/shelves/${shelfId}/items/${itemId}`, { method: 'DELETE' }),
 
     extractArticle: (id) => request<ExtractAccepted>(`/items/${id}/extract`, { method: 'POST' }),
     getArticle: (id) => request<Article>(`/items/${id}/article`),
