@@ -107,3 +107,21 @@ export const Bookmark: Story = {
     variant: 'bookmark',
   },
 };
+
+export const ArticleNotArchivable: Story = {
+  args: {
+    item: {
+      ...baseItem,
+      id: 'itm_7',
+      title: 'An article shown without an archive action',
+      excerpt: 'e.g. the shelf detail page — still an article, just not archivable from here.',
+      tags: ['shelved'],
+    },
+    // No `archive` needed here either: archivable=false hides the button
+    // regardless of variant, same as the bookmark variant above — but this
+    // item is still `variant: 'article'` (its Item.kind really is 'article').
+    labels: { status: labels.status, favorite: labels.favorite, delete: labels.delete },
+    variant: 'article',
+    archivable: false,
+  },
+};

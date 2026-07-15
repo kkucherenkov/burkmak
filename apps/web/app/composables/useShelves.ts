@@ -4,6 +4,16 @@ import type { components } from '@app/specs';
 
 type Shelf = components['schemas']['Shelf'];
 
+/**
+ * Error contract, by method (deliberately split, not an oversight — pick the
+ * documented behaviour per call site):
+ *  - `load` / `create` / `rename` / `remove`: swallow failures into `error`
+ *    and never reject. `create`/`rename` also distinguish a 409 as
+ *    'name-conflict' there. Safe to call bare from a template handler.
+ *  - `addItem` / `removeItem`: reject on failure and do NOT touch `error`.
+ *    Every call site MUST catch — e.g. wrap in a page-local `runAction` (see
+ *    items/[id].vue, shelves/[id].vue) — or an unhandled rejection results.
+ */
 export interface UseShelvesReturn {
   shelves: Ref<Shelf[]>;
   loading: Ref<boolean>;
@@ -12,7 +22,9 @@ export interface UseShelvesReturn {
   create(name: string): Promise<Shelf | null>;
   rename(id: string, name: string): Promise<void>;
   remove(id: string): Promise<void>;
+  /** @throws on failure — caller must catch (see contract note above). */
   addItem(shelfId: string, itemId: string): Promise<void>;
+  /** @throws on failure — caller must catch (see contract note above). */
   removeItem(shelfId: string, itemId: string): Promise<void>;
 }
 

@@ -24,14 +24,23 @@
   const props = withDefaults(
     defineProps<{
       item: AppItemCardData;
-      // `archive` is only rendered in the `article` variant (see the button's
-      // v-if below) — bookmarks never expose an archive action, so callers
-      // building bookmark-variant labels don't need to supply it.
+      // `archive` is only rendered in the `article` variant when `archivable`
+      // is true (see the button's v-if below) — bookmarks never expose an
+      // archive action, so callers building bookmark-variant labels don't
+      // need to supply it.
       labels: { status: string; favorite: string; archive?: string; delete: string };
       fresh?: boolean;
+      // `variant` names what the item IS (its `Item.kind`), independent of
+      // which actions render. Do NOT read `variant === 'bookmark'` as "hide
+      // the archive button" — use `archivable` for that. An article shown
+      // without an archive action (e.g. the shelf detail page) is still
+      // `variant="article"`, just with `archivable={false}`.
       variant?: 'article' | 'bookmark';
+      // Hides the archive action even in the `article` variant. Defaults to
+      // true so existing article-variant callers are unaffected.
+      archivable?: boolean;
     }>(),
-    { fresh: false, variant: 'article' },
+    { fresh: false, variant: 'article', archivable: true },
   );
 
   const emit = defineEmits<{
@@ -106,7 +115,7 @@
           @click="emit('toggleFavorite', item.id)"
         />
         <AppButton
-          v-if="props.variant === 'article'"
+          v-if="props.variant === 'article' && props.archivable"
           variant="ghost"
           size="sm"
           icon="i-lucide-archive"

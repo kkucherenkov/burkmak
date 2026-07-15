@@ -29,6 +29,21 @@
 
   const shelf = computed(() => shelvesStore.shelves.value.find((s) => s.id === id) ?? null);
 
+  // Page-local affordance for shelvesStore.addItem/removeItem, which — unlike
+  // load/create/rename/remove — reject on failure rather than swallowing into
+  // `shelvesStore.error` (see useShelves.ts's UseShelvesReturn doc comments).
+  // Mirrors items/[id].vue's runAction so a rejection surfaces a dismissible
+  // banner instead of becoming an unhandled rejection with no user feedback.
+  const actionError = ref<string | null>(null);
+  async function runAction(fn: () => Promise<void>): Promise<void> {
+    actionError.value = null;
+    try {
+      await fn();
+    } catch {
+      actionError.value = t('reader.actionFailed');
+    }
+  }
+
   async function load(): Promise<void> {
     loading.value = true;
     errored.value = false;
@@ -67,10 +82,7 @@
 <template>
   <div class="page-shelf-detail">
     <header class="page-shelf-detail__head">
-      <NuxtLink
-        to="/shelves"
-        class="page-shelf-detail__back"
-      >
+      <NuxtLink to="/shelves" class="page-shelf-detail__back">
         {{ t('shelves.backToShelves') }}
       </NuxtLink>
       <h1 class="page-shelf-detail__title">
@@ -78,54 +90,42 @@
       </h1>
     </header>
 
-    <div
-      v-if="loading"
-      class="page-shelf-detail__list"
-    >
-      <AppSkeleton
-        v-for="n in 5"
-        :key="n"
-        variant="image"
-      />
+    <p v-if="actionError" class="page-shelf-detail__error" role="alert">
+      <span class="page-shelf-detail__error-text">{{ actionError }}</span>
+      <button
+        type="button"
+        class="page-shelf-detail__error-dismiss"
+        :aria-label="t('reader.dismiss')"
+        @click="actionError = null"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </p>
+
+    <div v-if="loading" class="page-shelf-detail__list">
+      <AppSkeleton v-for="n in 5" :key="n" variant="image" />
     </div>
 
-    <div
-      v-else-if="errored"
-      class="page-shelf-detail__state"
-    >
-      <AppEmptyState
-        icon="i-lucide-triangle-alert"
-        :title="t('shelves.loadError')"
-      />
-      <AppButton
-        variant="solid"
-        color="primary"
-        :label="t('shelves.retry')"
-        @click="load"
-      />
+    <div v-else-if="errored" class="page-shelf-detail__state">
+      <AppEmptyState icon="i-lucide-triangle-alert" :title="t('shelves.loadError')" />
+      <AppButton variant="solid" color="primary" :label="t('shelves.retry')" @click="load" />
     </div>
 
-    <div
-      v-else-if="items.length > 0"
-      class="page-shelf-detail__list"
-    >
+    <div v-else-if="items.length > 0" class="page-shelf-detail__list">
       <AppItemCard
         v-for="it in items"
         :key="it.id"
         :item="toCardData(it)"
         :labels="cardLabels"
-        variant="bookmark"
+        variant="article"
+        :archivable="false"
         @open="navigateTo(`/items/${$event}`)"
         @toggle-favorite="toggleFavorite(it)"
-        @delete="removeFromShelf($event)"
+        @delete="runAction(() => removeFromShelf($event))"
       />
     </div>
 
-    <AppEmptyState
-      v-else
-      icon="i-lucide-layout-list"
-      :title="t('shelves.shelfEmpty')"
-    />
+    <AppEmptyState v-else icon="i-lucide-layout-list" :title="t('shelves.shelfEmpty')" />
   </div>
 </template>
 
@@ -162,6 +162,52 @@
       font-size: var(--text-3xl);
       font-weight: var(--fw-bold);
       color: var(--text-fg);
+    }
+
+    &__error {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin: 0;
+      padding: var(--space-3) var(--space-4);
+      color: var(--status-error-fg);
+      background: var(--status-error-subtle);
+      border: 1px solid var(--status-error-fg);
+      border-radius: var(--radius-lg);
+      font-size: var(--text-sm);
+      font-weight: var(--fw-medium);
+    }
+
+    &__error-text {
+      min-width: 0;
+    }
+
+    &__error-dismiss {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--space-6);
+      height: var(--space-6);
+      flex: none;
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      border-radius: var(--radius-md);
+      font-size: var(--text-lg);
+      line-height: 1;
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease);
+
+      &:hover {
+        background: var(--surface-raised);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--status-error-fg);
+        outline-offset: 2px;
+      }
     }
 
     &__list {
