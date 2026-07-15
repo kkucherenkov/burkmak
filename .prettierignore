@@ -13,6 +13,14 @@ packages/specs/dist
 # Lives in src/ (not a generated/ dir) so it must be listed explicitly, else the
 # `**/*.ts` format glob churns its 4-space output to 2-space on every run.
 packages/specs/src/openapi-types.ts
+# Plans and designs embed ```yaml fences copied verbatim from openapi.yaml, whose
+# indentation encodes WHERE the snippet goes (e.g. 4-deep under
+# components.schemas). Prettier reformats fenced code it recognises and
+# de-indents those blocks to column 0, silently destroying that meaning — the
+# snippet still looks fine, it just now says something else. prisma/sql fences
+# are untouched only because Prettier doesn't parse them.
+specs/features/*.plan.md
+specs/features/*.design.md
 apps/mobile/.dart_tool
 apps/mobile/build
 apps/mobile/ios

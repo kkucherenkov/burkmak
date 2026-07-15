@@ -254,11 +254,19 @@ Calibre-Web wire format (`Tag` entitlements):
 
 ## Build order & branches
 
-| #   | Branch                      | Content                                                    |
-| --- | --------------------------- | ---------------------------------------------------------- |
-| ①   | `feat/auto-extract-on-save` | chain + backfill + tests                                   |
-| ②   | `feat/item-kind-bookmarks`  | schema, spec+codegen, backend filter, web /bookmarks       |
-| ③   | `feat/shelves`              | schema, spec+codegen, CRUD, Kobo tags, OPDS nav, web pages |
+| #   | Branch                      | Content                                              |
+| --- | --------------------------- | ---------------------------------------------------- |
+| ①   | `feat/auto-extract-on-save` | chain + backfill + tests                             |
+| ②   | `feat/item-kind-bookmarks`  | schema, spec+codegen, backend filter, web /bookmarks |
+| ③a  | `feat/shelves`              | schema, spec+codegen, CRUD, `?shelf=`, web pages     |
+| ③b  | `feat/shelves-kobo-tags`    | Kobo device collections (tag deltas, tombstones)     |
+| ③c  | `feat/shelves-opds`         | OPDS navigation feed + per-shelf acquisition feeds   |
+
+③ was split into three branches after ② shipped: it carries three
+independently shippable subsystems, and ②'s single 26-commit PR was already at
+the ceiling of what a whole-branch review can carry — that review is what caught
+the entitlement-retraction leak, so keeping each PR reviewable is load-bearing.
+③b and ③c both depend on ③a; they are independent of each other.
 
 Each slice: spec → codegen commit → implementation → gates
 (`turbo run build lint test typecheck` semantics per repo rules) → PR-style
