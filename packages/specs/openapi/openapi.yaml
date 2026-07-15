@@ -1928,7 +1928,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
               examples:
-                invalidName:
+                badBody:
                   value:
                     type: about:blank
                     title: Bad Request
@@ -2006,7 +2006,7 @@ paths:
                     name: Long-form Reading
                     itemCount: 7
                     createdAt: "2026-06-01T09:00:00Z"
-                    lastModified: "2026-06-20T14:30:00Z"
+                    lastModified: "2026-06-22T09:05:00Z"
         "400":
           description: Invalid request
           content:
@@ -2014,7 +2014,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
               examples:
-                invalidName:
+                badBody:
                   value:
                     type: about:blank
                     title: Bad Request
