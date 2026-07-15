@@ -11,11 +11,13 @@ class _$SaveItemRequest extends SaveItemRequest {
   final String url;
   @override
   final BuiltList<String>? tags;
+  @override
+  final Kind? kind;
 
   factory _$SaveItemRequest([void Function(SaveItemRequestBuilder)? updates]) =>
       (SaveItemRequestBuilder()..update(updates))._build();
 
-  _$SaveItemRequest._({required this.url, this.tags}) : super._();
+  _$SaveItemRequest._({required this.url, this.tags, this.kind}) : super._();
   @override
   SaveItemRequest rebuild(void Function(SaveItemRequestBuilder) updates) =>
       (toBuilder()..update(updates)).build();
@@ -26,7 +28,10 @@ class _$SaveItemRequest extends SaveItemRequest {
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is SaveItemRequest && url == other.url && tags == other.tags;
+    return other is SaveItemRequest &&
+        url == other.url &&
+        tags == other.tags &&
+        kind == other.kind;
   }
 
   @override
@@ -34,6 +39,7 @@ class _$SaveItemRequest extends SaveItemRequest {
     var _$hash = 0;
     _$hash = $jc(_$hash, url.hashCode);
     _$hash = $jc(_$hash, tags.hashCode);
+    _$hash = $jc(_$hash, kind.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -42,7 +48,8 @@ class _$SaveItemRequest extends SaveItemRequest {
   String toString() {
     return (newBuiltValueToStringHelper(r'SaveItemRequest')
           ..add('url', url)
-          ..add('tags', tags))
+          ..add('tags', tags)
+          ..add('kind', kind))
         .toString();
   }
 }
@@ -59,6 +66,10 @@ class SaveItemRequestBuilder
   ListBuilder<String> get tags => _$this._tags ??= ListBuilder<String>();
   set tags(ListBuilder<String>? tags) => _$this._tags = tags;
 
+  Kind? _kind;
+  Kind? get kind => _$this._kind;
+  set kind(Kind? kind) => _$this._kind = kind;
+
   SaveItemRequestBuilder() {
     SaveItemRequest._defaults(this);
   }
@@ -68,6 +79,7 @@ class SaveItemRequestBuilder
     if ($v != null) {
       _url = $v.url;
       _tags = $v.tags?.toBuilder();
+      _kind = $v.kind;
       _$v = null;
     }
     return this;
@@ -94,6 +106,7 @@ class SaveItemRequestBuilder
             url: BuiltValueNullFieldError.checkNotNull(
                 url, r'SaveItemRequest', 'url'),
             tags: _tags?.build(),
+            kind: kind,
           );
     } catch (_) {
       late String _$failedField;

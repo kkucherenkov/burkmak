@@ -11,12 +11,14 @@ class _$UpdateItemRequest extends UpdateItemRequest {
   final ReadState? readState;
   @override
   final bool? favorite;
+  @override
+  final Kind? kind;
 
   factory _$UpdateItemRequest(
           [void Function(UpdateItemRequestBuilder)? updates]) =>
       (UpdateItemRequestBuilder()..update(updates))._build();
 
-  _$UpdateItemRequest._({this.readState, this.favorite}) : super._();
+  _$UpdateItemRequest._({this.readState, this.favorite, this.kind}) : super._();
   @override
   UpdateItemRequest rebuild(void Function(UpdateItemRequestBuilder) updates) =>
       (toBuilder()..update(updates)).build();
@@ -30,7 +32,8 @@ class _$UpdateItemRequest extends UpdateItemRequest {
     if (identical(other, this)) return true;
     return other is UpdateItemRequest &&
         readState == other.readState &&
-        favorite == other.favorite;
+        favorite == other.favorite &&
+        kind == other.kind;
   }
 
   @override
@@ -38,6 +41,7 @@ class _$UpdateItemRequest extends UpdateItemRequest {
     var _$hash = 0;
     _$hash = $jc(_$hash, readState.hashCode);
     _$hash = $jc(_$hash, favorite.hashCode);
+    _$hash = $jc(_$hash, kind.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -46,7 +50,8 @@ class _$UpdateItemRequest extends UpdateItemRequest {
   String toString() {
     return (newBuiltValueToStringHelper(r'UpdateItemRequest')
           ..add('readState', readState)
-          ..add('favorite', favorite))
+          ..add('favorite', favorite)
+          ..add('kind', kind))
         .toString();
   }
 }
@@ -63,6 +68,10 @@ class UpdateItemRequestBuilder
   bool? get favorite => _$this._favorite;
   set favorite(bool? favorite) => _$this._favorite = favorite;
 
+  Kind? _kind;
+  Kind? get kind => _$this._kind;
+  set kind(Kind? kind) => _$this._kind = kind;
+
   UpdateItemRequestBuilder() {
     UpdateItemRequest._defaults(this);
   }
@@ -72,6 +81,7 @@ class UpdateItemRequestBuilder
     if ($v != null) {
       _readState = $v.readState;
       _favorite = $v.favorite;
+      _kind = $v.kind;
       _$v = null;
     }
     return this;
@@ -95,6 +105,7 @@ class UpdateItemRequestBuilder
         _$UpdateItemRequest._(
           readState: readState,
           favorite: favorite,
+          kind: kind,
         );
     replace(_$result);
     return _$result;

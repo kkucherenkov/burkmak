@@ -4,6 +4,7 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
+import 'package:app_api_client/src/model/kind.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -14,6 +15,7 @@ part 'save_item_request.g.dart';
 /// Properties:
 /// * [url] - URL to save
 /// * [tags] - Optional tag slugs to attach immediately
+/// * [kind] - Save as a readable article or a reference bookmark. Omitted → article (the server default).
 @BuiltValue()
 abstract class SaveItemRequest implements Built<SaveItemRequest, SaveItemRequestBuilder> {
   /// URL to save
@@ -23,6 +25,11 @@ abstract class SaveItemRequest implements Built<SaveItemRequest, SaveItemRequest
   /// Optional tag slugs to attach immediately
   @BuiltValueField(wireName: r'tags')
   BuiltList<String>? get tags;
+
+  /// Save as a readable article or a reference bookmark. Omitted → article (the server default).
+  @BuiltValueField(wireName: r'kind')
+  Kind? get kind;
+  // enum kindEnum {  article,  bookmark,  };
 
   SaveItemRequest._();
 
@@ -57,6 +64,13 @@ class _$SaveItemRequestSerializer implements PrimitiveSerializer<SaveItemRequest
       yield serializers.serialize(
         object.tags,
         specifiedType: const FullType(BuiltList, [FullType(String)]),
+      );
+    }
+    if (object.kind != null) {
+      yield r'kind';
+      yield serializers.serialize(
+        object.kind,
+        specifiedType: const FullType(Kind),
       );
     }
   }
@@ -95,6 +109,13 @@ class _$SaveItemRequestSerializer implements PrimitiveSerializer<SaveItemRequest
             specifiedType: const FullType(BuiltList, [FullType(String)]),
           ) as BuiltList<String>;
           result.tags.replace(valueDes);
+          break;
+        case r'kind':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(Kind),
+          ) as Kind;
+          result.kind = valueDes;
           break;
         default:
           unhandled.add(key);

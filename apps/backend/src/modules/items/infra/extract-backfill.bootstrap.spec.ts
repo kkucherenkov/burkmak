@@ -45,7 +45,7 @@ describe('ExtractBackfillService', () => {
     const svc = new ExtractBackfillService(prisma as never, jobs as never, events as never);
     await svc.onApplicationBootstrap();
     expect(prisma.item.findMany).toHaveBeenCalledWith({
-      where: { status: 'ready', extractStatus: { in: ['none', 'failed'] } },
+      where: { status: 'ready', extractStatus: { in: ['none', 'failed'] }, kind: 'article' },
       select: { id: true, userId: true },
     });
     expect(prisma.item.update).toHaveBeenCalledWith({

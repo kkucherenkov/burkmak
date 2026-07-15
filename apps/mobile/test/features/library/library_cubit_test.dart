@@ -19,6 +19,7 @@ Item _item(
   (b) => b
     ..id = id
     ..url = 'https://x/$id'
+    ..kind = Kind.article
     ..status = status
     ..extractStatus = extractStatus
     ..readState = ReadState.unread

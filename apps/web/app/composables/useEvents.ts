@@ -1,6 +1,9 @@
 import { onBeforeUnmount, onMounted } from 'vue';
 
+import type { components } from '@app/specs';
 import { routeEvent } from '~/utils/items-store';
+
+type Kind = components['schemas']['Kind'];
 
 /**
  * Opens a native EventSource to GET /api/v1/events.
@@ -16,8 +19,8 @@ import { routeEvent } from '~/utils/items-store';
  * arrive as the default `message` event so a single `onmessage` handler
  * covers every case.
  */
-export function useEvents(): { connect: () => void; disconnect: () => void } {
-  const store = useItems();
+export function useEvents(kind: Kind = 'article'): { connect: () => void; disconnect: () => void } {
+  const store = useItems(kind);
   const { public: pub } = useRuntimeConfig();
   let es: EventSource | null = null;
 

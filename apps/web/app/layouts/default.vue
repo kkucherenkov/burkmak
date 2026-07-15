@@ -63,6 +63,15 @@
             </NuxtLink>
           </li>
           <li v-if="isAuthenticated" class="default-layout__nav-item">
+            <NuxtLink
+              to="/bookmarks"
+              class="default-layout__nav-link"
+              :class="{ 'default-layout__nav-link--active': route.path === '/bookmarks' }"
+            >
+              {{ t('nav.navBookmarks') }}
+            </NuxtLink>
+          </li>
+          <li v-if="isAuthenticated" class="default-layout__nav-item">
             <button type="button" class="default-layout__nav-link" @click="onSignOut">
               {{ t('nav.navSignOut') }}
             </button>

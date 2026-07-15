@@ -3,10 +3,12 @@ export const ITEM_REPO = Symbol('ITEM_REPO');
 export type ItemStatus = 'pending' | 'ready' | 'failed';
 export type ReadState = 'unread' | 'read' | 'archived';
 export type ExtractStatus = 'none' | 'extracting' | 'ready' | 'failed';
+export type ItemKind = 'article' | 'bookmark';
 
 export interface ItemDetail {
   id: string;
   url: string;
+  kind: ItemKind;
   canonicalUrl: string | null;
   title: string | null;
   siteName: string | null;
@@ -38,18 +40,19 @@ export interface ListItemsFilter {
   tag?: string; // slug
   favorite?: boolean;
   q?: string;
+  kind?: ItemKind;
   cursor?: string;
   limit: number;
 }
 
 export interface IItemRepo {
-  create(input: { userId: string; url: string }): Promise<string>;
+  create(input: { userId: string; url: string; kind?: ItemKind }): Promise<string>;
   findById(userId: string, id: string): Promise<ItemDetail | null>;
   findMany(filter: ListItemsFilter): Promise<{ items: ItemDetail[]; nextCursor: string | null }>;
   update(
     userId: string,
     id: string,
-    patch: { readState?: ReadState; favorite?: boolean },
+    patch: { readState?: ReadState; favorite?: boolean; kind?: ItemKind },
   ): Promise<boolean>; // false = not found/owned
   applyMetadata(itemId: string, patch: ItemMetadataPatch): Promise<void>;
   /**

@@ -8,4 +8,8 @@ export class UpdateItemDto {
   @IsOptional()
   @IsBoolean()
   favorite?: boolean;
+
+  @IsOptional()
+  @IsIn(['article', 'bookmark'])
+  kind?: 'article' | 'bookmark';
 }

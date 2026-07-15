@@ -91,3 +91,19 @@ export const Fresh: Story = {
     fresh: true,
   },
 };
+
+export const Bookmark: Story = {
+  args: {
+    item: {
+      ...baseItem,
+      id: 'itm_6',
+      title: 'A handy CLI reference',
+      excerpt: 'Reference link — opens at its source, never enters the reading queue.',
+      tags: ['tool'],
+    },
+    // No `archive` — the bookmark variant never renders that action, so its
+    // label is optional (see AppItemCard's `labels` prop type).
+    labels: { status: labels.status, favorite: labels.favorite, delete: labels.delete },
+    variant: 'bookmark',
+  },
+};

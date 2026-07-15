@@ -12,6 +12,8 @@ class _$Item extends Item {
   @override
   final String url;
   @override
+  final Kind kind;
+  @override
   final String? canonicalUrl;
   @override
   final String? title;
@@ -44,6 +46,7 @@ class _$Item extends Item {
   _$Item._(
       {required this.id,
       required this.url,
+      required this.kind,
       this.canonicalUrl,
       this.title,
       this.siteName,
@@ -71,6 +74,7 @@ class _$Item extends Item {
     return other is Item &&
         id == other.id &&
         url == other.url &&
+        kind == other.kind &&
         canonicalUrl == other.canonicalUrl &&
         title == other.title &&
         siteName == other.siteName &&
@@ -91,6 +95,7 @@ class _$Item extends Item {
     var _$hash = 0;
     _$hash = $jc(_$hash, id.hashCode);
     _$hash = $jc(_$hash, url.hashCode);
+    _$hash = $jc(_$hash, kind.hashCode);
     _$hash = $jc(_$hash, canonicalUrl.hashCode);
     _$hash = $jc(_$hash, title.hashCode);
     _$hash = $jc(_$hash, siteName.hashCode);
@@ -113,6 +118,7 @@ class _$Item extends Item {
     return (newBuiltValueToStringHelper(r'Item')
           ..add('id', id)
           ..add('url', url)
+          ..add('kind', kind)
           ..add('canonicalUrl', canonicalUrl)
           ..add('title', title)
           ..add('siteName', siteName)
@@ -140,6 +146,10 @@ class ItemBuilder implements Builder<Item, ItemBuilder> {
   String? _url;
   String? get url => _$this._url;
   set url(String? url) => _$this._url = url;
+
+  Kind? _kind;
+  Kind? get kind => _$this._kind;
+  set kind(Kind? kind) => _$this._kind = kind;
 
   String? _canonicalUrl;
   String? get canonicalUrl => _$this._canonicalUrl;
@@ -203,6 +213,7 @@ class ItemBuilder implements Builder<Item, ItemBuilder> {
     if ($v != null) {
       _id = $v.id;
       _url = $v.url;
+      _kind = $v.kind;
       _canonicalUrl = $v.canonicalUrl;
       _title = $v.title;
       _siteName = $v.siteName;
@@ -241,6 +252,7 @@ class ItemBuilder implements Builder<Item, ItemBuilder> {
           _$Item._(
             id: BuiltValueNullFieldError.checkNotNull(id, r'Item', 'id'),
             url: BuiltValueNullFieldError.checkNotNull(url, r'Item', 'url'),
+            kind: BuiltValueNullFieldError.checkNotNull(kind, r'Item', 'kind'),
             canonicalUrl: canonicalUrl,
             title: title,
             siteName: siteName,

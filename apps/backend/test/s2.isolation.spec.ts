@@ -37,6 +37,9 @@ const DB_URL = `file:${DB_FILE}`;
 /** Unique phrase only present in B's article body. */
 const UNIQUE_PHRASE = 'ztxqwophrase';
 
+/** Unique token shared by K's article + bookmark — exercises the FTS kind filter. */
+const KIND_PHRASE = 'zkindphrase';
+
 function cleanup(): void {
   for (const f of [DB_FILE, `${DB_FILE}-wal`, `${DB_FILE}-shm`]) {
     if (existsSync(f)) rmSync(f);
@@ -52,6 +55,8 @@ let highlights: HighlightRepo;
 let bItemId: string;
 let bHighlightId: string;
 let aItemId: string;
+let kArticleId: string;
+let kBookmarkId: string;
 
 const FTS_DDL = [
   `CREATE VIRTUAL TABLE IF NOT EXISTS item_fts USING fts5(
@@ -134,6 +139,20 @@ beforeAll(async () => {
     color: 'yellow',
   });
   bHighlightId = bHighlight.id;
+
+  // ── Seed K: one article + one bookmark that both match the same FTS token ──
+  // (the url is FTS-indexed on insert, so a bookmark with no Article row still
+  // matches — which is exactly the case the kind filter has to separate)
+  kArticleId = await items.create({
+    userId: 'userK',
+    url: `https://k.example.com/${KIND_PHRASE}/article`,
+    kind: 'article',
+  });
+  kBookmarkId = await items.create({
+    userId: 'userK',
+    url: `https://k.example.com/${KIND_PHRASE}/bookmark`,
+    kind: 'bookmark',
+  });
 }, 60_000);
 
 afterAll(async () => {
@@ -277,5 +296,46 @@ describe('S2 multi-user isolation', () => {
 
     const afterDelete = await highlights.listForItem('userA', aItemId);
     expect(afterDelete.some((h) => h.id === hl.id)).toBe(false);
+  });
+});
+
+/**
+ * `buildItemWhere`'s kind clause on the FTS branch. It feeds both `findManyPlain`
+ * and `findManyFts`, so both paths need real-DB proof — asserting the shape of the
+ * returned object literal (see item.repo.spec.ts) passes whether or not Prisma
+ * honours the clause. The plain path is covered in items.isolation.spec.ts.
+ */
+describe('ItemRepo.findMany kind filter (FTS path)', () => {
+  it('q + kind: article returns only articles', async () => {
+    const { items: rows } = await items.findMany({
+      userId: 'userK',
+      limit: 50,
+      q: KIND_PHRASE,
+      kind: 'article',
+    });
+    const ids = rows.map((i) => i.id);
+    expect(ids).toContain(kArticleId);
+    expect(ids).not.toContain(kBookmarkId);
+    expect(rows.every((i) => i.kind === 'article')).toBe(true);
+  });
+
+  it('q + kind: bookmark returns only bookmarks', async () => {
+    const { items: rows } = await items.findMany({
+      userId: 'userK',
+      limit: 50,
+      q: KIND_PHRASE,
+      kind: 'bookmark',
+    });
+    const ids = rows.map((i) => i.id);
+    expect(ids).toContain(kBookmarkId);
+    expect(ids).not.toContain(kArticleId);
+    expect(rows.every((i) => i.kind === 'bookmark')).toBe(true);
+  });
+
+  it('q with no kind filter returns both kinds (positive FTS control)', async () => {
+    const { items: rows } = await items.findMany({ userId: 'userK', limit: 50, q: KIND_PHRASE });
+    const ids = rows.map((i) => i.id);
+    expect(ids).toContain(kArticleId);
+    expect(ids).toContain(kBookmarkId);
   });
 });

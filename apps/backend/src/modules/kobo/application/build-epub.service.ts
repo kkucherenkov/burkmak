@@ -53,6 +53,13 @@ export class BuildEpubService {
       return { error: 'not_found' };
     }
 
+    // 1b. Bookmarks carry no extracted article and must never reach a device,
+    //     even if one was manually extracted. Kobo entitlements are only ever
+    //     created for articles (kobo-sync.repo), so this is belt-and-suspenders.
+    if (item.kind !== 'article') {
+      return { error: 'not_found' };
+    }
+
     // 2. Require extractStatus === 'ready'
     if (item.extractStatus !== 'ready') {
       return { error: 'not_ready' };

@@ -15,12 +15,14 @@
   type View = 'pending' | 'saving' | 'saved' | 'failed' | 'bad';
   const view = ref<View>('pending');
 
+  type SaveKind = 'article' | 'bookmark';
   let pendingUrl = '';
+  let pendingKind: SaveKind = 'article';
 
-  async function doSave(url: string): Promise<void> {
+  async function doSave(url: string, kind: SaveKind): Promise<void> {
     view.value = 'saving';
     try {
-      await api.saveItem({ url });
+      await api.saveItem({ url, kind });
       view.value = 'saved';
       // Popup: close shortly after success. No-op (and harmless) in a normal tab.
       globalThis.setTimeout(() => {
@@ -32,7 +34,7 @@
   }
 
   function retry(): void {
-    if (pendingUrl) void doSave(pendingUrl);
+    if (pendingUrl) void doSave(pendingUrl, pendingKind);
   }
 
   onMounted(async () => {
@@ -51,7 +53,8 @@
       return;
     }
     pendingUrl = action.url;
-    await doSave(action.url);
+    pendingKind = route.query.kind === 'bookmark' ? 'bookmark' : 'article';
+    await doSave(action.url, pendingKind);
   });
 </script>
 

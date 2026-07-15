@@ -56,7 +56,7 @@ export interface paths {
         };
         /**
          * List saved items with optional filtering
-         * @description Returns a cursor-paginated list of the authenticated user's saved items. Supports filtering by read state, tag, favourite flag, and full-text search.
+         * @description Returns a cursor-paginated list of the authenticated user's saved items. Supports filtering by read state, tag, favourite flag, full-text search, and kind.
          */
         get: operations["listItems"];
         put?: never;
@@ -575,6 +575,11 @@ export interface components {
          * @enum {string}
          */
         ReadState: "unread" | "read" | "archived";
+        /**
+         * @description Whether the item is a readable article (default) or a reference bookmark
+         * @enum {string}
+         */
+        Kind: "article" | "bookmark";
         Item: {
             /** @description Unique item ID (cuid) */
             id: string;
@@ -583,6 +588,7 @@ export interface components {
              * @description Original URL submitted by the user
              */
             url: string;
+            kind: components["schemas"]["Kind"];
             /**
              * Format: uri
              * @description Canonical URL resolved during metadata extraction
@@ -648,12 +654,16 @@ export interface components {
             url: string;
             /** @description Optional tag slugs to attach immediately */
             tags?: string[];
+            /** @description Save as a readable article or a reference bookmark. Omitted → article (the server default). */
+            kind?: components["schemas"]["Kind"];
         };
-        /** @description At least one of `readState` or `favorite` must be provided. */
+        /** @description At least one of `readState`, `favorite`, or `kind` must be provided. */
         UpdateItemRequest: {
             readState?: components["schemas"]["ReadState"];
             /** @description Set or clear the favourite flag */
             favorite?: boolean;
+            /** @description Promote a bookmark into the reading queue, or demote an article to a bookmark */
+            kind?: components["schemas"]["Kind"];
         };
         AddTagRequest: {
             /** @description Tag name or slug to add (created if absent) */
@@ -885,6 +895,8 @@ export interface operations {
             query?: {
                 /** @description Filter by read state */
                 readState?: components["schemas"]["ReadState"];
+                /** @description Filter by kind (article or bookmark). Omit to return all kinds. */
+                kind?: components["schemas"]["Kind"];
                 /** @description Filter by tag slug */
                 tag?: string;
                 /** @description Filter to favourites only */

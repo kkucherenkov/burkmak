@@ -159,6 +159,7 @@ export default {
   addBar: {
     placeholder: 'https://example.com/article',
     save: 'Сохранить',
+    asBookmark: 'Закладка',
   },
 
   addModal: {
@@ -166,11 +167,27 @@ export default {
     placeholder: 'https://example.com/article',
     cancel: 'Отмена',
     save: 'Сохранить',
+    asBookmark: 'Сохранить как закладку',
+  },
+
+  bookmarks: {
+    title: 'Закладки',
+    empty: 'Закладок пока нет',
+    emptyHint: 'Сохраните ссылку как закладку, чтобы держать её под рукой.',
+    search: 'Поиск закладок',
+    filteringByTag: 'Фильтр по тегу:',
+    error: 'Не удалось загрузить закладки.',
+    retry: 'Повторить',
+    act: {
+      favorite: 'В избранное',
+      delete: 'Удалить',
+    },
   },
 
   nav: {
     appName: 'burkmak',
     navHome: 'Главная',
+    navBookmarks: 'Закладки',
     navLogin: 'Войти',
     navSettings: 'Настройки',
     navSignOut: 'Выйти',

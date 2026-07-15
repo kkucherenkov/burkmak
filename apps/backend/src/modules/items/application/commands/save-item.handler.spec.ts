@@ -12,7 +12,11 @@ describe('SaveItemHandler', () => {
     const res = await handler.execute(new SaveItemCommand('u1', 'https://x.com'));
 
     expect(res).toEqual({ id: 'itm_1' });
-    expect(repo.create).toHaveBeenCalledWith({ userId: 'u1', url: 'https://x.com' });
+    expect(repo.create).toHaveBeenCalledWith({
+      userId: 'u1',
+      url: 'https://x.com',
+      kind: 'article',
+    });
     expect(repo.addTag).not.toHaveBeenCalled();
     expect(jobs.enqueue).toHaveBeenCalledWith('fetch_metadata', { userId: 'u1', itemId: 'itm_1' });
     expect(events.publish).toHaveBeenCalledWith('u1', 'item.created', { id: 'itm_1' });
@@ -35,5 +39,25 @@ describe('SaveItemHandler', () => {
     expect(repo.addTag).toHaveBeenNthCalledWith(2, 'u1', 'itm_2', 'news');
     expect(jobs.enqueue).toHaveBeenCalledWith('fetch_metadata', { userId: 'u1', itemId: 'itm_2' });
     expect(events.publish).toHaveBeenCalledWith('u1', 'item.created', { id: 'itm_2' });
+  });
+
+  it('creates a bookmark when kind=bookmark, still fetching metadata', async () => {
+    const repo = { create: vi.fn().mockResolvedValue('itm_3'), addTag: vi.fn() };
+    const jobs = { enqueue: vi.fn().mockResolvedValue({ id: 'job_3' }) };
+    const events = { publish: vi.fn() };
+    const handler = new SaveItemHandler(repo as never, jobs as never, events as never);
+
+    const res = await handler.execute(
+      new SaveItemCommand('u1', 'https://tool.dev', [], 'bookmark'),
+    );
+
+    expect(res).toEqual({ id: 'itm_3' });
+    expect(repo.create).toHaveBeenCalledWith({
+      userId: 'u1',
+      url: 'https://tool.dev',
+      kind: 'bookmark',
+    });
+    // metadata still runs (title/favicon); the auto-extract chain skips it by kind.
+    expect(jobs.enqueue).toHaveBeenCalledWith('fetch_metadata', { userId: 'u1', itemId: 'itm_3' });
   });
 });

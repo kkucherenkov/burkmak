@@ -24,10 +24,14 @@
   const props = withDefaults(
     defineProps<{
       item: AppItemCardData;
-      labels: { status: string; favorite: string; archive: string; delete: string };
+      // `archive` is only rendered in the `article` variant (see the button's
+      // v-if below) — bookmarks never expose an archive action, so callers
+      // building bookmark-variant labels don't need to supply it.
+      labels: { status: string; favorite: string; archive?: string; delete: string };
       fresh?: boolean;
+      variant?: 'article' | 'bookmark';
     }>(),
-    { fresh: false },
+    { fresh: false, variant: 'article' },
   );
 
   const emit = defineEmits<{
@@ -102,6 +106,7 @@
           @click="emit('toggleFavorite', item.id)"
         />
         <AppButton
+          v-if="props.variant === 'article'"
           variant="ghost"
           size="sm"
           icon="i-lucide-archive"

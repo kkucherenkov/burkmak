@@ -43,6 +43,11 @@ export type ItemStatus = 'pending' | 'ready' | 'failed';
  */
 export type ReadState = 'unread' | 'read' | 'archived';
 
+/**
+ * Whether the item is a readable article (default) or a reference bookmark
+ */
+export type Kind = 'article' | 'bookmark';
+
 export type Item = {
     /**
      * Unique item ID (cuid)
@@ -52,6 +57,7 @@ export type Item = {
      * Original URL submitted by the user
      */
     url: string;
+    kind: Kind;
     /**
      * Canonical URL resolved during metadata extraction
      */
@@ -137,10 +143,14 @@ export type SaveItemRequest = {
      * Optional tag slugs to attach immediately
      */
     tags?: Array<string>;
+    /**
+     * Save as a readable article or a reference bookmark. Omitted → article (the server default).
+     */
+    kind?: Kind;
 };
 
 /**
- * At least one of `readState` or `favorite` must be provided.
+ * At least one of `readState`, `favorite`, or `kind` must be provided.
  */
 export type UpdateItemRequest = {
     readState?: ReadState;
@@ -148,6 +158,10 @@ export type UpdateItemRequest = {
      * Set or clear the favourite flag
      */
     favorite?: boolean;
+    /**
+     * Promote a bookmark into the reading queue, or demote an article to a bookmark
+     */
+    kind?: Kind;
 };
 
 export type AddTagRequest = {
@@ -435,6 +449,10 @@ export type ListItemsData = {
          * Filter by read state
          */
         readState?: ReadState;
+        /**
+         * Filter by kind (article or bookmark). Omit to return all kinds.
+         */
+        kind?: Kind;
         /**
          * Filter by tag slug
          */

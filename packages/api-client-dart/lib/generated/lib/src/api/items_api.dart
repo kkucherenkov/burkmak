@@ -11,6 +11,7 @@ import 'package:app_api_client/src/api_util.dart';
 import 'package:app_api_client/src/model/add_tag_request.dart';
 import 'package:app_api_client/src/model/item.dart';
 import 'package:app_api_client/src/model/item_list.dart';
+import 'package:app_api_client/src/model/kind.dart';
 import 'package:app_api_client/src/model/read_state.dart';
 import 'package:app_api_client/src/model/save_item_request.dart';
 import 'package:app_api_client/src/model/update_item_request.dart';
@@ -276,10 +277,11 @@ class ItemsApi {
   }
 
   /// List saved items with optional filtering
-  /// Returns a cursor-paginated list of the authenticated user&#39;s saved items. Supports filtering by read state, tag, favourite flag, and full-text search.
+  /// Returns a cursor-paginated list of the authenticated user&#39;s saved items. Supports filtering by read state, tag, favourite flag, full-text search, and kind.
   ///
   /// Parameters:
   /// * [readState] - Filter by read state
+  /// * [kind] - Filter by kind (article or bookmark). Omit to return all kinds.
   /// * [tag] - Filter by tag slug
   /// * [favorite] - Filter to favourites only
   /// * [q] - Full-text search query
@@ -296,6 +298,7 @@ class ItemsApi {
   /// Throws [DioException] if API call or serialization fails
   Future<Response<ItemList>> listItems({ 
     ReadState? readState,
+    Kind? kind,
     String? tag,
     bool? favorite,
     String? q,
@@ -334,6 +337,7 @@ class ItemsApi {
 
     final _queryParameters = <String, dynamic>{
       if (readState != null) r'readState': encodeQueryParameter(_serializers, readState, const FullType(ReadState)),
+      if (kind != null) r'kind': encodeQueryParameter(_serializers, kind, const FullType(Kind)),
       if (tag != null) r'tag': encodeQueryParameter(_serializers, tag, const FullType(String)),
       if (favorite != null) r'favorite': encodeQueryParameter(_serializers, favorite, const FullType(bool)),
       if (q != null) r'q': encodeQueryParameter(_serializers, q, const FullType(String)),

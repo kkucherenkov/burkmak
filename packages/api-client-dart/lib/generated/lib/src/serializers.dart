@@ -31,6 +31,7 @@ import 'package:app_api_client/src/model/highlight_list.dart';
 import 'package:app_api_client/src/model/item.dart';
 import 'package:app_api_client/src/model/item_list.dart';
 import 'package:app_api_client/src/model/item_status.dart';
+import 'package:app_api_client/src/model/kind.dart';
 import 'package:app_api_client/src/model/personal_access_token.dart';
 import 'package:app_api_client/src/model/personal_access_token_created.dart';
 import 'package:app_api_client/src/model/problem.dart';
@@ -63,6 +64,7 @@ part 'serializers.g.dart';
   Item,
   ItemList,
   ItemStatus,
+  Kind,
   PersonalAccessToken,
   PersonalAccessTokenCreated,
   Problem,

@@ -31,7 +31,8 @@ export class FetchMetadataHandler implements JobHandler {
       // Auto-extract: a freshly-ready item goes straight to the extract queue.
       // The `none` guard keeps job retries idempotent — extracting/ready/failed
       // items are never re-enqueued from here.
-      if (item.extractStatus === 'none') {
+      // Bookmarks never enter the extraction queue — only articles auto-extract.
+      if (item.kind === 'article' && item.extractStatus === 'none') {
         try {
           await this.repo.setExtractStatus(itemId, 'extracting');
           await this.jobs.enqueue('extract_article', { userId: job.userId, itemId });

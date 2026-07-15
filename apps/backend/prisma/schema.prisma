@@ -111,6 +111,7 @@ model Item {
   readAt        DateTime?
   updatedAt     DateTime    @updatedAt
   extractStatus String      @default("none") // none | extracting | ready | failed
+  kind          String      @default("article") // article | bookmark
   tags          ItemTag[]
   article       Article?
   highlights    Highlight[]
@@ -119,6 +120,7 @@ model Item {
 
   @@index([userId, readState])
   @@index([userId, savedAt])
+  @@index([userId, kind])
   @@map("item")
 }
 
