@@ -195,8 +195,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # `pnpm audit` is unusable: it calls the npm registry's quick-audit endpoint
+      # (and its fallback), both of which now return 410 "This endpoint is being
+      # retired. Use the bulk advisory endpoint instead." pnpm has not migrated to
+      # the bulk endpoint — verified failing on 10.33.0 (ours), 10.34.5 and 11.13.0
+      # (latest), so there is no version to upgrade to. Trivy reads pnpm-lock.yaml
+      # natively and `severity: CRITICAL` preserves the bar `--audit-level=critical`
+      # set. Revisit if pnpm/pnpm ships bulk-endpoint support.
       - name: Dependency vulnerability scan
-        run: pnpm audit --audit-level=critical
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          scan-type: fs
+          scan-ref: pnpm-lock.yaml
+          scanners: vuln
+          severity: CRITICAL
+          exit-code: "1"
 
       - name: Secret scanning
         uses: trufflesecurity/trufflehog@main
