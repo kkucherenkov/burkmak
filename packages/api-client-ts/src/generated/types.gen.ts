@@ -499,6 +499,10 @@ export type ListItemsData = {
          */
         tag?: string;
         /**
+         * Only items on this shelf (shelf ID)
+         */
+        shelf?: string;
+        /**
          * Filter to favourites only
          */
         favorite?: boolean;

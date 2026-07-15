@@ -161,7 +161,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **listItems**
-> ItemList listItems(readState, kind, tag, favorite, q, cursor, limit)
+> ItemList listItems(readState, kind, tag, shelf, favorite, q, cursor, limit)
 
 List saved items with optional filtering
 
@@ -179,13 +179,14 @@ final api = AppApiClient().getItemsApi();
 final ReadState readState = ; // ReadState | Filter by read state
 final Kind kind = ; // Kind | Filter by kind (article or bookmark). Omit to return all kinds.
 final String tag = tag_example; // String | Filter by tag slug
+final String shelf = shelf_example; // String | Only items on this shelf (shelf ID)
 final bool favorite = true; // bool | Filter to favourites only
 final String q = q_example; // String | Full-text search query
 final String cursor = cursor_example; // String | Opaque cursor for the next page
 final int limit = 56; // int | Number of items to return (1–100, default 20)
 
 try {
-    final response = api.listItems(readState, kind, tag, favorite, q, cursor, limit);
+    final response = api.listItems(readState, kind, tag, shelf, favorite, q, cursor, limit);
     print(response);
 } on DioException catch (e) {
     print('Exception when calling ItemsApi->listItems: $e\n');
@@ -199,6 +200,7 @@ Name | Type | Description  | Notes
  **readState** | [**ReadState**](.md)| Filter by read state | [optional] 
  **kind** | [**Kind**](.md)| Filter by kind (article or bookmark). Omit to return all kinds. | [optional] 
  **tag** | **String**| Filter by tag slug | [optional] 
+ **shelf** | **String**| Only items on this shelf (shelf ID) | [optional] 
  **favorite** | **bool**| Filter to favourites only | [optional] 
  **q** | **String**| Full-text search query | [optional] 
  **cursor** | **String**| Opaque cursor for the next page | [optional] 

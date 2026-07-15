@@ -1009,6 +1009,8 @@ export interface operations {
                 kind?: components["schemas"]["Kind"];
                 /** @description Filter by tag slug */
                 tag?: string;
+                /** @description Only items on this shelf (shelf ID) */
+                shelf?: string;
                 /** @description Filter to favourites only */
                 favorite?: boolean;
                 /** @description Full-text search query */

@@ -283,6 +283,7 @@ class ItemsApi {
   /// * [readState] - Filter by read state
   /// * [kind] - Filter by kind (article or bookmark). Omit to return all kinds.
   /// * [tag] - Filter by tag slug
+  /// * [shelf] - Only items on this shelf (shelf ID)
   /// * [favorite] - Filter to favourites only
   /// * [q] - Full-text search query
   /// * [cursor] - Opaque cursor for the next page
@@ -300,6 +301,7 @@ class ItemsApi {
     ReadState? readState,
     Kind? kind,
     String? tag,
+    String? shelf,
     bool? favorite,
     String? q,
     String? cursor,
@@ -339,6 +341,7 @@ class ItemsApi {
       if (readState != null) r'readState': encodeQueryParameter(_serializers, readState, const FullType(ReadState)),
       if (kind != null) r'kind': encodeQueryParameter(_serializers, kind, const FullType(Kind)),
       if (tag != null) r'tag': encodeQueryParameter(_serializers, tag, const FullType(String)),
+      if (shelf != null) r'shelf': encodeQueryParameter(_serializers, shelf, const FullType(String)),
       if (favorite != null) r'favorite': encodeQueryParameter(_serializers, favorite, const FullType(bool)),
       if (q != null) r'q': encodeQueryParameter(_serializers, q, const FullType(String)),
       if (cursor != null) r'cursor': encodeQueryParameter(_serializers, cursor, const FullType(String)),
