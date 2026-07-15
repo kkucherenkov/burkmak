@@ -2,6 +2,34 @@
 
 _Archive of shipped tasks. Never delete entries — cancelled tasks go here with reason._
 
+## T-2026-07-15-007 — CI: dependency scanning + pnpm advisories
+
+- Created: 2026-07-15
+- Completed: 2026-07-15
+- Owner: claude
+- Spec: none (unplanned — CI broke on every branch, blocking PR #15)
+- Result: merged via [PR #16](https://github.com/kkucherenkov/burkmak/pull/16) (merge commit `03043f3`).
+- Delivered: `pnpm audit` → `aquasecurity/trivy-action@v0.36.0` (`scan-ref: pnpm-lock.yaml`, `severity: CRITICAL`, `exit-code: 1`). npm retired the quick-audit endpoint **and** its fallback (410 → "use the bulk advisory endpoint"); pnpm has not migrated, verified failing on 10.33.0, 10.34.5 **and** 11.13.0 (latest) — no version to upgrade to, so no in-repo fix for the command itself. Trivy reads `pnpm-lock.yaml` natively and `severity: CRITICAL` preserves exactly the bar `--audit-level=critical` set: no `continue-on-error`, no dropped step, no lowered threshold. Rationale recorded inline in `ci.yml`, not `troubleshooting.md` — the upstream bug is real but the fix lives in this repo's config. Also bumped `packageManager` pnpm 10.33.0 → 10.34.5, clearing **15 advisories (7 HIGH + 8 MODERATE)**: arbitrary file write/delete via malicious patch file (GHSA-rxhj-4m44-96r4), path traversals (GHSA-hwx4-2j3j-g496, GHSA-qrv3-253h-g69c, GHSA-fr4h-3cph-29xv, GHSA-72r4-9c5j-mj57), manifest identity spoof that satisfies `allowBuilds` and runs attacker lifecycle scripts (GHSA-5wx6-mg75-v57r), GHSA-w466-c33r-3gjp.
+- Verified: proved the scanner non-vacuous before adopting it — `lodash@4.17.15` at `--severity HIGH` exits 1 (CVE-2020-8203, CVE-2021-23337, CVE-2026-4800); the same lockfile at `--severity CRITICAL` exits 0, since lodash's CVEs are HIGH, so the filter genuinely gates; this repo's lockfile is clean. CI log shows a real scan (`[pnpm] Detecting vulnerabilities…` → `pnpm-lock.yaml │ pnpm │ 0`). pnpm bump: lockfile byte-identical under `--frozen-lockfile` on 10.34.5, full install green in `burkmak-web-1`. All 10 checks pass.
+- Note: **neither `pnpm audit` nor Trivy can catch a vulnerable pnpm** — both scan `pnpm-lock.yaml` (project deps), not the package manager running the install. The advisories surfaced only because npm auto-audits its own install of pnpm inside `pnpm/action-setup`. A blind spot in the model, not the tool choice.
+
+## T-2026-07-14-005 — bookmarks (Item.kind, slice ②)
+
+- Created: 2026-07-14
+- Completed: 2026-07-15
+- Owner: claude
+- Spec: [specs/features/2026-07-13-auto-extract-shelves-bookmarks.design.md](../features/2026-07-13-auto-extract-shelves-bookmarks.design.md) (slice ②)
+- Plan: [specs/features/2026-07-14-item-kind-bookmarks.plan.md](../features/2026-07-14-item-kind-bookmarks.plan.md)
+- Result: merged via [PR #15](https://github.com/kkucherenkov/burkmak/pull/15) (merge commit `021ea9c`).
+- Delivered: `Item.kind` = `article | bookmark` (hand-written migration, `NOT NULL DEFAULT 'article'` backfills existing rows, `@@index([userId, kind])`); spec `0.4.0` → `0.5.0` + codegen in its own commit; `buildItemWhere` extracted as an exported pure function so the plain and FTS list paths share one clause. Bookmarks never auto-extract, never reach Kobo/OPDS/epub, and open at their source URL. Web: save-as-bookmark toggle (add bar, modal, `/save` share target), `/bookmarks` page with search, kind-scoped `useItems`, shared `useFiltersReload`, nav link, i18n en+ru. Mobile lists `kind=article` only. `AppItemCard variant="bookmark"` (no archive action) + story + specs.
+- Verified: backend 248, web 42, ui 253, mobile 31, typecheck 0, lint 0 errors. Live: filter round-trip (`article`/`bookmark`/none/`bogus`→400), `/bookmarks` light+dark console-clean, differential action check (article `[arc,del,fav]` vs bookmark `[del,fav]`, so "no archive" is not vacuous), external open in a new tab, no cross-kind leakage, promote round-trip `extractStatus` `none`→`ready`.
+- Lessons (drove the ③a plan):
+  - **A plan gap ships a broken endpoint.** The plan had save-flow and update-flow tasks but no **list-flow** task, so `ListItemsDto` never gained `kind` and `GET /items?kind=` returned 400 — caught only by live verification, because `apps/backend/test/` has no HTTP-boundary coverage. Wiring a query param takes four coordinated edits: filter type, repo `where`, DTO, controller spread.
+  - **Filters guard entry; they do not retract state.** The whole-branch review caught a Critical: the five bookmark guards all protected _entry_ into the Kobo pipeline, but `findChangedItems`/`findEntitlementByUuid` had no `kind` filter, so demoting a synced article kept its entitlement and pushed a bookmark to the device — which then 404'd on download. Fixed by widening `findOrphanedEntitlements` to `OR: [{itemId: null}, {item: {kind: 'bookmark'}}]`: a demoted article _is_ an entitlement that should no longer exist on the device, so it reuses the proven emit-removal-then-purge path, stays inside the kobo module (no circular `ItemsModule ↔ KoboModule`), and round-trips — the purge lets re-promotion re-entitle naturally. Known behaviour: re-promotion mints a new entitlement uuid, so device reading progress is lost.
+  - **Design wording misdirected the implementation.** Design `:102` said to add `kind: 'article'` "to the existing `extractStatus: 'ready'` where clauses" — but `findChangedItems` filters on `koboEntitlement`, so it never matched that description. Name clauses by their role, not an incidental property.
+  - **Tests that assert an object literal's shape prove nothing.** `buildItemWhere`'s specs passed whether or not Prisma honoured the clause; real-DB coverage was added on both the plain and FTS paths.
+  - `ListItemsDto` is a hand-maintained mirror of `openapi.yaml`'s query params with nothing enforcing agreement — the root cause of the 400, and the reason slice ③a opens with a drift guard.
+
 ## T-2026-07-14-004 — Docker release images + homelab deploy
 
 - Created: 2026-07-14
