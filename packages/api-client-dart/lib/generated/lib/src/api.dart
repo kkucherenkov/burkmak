@@ -15,6 +15,7 @@ import 'package:app_api_client/src/api/extraction_api.dart';
 import 'package:app_api_client/src/api/highlights_api.dart';
 import 'package:app_api_client/src/api/items_api.dart';
 import 'package:app_api_client/src/api/kobo_api.dart';
+import 'package:app_api_client/src/api/shelves_api.dart';
 import 'package:app_api_client/src/api/system_api.dart';
 import 'package:app_api_client/src/api/tags_api.dart';
 import 'package:app_api_client/src/api/tokens_api.dart';
@@ -107,6 +108,12 @@ class AppApiClient {
   /// by doing that all interceptors will not be executed
   KoboApi getKoboApi() {
     return KoboApi(dio, serializers);
+  }
+
+  /// Get ShelvesApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  ShelvesApi getShelvesApi() {
+    return ShelvesApi(dio, serializers);
   }
 
   /// Get SystemApi instance, base route and serializer can be overridden by a given but be careful,

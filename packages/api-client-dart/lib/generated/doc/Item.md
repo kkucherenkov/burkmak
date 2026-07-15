@@ -24,6 +24,7 @@ Name | Type | Description | Notes
 **savedAt** | [**DateTime**](DateTime.md) | ISO-8601 timestamp when the item was saved | 
 **readAt** | [**DateTime**](DateTime.md) | ISO-8601 timestamp when the item was first marked read | [optional] 
 **tags** | **BuiltList&lt;String&gt;** | Slugs of tags attached to this item | 
+**shelves** | [**BuiltList&lt;ShelfSummary&gt;**](ShelfSummary.md) | Shelves this item belongs to | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

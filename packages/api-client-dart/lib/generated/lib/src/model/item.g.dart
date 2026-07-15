@@ -39,6 +39,8 @@ class _$Item extends Item {
   final DateTime? readAt;
   @override
   final BuiltList<String> tags;
+  @override
+  final BuiltList<ShelfSummary> shelves;
 
   factory _$Item([void Function(ItemBuilder)? updates]) =>
       (ItemBuilder()..update(updates))._build();
@@ -59,7 +61,8 @@ class _$Item extends Item {
       required this.favorite,
       required this.savedAt,
       this.readAt,
-      required this.tags})
+      required this.tags,
+      required this.shelves})
       : super._();
   @override
   Item rebuild(void Function(ItemBuilder) updates) =>
@@ -87,7 +90,8 @@ class _$Item extends Item {
         favorite == other.favorite &&
         savedAt == other.savedAt &&
         readAt == other.readAt &&
-        tags == other.tags;
+        tags == other.tags &&
+        shelves == other.shelves;
   }
 
   @override
@@ -109,6 +113,7 @@ class _$Item extends Item {
     _$hash = $jc(_$hash, savedAt.hashCode);
     _$hash = $jc(_$hash, readAt.hashCode);
     _$hash = $jc(_$hash, tags.hashCode);
+    _$hash = $jc(_$hash, shelves.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -131,7 +136,8 @@ class _$Item extends Item {
           ..add('favorite', favorite)
           ..add('savedAt', savedAt)
           ..add('readAt', readAt)
-          ..add('tags', tags))
+          ..add('tags', tags)
+          ..add('shelves', shelves))
         .toString();
   }
 }
@@ -204,6 +210,11 @@ class ItemBuilder implements Builder<Item, ItemBuilder> {
   ListBuilder<String> get tags => _$this._tags ??= ListBuilder<String>();
   set tags(ListBuilder<String>? tags) => _$this._tags = tags;
 
+  ListBuilder<ShelfSummary>? _shelves;
+  ListBuilder<ShelfSummary> get shelves =>
+      _$this._shelves ??= ListBuilder<ShelfSummary>();
+  set shelves(ListBuilder<ShelfSummary>? shelves) => _$this._shelves = shelves;
+
   ItemBuilder() {
     Item._defaults(this);
   }
@@ -227,6 +238,7 @@ class ItemBuilder implements Builder<Item, ItemBuilder> {
       _savedAt = $v.savedAt;
       _readAt = $v.readAt;
       _tags = $v.tags.toBuilder();
+      _shelves = $v.shelves.toBuilder();
       _$v = null;
     }
     return this;
@@ -271,12 +283,15 @@ class ItemBuilder implements Builder<Item, ItemBuilder> {
                 savedAt, r'Item', 'savedAt'),
             readAt: readAt,
             tags: tags.build(),
+            shelves: shelves.build(),
           );
     } catch (_) {
       late String _$failedField;
       try {
         _$failedField = 'tags';
         tags.build();
+        _$failedField = 'shelves';
+        shelves.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(r'Item', _$failedField, e.toString());
       }

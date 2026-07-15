@@ -535,6 +535,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/shelves": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List shelves with item counts
+         * @description Returns all shelves belonging to the authenticated user, each with its current item count.
+         */
+        get: operations["listShelves"];
+        put?: never;
+        /**
+         * Create a shelf
+         * @description Creates a new shelf owned by the authenticated user. Shelf names must be unique per user.
+         */
+        post: operations["createShelf"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shelves/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Shelf ID (uuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a shelf
+         * @description Permanently deletes the shelf. Items that were on the shelf are not deleted.
+         */
+        delete: operations["deleteShelf"];
+        options?: never;
+        head?: never;
+        /**
+         * Rename a shelf
+         * @description Renames the shelf and bumps `lastModified`. Returns 404 if the shelf does not exist or is not owned by the authenticated user.
+         */
+        patch: operations["renameShelf"];
+        trace?: never;
+    };
+    "/api/v1/shelves/{id}/items/{itemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Shelf ID (uuid) */
+                id: string;
+                /** @description Item ID (cuid) */
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Add an item to a shelf (idempotent)
+         * @description Adds the item to the shelf. Idempotent — calling again when the item is already on the shelf is a no-op.
+         */
+        put: operations["addItemToShelf"];
+        post?: never;
+        /**
+         * Remove an item from a shelf
+         * @description Removes the item from the shelf. Does not delete the item or the shelf.
+         */
+        delete: operations["removeItemFromShelf"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -627,11 +707,41 @@ export interface components {
             readAt?: string | null;
             /** @description Slugs of tags attached to this item */
             tags: string[];
+            /** @description Shelves this item belongs to */
+            shelves: components["schemas"]["ShelfSummary"][];
         };
         ItemList: {
             items: components["schemas"]["Item"][];
             /** @description Opaque cursor for the next page; null when no more pages */
             nextCursor: string | null;
+        };
+        ShelfSummary: {
+            /** @description Unique shelf ID (uuid; doubles as the Kobo Tag.Id) */
+            id: string;
+            name: string;
+        };
+        Shelf: {
+            /** @description Unique shelf ID (uuid; doubles as the Kobo Tag.Id) */
+            id: string;
+            name: string;
+            /** @description Number of items currently on the shelf */
+            itemCount: number;
+            /** Format: date-time */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Bumped on rename and on any membership change
+             */
+            lastModified: string;
+        };
+        ShelfList: {
+            shelves: components["schemas"]["Shelf"][];
+        };
+        CreateShelfRequest: {
+            name: string;
+        };
+        RenameShelfRequest: {
+            name: string;
         };
         Tag: {
             /** @description Unique tag ID (cuid) */
@@ -1973,6 +2083,270 @@ export interface operations {
                 };
             };
             /** @description Token not found or not owned by the authenticated user */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listShelves: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Shelves */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShelfList"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    createShelf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateShelfRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Shelf"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A shelf with that name already exists */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    deleteShelf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Shelf ID (uuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Shelf not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    renameShelf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Shelf ID (uuid) */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenameShelfRequest"];
+            };
+        };
+        responses: {
+            /** @description Renamed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Shelf"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Shelf not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A shelf with that name already exists */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    addItemToShelf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Shelf ID (uuid) */
+                id: string;
+                /** @description Item ID (cuid) */
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description On the shelf (idempotent — repeating the call is a no-op) */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Shelf or item not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    removeItemFromShelf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Shelf ID (uuid) */
+                id: string;
+                /** @description Item ID (cuid) */
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Shelf or item not found */
             404: {
                 headers: {
                     [name: string]: unknown;

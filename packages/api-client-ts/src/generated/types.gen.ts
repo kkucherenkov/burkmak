@@ -101,6 +101,10 @@ export type Item = {
      * Slugs of tags attached to this item
      */
     tags: Array<string>;
+    /**
+     * Shelves this item belongs to
+     */
+    shelves: Array<ShelfSummary>;
 };
 
 export type ItemList = {
@@ -109,6 +113,43 @@ export type ItemList = {
      * Opaque cursor for the next page; null when no more pages
      */
     nextCursor: string | null;
+};
+
+export type ShelfSummary = {
+    /**
+     * Unique shelf ID (uuid; doubles as the Kobo Tag.Id)
+     */
+    id: string;
+    name: string;
+};
+
+export type Shelf = {
+    /**
+     * Unique shelf ID (uuid; doubles as the Kobo Tag.Id)
+     */
+    id: string;
+    name: string;
+    /**
+     * Number of items currently on the shelf
+     */
+    itemCount: number;
+    createdAt: string;
+    /**
+     * Bumped on rename and on any membership change
+     */
+    lastModified: string;
+};
+
+export type ShelfList = {
+    shelves: Array<Shelf>;
+};
+
+export type CreateShelfRequest = {
+    name: string;
+};
+
+export type RenameShelfRequest = {
+    name: string;
 };
 
 export type Tag = {
@@ -1334,3 +1375,213 @@ export type RevokeTokenResponses = {
 };
 
 export type RevokeTokenResponse = RevokeTokenResponses[keyof RevokeTokenResponses];
+
+export type ListShelvesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/shelves';
+};
+
+export type ListShelvesErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+};
+
+export type ListShelvesError = ListShelvesErrors[keyof ListShelvesErrors];
+
+export type ListShelvesResponses = {
+    /**
+     * Shelves
+     */
+    200: ShelfList;
+};
+
+export type ListShelvesResponse = ListShelvesResponses[keyof ListShelvesResponses];
+
+export type CreateShelfData = {
+    body: CreateShelfRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/shelves';
+};
+
+export type CreateShelfErrors = {
+    /**
+     * Invalid request
+     */
+    400: Problem;
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * A shelf with that name already exists
+     */
+    409: Problem;
+};
+
+export type CreateShelfError = CreateShelfErrors[keyof CreateShelfErrors];
+
+export type CreateShelfResponses = {
+    /**
+     * Created
+     */
+    201: Shelf;
+};
+
+export type CreateShelfResponse = CreateShelfResponses[keyof CreateShelfResponses];
+
+export type DeleteShelfData = {
+    body?: never;
+    path: {
+        /**
+         * Shelf ID (uuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/shelves/{id}';
+};
+
+export type DeleteShelfErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Shelf not found
+     */
+    404: Problem;
+};
+
+export type DeleteShelfError = DeleteShelfErrors[keyof DeleteShelfErrors];
+
+export type DeleteShelfResponses = {
+    /**
+     * Deleted
+     */
+    204: void;
+};
+
+export type DeleteShelfResponse = DeleteShelfResponses[keyof DeleteShelfResponses];
+
+export type RenameShelfData = {
+    body: RenameShelfRequest;
+    path: {
+        /**
+         * Shelf ID (uuid)
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/shelves/{id}';
+};
+
+export type RenameShelfErrors = {
+    /**
+     * Invalid request
+     */
+    400: Problem;
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Shelf not found
+     */
+    404: Problem;
+    /**
+     * A shelf with that name already exists
+     */
+    409: Problem;
+};
+
+export type RenameShelfError = RenameShelfErrors[keyof RenameShelfErrors];
+
+export type RenameShelfResponses = {
+    /**
+     * Renamed
+     */
+    200: Shelf;
+};
+
+export type RenameShelfResponse = RenameShelfResponses[keyof RenameShelfResponses];
+
+export type RemoveItemFromShelfData = {
+    body?: never;
+    path: {
+        /**
+         * Shelf ID (uuid)
+         */
+        id: string;
+        /**
+         * Item ID (cuid)
+         */
+        itemId: string;
+    };
+    query?: never;
+    url: '/api/v1/shelves/{id}/items/{itemId}';
+};
+
+export type RemoveItemFromShelfErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Shelf or item not found
+     */
+    404: Problem;
+};
+
+export type RemoveItemFromShelfError = RemoveItemFromShelfErrors[keyof RemoveItemFromShelfErrors];
+
+export type RemoveItemFromShelfResponses = {
+    /**
+     * Removed
+     */
+    204: void;
+};
+
+export type RemoveItemFromShelfResponse = RemoveItemFromShelfResponses[keyof RemoveItemFromShelfResponses];
+
+export type AddItemToShelfData = {
+    body?: never;
+    path: {
+        /**
+         * Shelf ID (uuid)
+         */
+        id: string;
+        /**
+         * Item ID (cuid)
+         */
+        itemId: string;
+    };
+    query?: never;
+    url: '/api/v1/shelves/{id}/items/{itemId}';
+};
+
+export type AddItemToShelfErrors = {
+    /**
+     * Not authenticated
+     */
+    401: Problem;
+    /**
+     * Shelf or item not found
+     */
+    404: Problem;
+};
+
+export type AddItemToShelfError = AddItemToShelfErrors[keyof AddItemToShelfErrors];
+
+export type AddItemToShelfResponses = {
+    /**
+     * On the shelf (idempotent — repeating the call is a no-op)
+     */
+    204: void;
+};
+
+export type AddItemToShelfResponse = AddItemToShelfResponses[keyof AddItemToShelfResponses];
