@@ -396,3 +396,38 @@ describe('ItemRepo.findMany shelf filter', () => {
     expect(ids).toContain(sOffShelfId);
   });
 });
+
+/**
+ * The read-side half of the article-only invariant. `ShelfRepo.ownsBoth`
+ * guards entry (Task: shelf.repo.ts), but an already-shelved article can be
+ * demoted to a bookmark via `PATCH /items/{id}` without ever touching that
+ * write path — the membership row just lingers. `buildItemWhere` must retract
+ * it from `?shelf=` reads while demoted, and — because we deliberately do NOT
+ * delete the membership row on demote — restore it on re-promotion with no
+ * further shelf action from the user. This is the same lesson slice ②
+ * (`kind` filter) learned: a filter guards entry, not state already written.
+ */
+describe('shelf read guard: demote hides membership, re-promote restores it', () => {
+  it('a demoted article disappears from ?shelf=; re-promoted, it reappears', async () => {
+    const itemId = await items.create({
+      userId: 'userS',
+      url: 'https://s.example.com/demote-repromote',
+    });
+    const shelfId = await shelfRepo.create('userS', 'DemoteRepromote');
+    expect(await shelfRepo.addItem('userS', shelfId, itemId)).toBe(true);
+
+    // visible while it's an article
+    let result = await items.findMany({ userId: 'userS', limit: 50, shelf: shelfId });
+    expect(result.items.map((i) => i.id)).toContain(itemId);
+
+    // demoted — the write path (shelf.repo.ts) never runs; the membership row lingers
+    expect(await items.update('userS', itemId, { kind: 'bookmark' })).toBe(true);
+    result = await items.findMany({ userId: 'userS', limit: 50, shelf: shelfId });
+    expect(result.items.map((i) => i.id)).not.toContain(itemId);
+
+    // re-promoted — reappears without the user re-adding it to the shelf
+    expect(await items.update('userS', itemId, { kind: 'article' })).toBe(true);
+    result = await items.findMany({ userId: 'userS', limit: 50, shelf: shelfId });
+    expect(result.items.map((i) => i.id)).toContain(itemId);
+  });
+});

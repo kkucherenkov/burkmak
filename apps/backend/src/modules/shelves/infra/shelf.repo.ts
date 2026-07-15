@@ -68,20 +68,32 @@ export class ShelfRepo implements IShelfRepo {
 
   async addItem(userId: string, shelfId: string, itemId: string): Promise<boolean> {
     if (!(await this.ownsBoth(userId, shelfId, itemId))) return false;
-    // Idempotent: repeating the call must not error or duplicate.
-    await this.prisma.shelfItem.upsert({
-      where: { shelfId_itemId: { shelfId, itemId } },
-      create: { shelfId, itemId },
-      update: {},
-    });
+    // Idempotent: repeating the call must not error or duplicate. Create
+    // rather than upsert so a repeat call is distinguishable from a real
+    // change — catching P2002 tells us the row already existed, so we skip
+    // the touch below rather than bumping lastModified for a no-op write.
+    try {
+      await this.prisma.shelfItem.create({ data: { shelfId, itemId } });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === UNIQUE_VIOLATION
+      ) {
+        return true;
+      }
+      throw error;
+    }
     await this.touch(shelfId);
     return true;
   }
 
   async removeItem(userId: string, shelfId: string, itemId: string): Promise<boolean> {
     if (!(await this.ownsBoth(userId, shelfId, itemId))) return false;
-    await this.prisma.shelfItem.deleteMany({ where: { shelfId, itemId } });
-    await this.touch(shelfId);
+    const { count } = await this.prisma.shelfItem.deleteMany({ where: { shelfId, itemId } });
+    // Only touch when membership actually changed — deleting a non-member is
+    // a no-op and must not advance lastModified (③b drives its device delta
+    // off this column; a spurious bump would emit a false ChangedTag).
+    if (count > 0) await this.touch(shelfId);
     return true;
   }
 
@@ -104,11 +116,21 @@ export class ShelfRepo implements IShelfRepo {
     }
   }
 
-  /** Both the shelf and the item must belong to this user. */
+  /**
+   * Both the shelf and the item must belong to this user, and the item must
+   * be an article — shelves are article-only (design non-goal: bookmarks are
+   * not shelvable in this slice). This is the write-side half of the
+   * invariant; `buildItemWhere` (items/infra/item.repo.ts) enforces the read
+   * side, because a shelved article demoted to a bookmark never touches this
+   * method at all.
+   */
   private async ownsBoth(userId: string, shelfId: string, itemId: string): Promise<boolean> {
     const [shelf, item] = await Promise.all([
       this.prisma.shelf.findFirst({ where: { id: shelfId, userId }, select: { id: true } }),
-      this.prisma.item.findFirst({ where: { id: itemId, userId }, select: { id: true } }),
+      this.prisma.item.findFirst({
+        where: { id: itemId, userId, kind: 'article' },
+        select: { id: true },
+      }),
     ]);
     return shelf !== null && item !== null;
   }

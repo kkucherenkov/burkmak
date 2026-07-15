@@ -25,6 +25,7 @@ let shelves: ShelfRepo;
 let items: ItemRepo;
 let aItemId: string;
 let bItemId: string;
+let aBookmarkId: string;
 
 beforeAll(async () => {
   cleanup();
@@ -44,6 +45,11 @@ beforeAll(async () => {
 
   aItemId = await items.create({ userId: 'userA', url: 'https://a.example.com/one' });
   bItemId = await items.create({ userId: 'userB', url: 'https://b.example.com/one' });
+  aBookmarkId = await items.create({
+    userId: 'userA',
+    url: 'https://a.example.com/a-bookmark',
+    kind: 'bookmark',
+  });
 }, 60_000);
 
 afterAll(async () => {
@@ -96,6 +102,31 @@ describe('ShelfRepo', () => {
     const id = await shelves.create('userA', 'Foreign');
     expect(await shelves.addItem('userA', id, bItemId)).toBe(false);
     expect((await shelves.findById('userA', id))?.itemCount).toBe(0);
+  });
+
+  it('will not add a bookmark (shelves are article-only)', async () => {
+    const id = await shelves.create('userA', 'ArticleOnly');
+    expect(await shelves.addItem('userA', id, aBookmarkId)).toBe(false);
+    expect((await shelves.findById('userA', id))?.itemCount).toBe(0);
+  });
+
+  it('does not bump lastModified on a repeat addItem (idempotent no-op)', async () => {
+    const id = await shelves.create('userA', 'NoOpAddTouch');
+    await shelves.addItem('userA', id, aItemId);
+    const before = (await shelves.findById('userA', id))!.lastModified;
+    await new Promise((r) => setTimeout(r, 1100)); // SQLite DATETIME is second-resolution
+    expect(await shelves.addItem('userA', id, aItemId)).toBe(true); // already a member
+    const after = (await shelves.findById('userA', id))!.lastModified;
+    expect(after).toBe(before);
+  });
+
+  it('does not bump lastModified when removing a non-member', async () => {
+    const id = await shelves.create('userA', 'NoOpRemoveTouch');
+    const before = (await shelves.findById('userA', id))!.lastModified;
+    await new Promise((r) => setTimeout(r, 1100)); // SQLite DATETIME is second-resolution
+    expect(await shelves.removeItem('userA', id, aItemId)).toBe(true); // never a member
+    const after = (await shelves.findById('userA', id))!.lastModified;
+    expect(after).toBe(before);
   });
 
   it('removeItem drops the membership', async () => {

@@ -303,7 +303,9 @@
       </form>
     </div>
 
-    <section class="page-detail__shelves">
+    <!-- Shelves are article-only (design non-goal: bookmarks are not shelvable
+         in this slice) — a bookmark's detail page must not offer shelving. -->
+    <section v-if="item.kind === 'article'" class="page-detail__shelves">
       <h2 class="page-detail__shelves-title">{{ t('shelves.title') }}</h2>
       <AppShelfPicker
         :shelves="shelvesStore.shelves.value"
