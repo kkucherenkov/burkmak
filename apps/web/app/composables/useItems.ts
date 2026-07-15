@@ -110,6 +110,7 @@ export function useItems(kind: Kind = 'article'): UseItemsReturn {
   }
 
   async function addTag(item: Item, tag: string): Promise<void> {
+    // optimistic append, then reconcile with the server's canonical item (slug normalization etc.)
     items.value = upsertItem(items.value, { ...item, tags: [...item.tags, tag] });
     items.value = upsertItem(items.value, await api.addItemTag(item.id, tag));
   }

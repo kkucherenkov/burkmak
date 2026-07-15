@@ -19,6 +19,7 @@
     async (isOpen) => {
       if (isOpen) {
         url.value = '';
+        asBookmark.value = false;
         await nextTick();
         inputRef.value?.focus();
       }
