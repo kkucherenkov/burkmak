@@ -54,16 +54,34 @@ interface SpecOperation {
   parameters?: SpecParam[];
 }
 
-/** operationId -> its `in: query` parameter names, straight from the spec. */
+/**
+ * An operation's effective query params: OpenAPI lets a path-level
+ * `parameters` array apply to every method under that path, and those
+ * entries may be `in: query`, not just `in: path`. They bind exactly as
+ * method-level ones do — a shared query param that this guard could not see
+ * would be invisible drift, which is the failure mode it exists to catch.
+ * A method-level entry overrides a shared one with the same name + in.
+ */
+export function effectiveQueryParams(shared: SpecParam[], own: SpecParam[]): string[] {
+  const merged = new Map<string, SpecParam>();
+  for (const p of shared) merged.set(`${p.in}:${p.name}`, p);
+  for (const p of own) merged.set(`${p.in}:${p.name}`, p);
+  return [...merged.values()].filter((p) => p.in === 'query').map((p) => p.name);
+}
+
+/** operationId -> its effective `in: query` parameter names (method-level merged with path-level). */
 function queryParamsByOperation(): Map<string, string[]> {
   const spec = parse(readFileSync(SPEC_PATH, 'utf8')) as {
-    paths: Record<string, Record<string, SpecOperation>>;
+    paths: Record<string, Record<string, unknown>>;
   };
   const result = new Map<string, string[]>();
-  for (const methods of Object.values(spec.paths)) {
-    for (const [method, op] of Object.entries(methods)) {
-      if (method === 'parameters' || !op.operationId) continue;
-      const names = (op.parameters ?? []).filter((p) => p.in === 'query').map((p) => p.name);
+  for (const pathItem of Object.values(spec.paths)) {
+    const shared = (pathItem['parameters'] as SpecParam[] | undefined) ?? [];
+    for (const [method, opValue] of Object.entries(pathItem)) {
+      if (method === 'parameters') continue;
+      const op = opValue as SpecOperation;
+      if (!op.operationId) continue;
+      const names = effectiveQueryParams(shared, op.parameters ?? []);
       if (names.length > 0) result.set(op.operationId, names);
     }
   }
@@ -84,6 +102,28 @@ async function isUndeclared(Dto: new () => object, param: string): Promise<boole
   });
   return errors.some((e) => e.property === param && e.constraints?.['whitelistValidation']);
 }
+
+describe('effectiveQueryParams', () => {
+  it('returns a shared (path-level) query param when the operation declares none', () => {
+    const shared: SpecParam[] = [{ name: 'shelf', in: 'query' }];
+    expect(effectiveQueryParams(shared, [])).toEqual(['shelf']);
+  });
+
+  it('excludes a shared param that is in: path', () => {
+    const shared: SpecParam[] = [{ name: 'id', in: 'path' }];
+    expect(effectiveQueryParams(shared, [])).toEqual([]);
+  });
+
+  it('does not duplicate a method-level param that overrides a shared one of the same name+in', () => {
+    const shared: SpecParam[] = [{ name: 'q', in: 'query' }];
+    const own: SpecParam[] = [{ name: 'q', in: 'query' }];
+    expect(effectiveQueryParams(shared, own)).toEqual(['q']);
+  });
+
+  it('still returns method-level params when there is no shared array', () => {
+    expect(effectiveQueryParams([], [{ name: 'cursor', in: 'query' }])).toEqual(['cursor']);
+  });
+});
 
 describe('openapi.yaml <-> query DTO drift', () => {
   const specParams = queryParamsByOperation();
