@@ -18,9 +18,9 @@
   - [x] CQRS commands/queries + DTOs + controller + module wiring
   - [x] Item.shelves on the item response
   - [x] GET /items?shelf= (filter + repo + DTO + controller)
-  - [ ] web: useApi/useShelves + /shelves pages + picker + nav + i18n
-  - [ ] ui: AppShelfRow + AppShelfPicker (+ stories + specs)
-  - [ ] gates + live verification (HTTP + browser, light/dark)
+  - [x] web: useApi/useShelves + /shelves pages + picker + nav + i18n
+  - [x] ui: AppShelfRow + AppShelfPicker (+ stories + specs)
+  - [x] gates + live verification (HTTP + browser, light/dark)
 - Branch: `feat/shelves` (rebased onto `main` after #15 merged)
 - Status: ready
 - Blockers: —
