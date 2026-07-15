@@ -22,5 +22,6 @@
   - [x] ui: AppShelfRow + AppShelfPicker (+ stories + specs)
   - [x] gates + live verification (HTTP + browser, light/dark)
 - Branch: `feat/shelves` (rebased onto `main` after #15 merged)
-- Status: ready
+- PR: [#17](https://github.com/kkucherenkov/burkmak/pull/17) — **Part of** #11, does not close it (③a of three)
+- Status: in-progress (in review)
 - Blockers: —
