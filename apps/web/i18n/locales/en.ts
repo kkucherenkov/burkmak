@@ -175,6 +175,7 @@ export default {
     empty: 'No bookmarks yet',
     emptyHint: 'Save a link as a bookmark to keep it here for reference.',
     search: 'Search bookmarks',
+    filteringByTag: 'Filtering by tag:',
     error: "Couldn't load your bookmarks.",
     retry: 'Retry',
     act: {

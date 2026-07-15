@@ -1,7 +1,15 @@
 <script setup lang="ts">
-  import { AppItemCard, AppEmptyState, AppSkeleton, AppButton } from '@app/ui';
-  import { computed, onMounted, ref, watch } from 'vue';
+  import {
+    AppItemCard,
+    AppEmptyState,
+    AppSkeleton,
+    AppButton,
+    AppInput,
+    AppTagChip,
+  } from '@app/ui';
+  import { computed, onMounted, ref } from 'vue';
 
+  import { useFiltersReload } from '~/composables/useFiltersReload';
   import { toCardData } from '~/utils/to-card-data';
 
   definePageMeta({ middleware: 'auth' });
@@ -23,24 +31,26 @@
 
   onMounted(load);
 
-  // Re-load when the search term changes (bookmarks have no segment/tag bar).
-  watch(
-    () => store.filters.value.q,
-    () => {
-      void load();
-    },
-  );
+  // Deep-watch every filter field (q/tag); bookmarks have no segment bar, but
+  // a tag click (see @tag-click below) still needs to trigger a reload — a
+  // shallow watch on `q` alone silently misses it.
+  useFiltersReload(store.filters, () => {
+    void load();
+  });
 
   const cardLabels = computed(() => ({
     status: t('library.status'),
     favorite: t('bookmarks.act.favorite'),
-    archive: t('library.act.archive'),
     delete: t('bookmarks.act.delete'),
   }));
 
   function openBookmark(id: string): void {
     const item = store.items.value.find((it) => it.id === id);
     if (item) globalThis.window.open(item.url, '_blank', 'noopener');
+  }
+
+  function clearTagFilter(): void {
+    store.filters.value.tag = null;
   }
 </script>
 
@@ -51,6 +61,27 @@
         {{ t('bookmarks.title') }}
       </h1>
     </header>
+
+    <div class="page-bookmarks__toolbar">
+      <AppInput
+        class="page-bookmarks__search"
+        type="search"
+        :model-value="store.filters.value.q"
+        :placeholder="t('bookmarks.search')"
+        size="sm"
+        @update:model-value="store.filters.value.q = $event"
+      />
+      <div v-if="store.filters.value.tag" class="page-bookmarks__tag-filter">
+        <span class="page-bookmarks__tag-filter-label">{{ t('bookmarks.filteringByTag') }}</span>
+        <AppTagChip
+          :label="store.filters.value.tag"
+          removable
+          selected
+          @remove="clearTagFilter"
+          @click="clearTagFilter"
+        />
+      </div>
+    </div>
 
     <div v-if="store.loading.value" class="page-bookmarks__list">
       <AppSkeleton v-for="n in 5" :key="n" variant="image" />
@@ -104,6 +135,30 @@
       font-size: var(--text-3xl);
       font-weight: var(--fw-bold);
       color: var(--text-fg);
+    }
+
+    &__toolbar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+
+    &__search {
+      max-width: 20rem;
+      flex: 1;
+    }
+
+    &__tag-filter {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    &__tag-filter-label {
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
     }
 
     &__list {

@@ -1,9 +1,10 @@
 <script setup lang="ts">
   import { AppFilterBar, AppItemCard, AppEmptyState, AppSkeleton, AppButton } from '@app/ui';
-  import { onMounted, ref, watch, computed } from 'vue';
+  import { onMounted, ref, computed } from 'vue';
 
   import AppAddBar from '~/components/library/AppAddBar.vue';
   import AddLinkModal from '~/components/library/AddLinkModal.vue';
+  import { useFiltersReload } from '~/composables/useFiltersReload';
   import { toCardData } from '~/utils/to-card-data';
 
   definePageMeta({ middleware: 'auth' });
@@ -19,15 +20,11 @@
     await Promise.all([store.load(), tagStore.load()]);
   });
 
-  // Deep-watch a snapshot of filters; any nested change (segment/q/tag) triggers reload.
+  // Deep-watch every filter field (segment/q/tag); any nested change reloads.
   // void is intentional — fire-and-forget inside watch callback.
-  watch(
-    () => ({ ...store.filters.value }),
-    () => {
-      void store.load();
-    },
-    { deep: true },
-  );
+  useFiltersReload(store.filters, () => {
+    void store.load();
+  });
 
   const tagOptions = computed(() =>
     tagStore.tags.value.map((tg) => ({ id: tg.slug, label: `${tg.name} (${String(tg.count)})` })),

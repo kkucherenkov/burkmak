@@ -31,4 +31,15 @@ describe('buildItemsQuery', () => {
     expect(q.readState).toBeUndefined();
     expect(q.favorite).toBeUndefined();
   });
+
+  it('threads the search term through for a bookmark query too', () => {
+    const q = buildItemsQuery({ ...base, q: 'rust' }, 'bookmark');
+    expect(q.q).toBe('rust');
+    expect(q.kind).toBe('bookmark');
+  });
+
+  it('threads the tag filter through for a bookmark query too', () => {
+    const q = buildItemsQuery({ ...base, tag: 'rust' }, 'bookmark');
+    expect(q.tag).toBe('rust');
+  });
 });
