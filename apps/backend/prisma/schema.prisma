@@ -113,6 +113,7 @@ model Item {
   extractStatus String      @default("none") // none | extracting | ready | failed
   kind          String      @default("article") // article | bookmark
   tags          ItemTag[]
+  shelves       ShelfItem[]
   article       Article?
   highlights    Highlight[]
   koboEntitlement  KoboEntitlement?
@@ -221,4 +222,29 @@ model PersonalAccessToken {
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model Shelf {
+  id           String      @id @default(uuid()) // doubles as Kobo Tag.Id (slice ③b)
+  userId       String
+  name         String
+  createdAt    DateTime    @default(now())
+  // Bumped on rename AND on membership change. @updatedAt only fires for writes
+  // to this row, so membership changes touch it explicitly (see ShelfRepo).
+  lastModified DateTime    @updatedAt
+  items        ShelfItem[]
+
+  @@unique([userId, name])
+  @@map("shelf")
+}
+
+model ShelfItem {
+  shelfId String
+  itemId  String
+  addedAt DateTime @default(now())
+  shelf   Shelf    @relation(fields: [shelfId], references: [id], onDelete: Cascade)
+  item    Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@id([shelfId, itemId])
+  @@map("shelf_item")
 }
