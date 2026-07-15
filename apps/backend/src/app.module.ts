@@ -27,6 +27,7 @@ import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { HealthModule } from './modules/health/health.module';
 import { ItemsModule } from './modules/items/items.module';
 import { HighlightsModule } from './modules/highlights/highlights.module';
+import { ShelvesModule } from './modules/shelves/shelves.module';
 import { TagsModule } from './modules/tags/tags.module';
 import { TokensModule } from './modules/tokens/tokens.module';
 import { KoboModule } from './modules/kobo/kobo.module';
@@ -67,6 +68,7 @@ const devOnlyModules: ImportableModule[] = [];
     EventsModule,
     HealthModule,
     ItemsModule,
+    ShelvesModule,
     TagsModule,
     HighlightsModule,
     TokensModule,
