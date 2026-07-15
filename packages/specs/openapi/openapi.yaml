@@ -1861,12 +1861,33 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ShelfList"
+              examples:
+                list:
+                  value:
+                    shelves:
+                      - id: 550e8400-e29b-41d4-a716-446655440000
+                        name: Deep Reads
+                        itemCount: 7
+                        createdAt: "2026-06-01T09:00:00Z"
+                        lastModified: "2026-06-20T14:30:00Z"
+                      - id: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+                        name: Weekend Queue
+                        itemCount: 3
+                        createdAt: "2026-06-05T11:15:00Z"
+                        lastModified: "2026-06-05T11:15:00Z"
         "401":
           description: Not authenticated
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
     post:
       operationId: createShelf
       summary: Create a shelf
@@ -1881,6 +1902,10 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/CreateShelfRequest"
+            examples:
+              basic:
+                value:
+                  name: Deep Reads
       responses:
         "201":
           description: Created
@@ -1888,29 +1913,57 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Shelf"
+              examples:
+                created:
+                  value:
+                    id: 550e8400-e29b-41d4-a716-446655440000
+                    name: Deep Reads
+                    itemCount: 0
+                    createdAt: "2026-06-01T09:00:00Z"
+                    lastModified: "2026-06-01T09:00:00Z"
         "400":
           description: Invalid request
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+              examples:
+                invalidName:
+                  value:
+                    type: about:blank
+                    title: Bad Request
+                    status: 400
+                    detail: "name must be between 1 and 80 characters"
         "401":
           description: Not authenticated
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
         "409":
           description: A shelf with that name already exists
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-              example:
-                type: "urn:problem-type:shelf-name-conflict"
-                title: Shelf name already in use
-                status: 409
-                code: shelf-name-conflict
+              # HttpExceptionFilter emits `urn:problem-type:<code>` for any DomainError
+              # (see apps/backend/src/common/filters/http-exception.filter.ts). A shelf
+              # name conflict is a DomainError, so this IS the real wire response —
+              # do not "correct" it to `about:blank`.
+              examples:
+                conflict:
+                  value:
+                    type: "urn:problem-type:shelf-name-conflict"
+                    title: Shelf name already in use
+                    status: 409
+                    code: shelf-name-conflict
 
   /api/v1/shelves/{id}:
     parameters:
@@ -1935,6 +1988,10 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/RenameShelfRequest"
+            examples:
+              rename:
+                value:
+                  name: Long-form Reading
       responses:
         "200":
           description: Renamed
@@ -1942,30 +1999,69 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Shelf"
+              examples:
+                renamed:
+                  value:
+                    id: 550e8400-e29b-41d4-a716-446655440000
+                    name: Long-form Reading
+                    itemCount: 7
+                    createdAt: "2026-06-01T09:00:00Z"
+                    lastModified: "2026-06-20T14:30:00Z"
         "400":
           description: Invalid request
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+              examples:
+                invalidName:
+                  value:
+                    type: about:blank
+                    title: Bad Request
+                    status: 400
+                    detail: "name must be between 1 and 80 characters"
         "401":
           description: Not authenticated
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
         "404":
           description: Shelf not found
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: "urn:problem-type:shelf-not-found"
+                    title: Shelf not found
+                    status: 404
+                    detail: "Shelf 550e8400-e29b-41d4-a716-446655440000 does not exist"
+                    code: shelf-not-found
         "409":
           description: A shelf with that name already exists
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+              # See the createShelf 409 above: this is a DomainError, so
+              # `urn:problem-type:<code>` is the real wire response.
+              examples:
+                conflict:
+                  value:
+                    type: "urn:problem-type:shelf-name-conflict"
+                    title: Shelf name already in use
+                    status: 409
+                    code: shelf-name-conflict
     delete:
       operationId: deleteShelf
       summary: Delete a shelf
@@ -1983,12 +2079,27 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
         "404":
           description: Shelf not found
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: "urn:problem-type:shelf-not-found"
+                    title: Shelf not found
+                    status: 404
+                    detail: "Shelf 550e8400-e29b-41d4-a716-446655440000 does not exist"
+                    code: shelf-not-found
 
   /api/v1/shelves/{id}/items/{itemId}:
     parameters:
@@ -2022,12 +2133,27 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
         "404":
           description: Shelf or item not found
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: "urn:problem-type:shelf-not-found"
+                    title: Shelf not found
+                    status: 404
+                    detail: "Shelf 550e8400-e29b-41d4-a716-446655440000 does not exist"
+                    code: shelf-not-found
     delete:
       operationId: removeItemFromShelf
       summary: Remove an item from a shelf
@@ -2045,12 +2171,27 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+              examples:
+                unauthorized:
+                  value:
+                    type: about:blank
+                    title: Unauthorized
+                    status: 401
+                    detail: No active session
         "404":
           description: Shelf or item not found
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+              examples:
+                notFound:
+                  value:
+                    type: "urn:problem-type:shelf-not-found"
+                    title: Shelf not found
+                    status: 404
+                    detail: "Shelf 550e8400-e29b-41d4-a716-446655440000 does not exist"
+                    code: shelf-not-found
 
 components:
   securitySchemes:
