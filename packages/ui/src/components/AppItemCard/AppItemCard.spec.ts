@@ -87,4 +87,14 @@ describe('AppItemCard', () => {
   it('renders the archive action in the default (article) variant', () => {
     expect(mountCard().find('[data-testid="arc"]').exists()).toBe(true);
   });
+  it('renders the bookmark variant fine when labels omit `archive`', () => {
+    const { archive: _archive, ...bookmarkLabels } = labels;
+    const w = mount(AppItemCard, {
+      global,
+      props: { item: base, labels: bookmarkLabels, variant: 'bookmark' },
+    });
+    expect(w.find('[data-testid="arc"]').exists()).toBe(false);
+    expect(w.find('[data-testid="fav"]').exists()).toBe(true);
+    expect(w.find('[data-testid="del"]').exists()).toBe(true);
+  });
 });

@@ -101,7 +101,9 @@ export const Bookmark: Story = {
       excerpt: 'Reference link — opens at its source, never enters the reading queue.',
       tags: ['tool'],
     },
-    labels,
+    // No `archive` — the bookmark variant never renders that action, so its
+    // label is optional (see AppItemCard's `labels` prop type).
+    labels: { status: labels.status, favorite: labels.favorite, delete: labels.delete },
     variant: 'bookmark',
   },
 };
