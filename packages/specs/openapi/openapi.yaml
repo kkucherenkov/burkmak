@@ -149,6 +149,12 @@ paths:
           schema:
             type: string
           description: Filter by tag slug
+        - name: shelf
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Only items on this shelf (shelf ID)
         - name: favorite
           in: query
           required: false
