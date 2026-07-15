@@ -8,6 +8,7 @@
     AppArticleReader,
     AppHighlightPopover,
     AppHighlightCard,
+    AppShelfPicker,
   } from '@app/ui';
   import type { AppHighlightColor, AppHighlightData, AppHighlightCardHighlight } from '@app/ui';
   import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
@@ -36,6 +37,7 @@
 
   const article = useArticle(id);
   const highlights = useHighlights(id);
+  const shelvesStore = useShelves();
 
   const newTag = ref('');
   const editingId = ref<string | null>(null);
@@ -54,6 +56,7 @@
   }
 
   onMounted(async () => {
+    void shelvesStore.load();
     await store.refetchOne(id);
     await highlights.load();
     await article.syncStatus(item.value?.extractStatus ?? 'none');
@@ -196,6 +199,16 @@
     await navigateTo('/library');
   }
 
+  // Shelf membership is server-owned: re-read the item after each toggle
+  // rather than patching item.shelves locally (see slice ②'s refetchOne).
+  async function onToggleShelf(shelfId: string, next: boolean): Promise<void> {
+    if (!item.value) return;
+    await (next
+      ? shelvesStore.addItem(shelfId, item.value.id)
+      : shelvesStore.removeItem(shelfId, item.value.id));
+    await store.refetchOne(id);
+  }
+
   const readerLabels = computed(() => ({
     pitch: t('reader.pitch'),
     extract: t('reader.extract'),
@@ -204,6 +217,11 @@
     retry: t('reader.retry'),
   }));
   const popoverLabels = computed(() => ({ addNote: t('highlight.addNote') }));
+  const shelfLabels = computed(() => ({
+    add: t('shelves.addToShelf'),
+    remove: t('shelves.removeFromShelf'),
+    empty: t('shelves.pickerEmpty'),
+  }));
   const cardLabels = computed(() => ({
     edit: t('highlight.edit'),
     delete: t('highlight.delete'),
@@ -284,6 +302,18 @@
         <AppInput v-model="newTag" type="text" :placeholder="t('itemDetail.addTag')" size="sm" />
       </form>
     </div>
+
+    <!-- Shelves are article-only (design non-goal: bookmarks are not shelvable
+         in this slice) — a bookmark's detail page must not offer shelving. -->
+    <section v-if="item.kind === 'article'" class="page-detail__shelves">
+      <h2 class="page-detail__shelves-title">{{ t('shelves.title') }}</h2>
+      <AppShelfPicker
+        :shelves="shelvesStore.shelves.value"
+        :selected-ids="item.shelves.map((s) => s.id)"
+        :labels="shelfLabels"
+        @toggle="(shelfId, next) => runAction(() => onToggleShelf(shelfId, next))"
+      />
+    </section>
 
     <div class="page-detail__controls">
       <AppButton
@@ -524,6 +554,22 @@
       display: inline-flex;
       align-items: center;
       width: 8rem;
+    }
+
+    &__shelves {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      max-width: 28rem;
+    }
+
+    &__shelves-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-weight: var(--fw-semibold);
+      font-size: var(--text-lg);
+      line-height: var(--leading-snug);
+      color: var(--text-fg);
     }
 
     &__controls {

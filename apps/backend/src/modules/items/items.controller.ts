@@ -87,6 +87,7 @@ export class ItemsController {
         ...(dto.readState !== undefined && { readState: dto.readState }),
         ...(dto.kind !== undefined && { kind: dto.kind }),
         ...(dto.tag !== undefined && { tag: dto.tag }),
+        ...(dto.shelf !== undefined && { shelf: dto.shelf }),
         ...(dto.favorite !== undefined && { favorite: dto.favorite === 'true' }),
         ...(dto.q !== undefined && { q: dto.q }),
         ...(dto.cursor !== undefined && { cursor: dto.cursor }),

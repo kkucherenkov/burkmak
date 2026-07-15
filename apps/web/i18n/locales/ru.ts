@@ -184,10 +184,36 @@ export default {
     },
   },
 
+  shelves: {
+    title: 'Полки',
+    empty: 'Полок пока нет. Создайте полку, чтобы группировать чтение.',
+    create: 'Новая полка',
+    namePlaceholder: 'Название полки',
+    rename: 'Переименовать',
+    delete: 'Удалить',
+    deleteConfirm: 'Удалить эту полку? Статьи на ней не удаляются.',
+    // Russian plural: zero | one | few | many — see i18n.config.ts's
+    // custom `pluralRules.ru` (vue-i18n's default rule can't tell 21 from 2
+    // from 5; it just clamps `count` to an index).
+    itemCount: 'Нет элементов | {count} элемент | {count} элемента | {count} элементов',
+    loadError: 'Не удалось загрузить полки.',
+    nameConflict: 'У вас уже есть полка с таким названием.',
+    createError: 'Не удалось создать полку.',
+    renameError: 'Не удалось переименовать полку.',
+    deleteError: 'Не удалось удалить полку.',
+    retry: 'Повторить',
+    shelfEmpty: 'На этой полке пока пусто.',
+    addToShelf: 'Добавить на полку',
+    removeFromShelf: 'Убрать с полки',
+    backToShelves: 'Все полки',
+    pickerEmpty: 'Полок пока нет.',
+  },
+
   nav: {
     appName: 'burkmak',
     navHome: 'Главная',
     navBookmarks: 'Закладки',
+    navShelves: 'Полки',
     navLogin: 'Войти',
     navSettings: 'Настройки',
     navSignOut: 'Выйти',

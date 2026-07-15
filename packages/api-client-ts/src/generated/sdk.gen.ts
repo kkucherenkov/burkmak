@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AddItemTagData, AddItemTagErrors, AddItemTagResponses, CreateHighlightData, CreateHighlightErrors, CreateHighlightResponses, CreateTokenData, CreateTokenErrors, CreateTokenResponses, DeleteHighlightData, DeleteHighlightErrors, DeleteHighlightResponses, DeleteItemData, DeleteItemErrors, DeleteItemResponses, DeleteTagData, DeleteTagErrors, DeleteTagResponses, ExportItemMarkdownData, ExportItemMarkdownErrors, ExportItemMarkdownResponses, ExportMarkdownBundleData, ExportMarkdownBundleErrors, ExportMarkdownBundleResponses, ExtractArticleData, ExtractArticleErrors, ExtractArticleResponses, GetArticleData, GetArticleErrors, GetArticleResponses, GetHealthData, GetHealthErrors, GetHealthResponses, GetItemData, GetItemEpubData, GetItemEpubErrors, GetItemEpubResponses, GetItemErrors, GetItemImageData, GetItemImageErrors, GetItemImageResponses, GetItemResponses, GetOpdsFeedData, GetOpdsFeedErrors, GetOpdsFeedResponses, GetOpdsOpenSearchData, GetOpdsOpenSearchErrors, GetOpdsOpenSearchResponses, ListHighlightsData, ListHighlightsErrors, ListHighlightsResponses, ListItemsData, ListItemsErrors, ListItemsResponses, ListTagsData, ListTagsErrors, ListTagsResponses, ListTokensData, ListTokensErrors, ListTokensResponses, RemoveItemTagData, RemoveItemTagErrors, RemoveItemTagResponses, RenameTagData, RenameTagErrors, RenameTagResponses, RevokeTokenData, RevokeTokenErrors, RevokeTokenResponses, SaveItemData, SaveItemErrors, SaveItemResponses, StreamEventsData, StreamEventsErrors, StreamEventsResponse, StreamEventsResponses, UpdateHighlightData, UpdateHighlightErrors, UpdateHighlightResponses, UpdateItemData, UpdateItemErrors, UpdateItemResponses } from './types.gen';
+import type { AddItemTagData, AddItemTagErrors, AddItemTagResponses, AddItemToShelfData, AddItemToShelfErrors, AddItemToShelfResponses, CreateHighlightData, CreateHighlightErrors, CreateHighlightResponses, CreateShelfData, CreateShelfErrors, CreateShelfResponses, CreateTokenData, CreateTokenErrors, CreateTokenResponses, DeleteHighlightData, DeleteHighlightErrors, DeleteHighlightResponses, DeleteItemData, DeleteItemErrors, DeleteItemResponses, DeleteShelfData, DeleteShelfErrors, DeleteShelfResponses, DeleteTagData, DeleteTagErrors, DeleteTagResponses, ExportItemMarkdownData, ExportItemMarkdownErrors, ExportItemMarkdownResponses, ExportMarkdownBundleData, ExportMarkdownBundleErrors, ExportMarkdownBundleResponses, ExtractArticleData, ExtractArticleErrors, ExtractArticleResponses, GetArticleData, GetArticleErrors, GetArticleResponses, GetHealthData, GetHealthErrors, GetHealthResponses, GetItemData, GetItemEpubData, GetItemEpubErrors, GetItemEpubResponses, GetItemErrors, GetItemImageData, GetItemImageErrors, GetItemImageResponses, GetItemResponses, GetOpdsFeedData, GetOpdsFeedErrors, GetOpdsFeedResponses, GetOpdsOpenSearchData, GetOpdsOpenSearchErrors, GetOpdsOpenSearchResponses, ListHighlightsData, ListHighlightsErrors, ListHighlightsResponses, ListItemsData, ListItemsErrors, ListItemsResponses, ListShelvesData, ListShelvesErrors, ListShelvesResponses, ListTagsData, ListTagsErrors, ListTagsResponses, ListTokensData, ListTokensErrors, ListTokensResponses, RemoveItemFromShelfData, RemoveItemFromShelfErrors, RemoveItemFromShelfResponses, RemoveItemTagData, RemoveItemTagErrors, RemoveItemTagResponses, RenameShelfData, RenameShelfErrors, RenameShelfResponses, RenameTagData, RenameTagErrors, RenameTagResponses, RevokeTokenData, RevokeTokenErrors, RevokeTokenResponses, SaveItemData, SaveItemErrors, SaveItemResponses, StreamEventsData, StreamEventsErrors, StreamEventsResponse, StreamEventsResponses, UpdateHighlightData, UpdateHighlightErrors, UpdateHighlightResponses, UpdateItemData, UpdateItemErrors, UpdateItemResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -504,5 +504,103 @@ export const revokeToken = <ThrowOnError extends boolean = false>(options: Optio
             type: 'apiKey'
         }, { scheme: 'bearer', type: 'http' }],
     url: '/api/v1/tokens/{id}',
+    ...options
+});
+
+/**
+ * List shelves with item counts
+ *
+ * Returns all shelves belonging to the authenticated user, each with its current item count.
+ */
+export const listShelves = <ThrowOnError extends boolean = false>(options?: Options<ListShelvesData, ThrowOnError>) => (options?.client ?? client).get<ListShelvesResponses, ListShelvesErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/shelves',
+    ...options
+});
+
+/**
+ * Create a shelf
+ *
+ * Creates a new shelf owned by the authenticated user. Shelf names must be unique per user.
+ */
+export const createShelf = <ThrowOnError extends boolean = false>(options: Options<CreateShelfData, ThrowOnError>) => (options.client ?? client).post<CreateShelfResponses, CreateShelfErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/shelves',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Delete a shelf
+ *
+ * Permanently deletes the shelf. Items that were on the shelf are not deleted.
+ */
+export const deleteShelf = <ThrowOnError extends boolean = false>(options: Options<DeleteShelfData, ThrowOnError>) => (options.client ?? client).delete<DeleteShelfResponses, DeleteShelfErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/shelves/{id}',
+    ...options
+});
+
+/**
+ * Rename a shelf
+ *
+ * Renames the shelf and bumps `lastModified`. Returns 404 if the shelf does not exist or is not owned by the authenticated user.
+ */
+export const renameShelf = <ThrowOnError extends boolean = false>(options: Options<RenameShelfData, ThrowOnError>) => (options.client ?? client).patch<RenameShelfResponses, RenameShelfErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/shelves/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Remove an item from a shelf
+ *
+ * Removes the item from the shelf. Does not delete the item or the shelf.
+ */
+export const removeItemFromShelf = <ThrowOnError extends boolean = false>(options: Options<RemoveItemFromShelfData, ThrowOnError>) => (options.client ?? client).delete<RemoveItemFromShelfResponses, RemoveItemFromShelfErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/shelves/{id}/items/{itemId}',
+    ...options
+});
+
+/**
+ * Add an item to a shelf (idempotent)
+ *
+ * Adds the item to the shelf. Idempotent — calling again when the item is already on the shelf is a no-op.
+ */
+export const addItemToShelf = <ThrowOnError extends boolean = false>(options: Options<AddItemToShelfData, ThrowOnError>) => (options.client ?? client).put<AddItemToShelfResponses, AddItemToShelfErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'better-auth.session_token',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/shelves/{id}/items/{itemId}',
     ...options
 });

@@ -17,6 +17,7 @@ import 'package:app_api_client/src/model/date.dart';
 import 'package:app_api_client/src/model/add_tag_request.dart';
 import 'package:app_api_client/src/model/article.dart';
 import 'package:app_api_client/src/model/create_highlight_request.dart';
+import 'package:app_api_client/src/model/create_shelf_request.dart';
 import 'package:app_api_client/src/model/create_token_request.dart';
 import 'package:app_api_client/src/model/dependency_status.dart';
 import 'package:app_api_client/src/model/export_bundle.dart';
@@ -36,8 +37,12 @@ import 'package:app_api_client/src/model/personal_access_token.dart';
 import 'package:app_api_client/src/model/personal_access_token_created.dart';
 import 'package:app_api_client/src/model/problem.dart';
 import 'package:app_api_client/src/model/read_state.dart';
+import 'package:app_api_client/src/model/rename_shelf_request.dart';
 import 'package:app_api_client/src/model/rename_tag_request.dart';
 import 'package:app_api_client/src/model/save_item_request.dart';
+import 'package:app_api_client/src/model/shelf.dart';
+import 'package:app_api_client/src/model/shelf_list.dart';
+import 'package:app_api_client/src/model/shelf_summary.dart';
 import 'package:app_api_client/src/model/tag.dart';
 import 'package:app_api_client/src/model/tag_list.dart';
 import 'package:app_api_client/src/model/token_list.dart';
@@ -50,6 +55,7 @@ part 'serializers.g.dart';
   AddTagRequest,
   Article,
   CreateHighlightRequest,
+  CreateShelfRequest,
   CreateTokenRequest,
   DependencyStatus,
   ExportBundle,
@@ -69,8 +75,12 @@ part 'serializers.g.dart';
   PersonalAccessTokenCreated,
   Problem,
   ReadState,
+  RenameShelfRequest,
   RenameTagRequest,
   SaveItemRequest,
+  Shelf,
+  ShelfList,
+  ShelfSummary,
   Tag,
   TagList,
   TokenList,

@@ -22,6 +22,7 @@ function makeItem(overrides: Partial<ItemDetail> = {}): ItemDetail {
     savedAt: '2026-07-01T00:00:00.000Z',
     readAt: null,
     tags: [],
+    shelves: [],
     ...overrides,
   };
 }

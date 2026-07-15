@@ -5,6 +5,7 @@
 // ignore_for_file: unused_element
 import 'package:app_api_client/src/model/item_status.dart';
 import 'package:built_collection/built_collection.dart';
+import 'package:app_api_client/src/model/shelf_summary.dart';
 import 'package:app_api_client/src/model/read_state.dart';
 import 'package:app_api_client/src/model/kind.dart';
 import 'package:app_api_client/src/model/extract_status.dart';
@@ -32,6 +33,7 @@ part 'item.g.dart';
 /// * [savedAt] - ISO-8601 timestamp when the item was saved
 /// * [readAt] - ISO-8601 timestamp when the item was first marked read
 /// * [tags] - Slugs of tags attached to this item
+/// * [shelves] - Shelves this item belongs to
 @BuiltValue()
 abstract class Item implements Built<Item, ItemBuilder> {
   /// Unique item ID (cuid)
@@ -97,6 +99,10 @@ abstract class Item implements Built<Item, ItemBuilder> {
   /// Slugs of tags attached to this item
   @BuiltValueField(wireName: r'tags')
   BuiltList<String> get tags;
+
+  /// Shelves this item belongs to
+  @BuiltValueField(wireName: r'shelves')
+  BuiltList<ShelfSummary> get shelves;
 
   Item._();
 
@@ -214,6 +220,11 @@ class _$ItemSerializer implements PrimitiveSerializer<Item> {
     yield serializers.serialize(
       object.tags,
       specifiedType: const FullType(BuiltList, [FullType(String)]),
+    );
+    yield r'shelves';
+    yield serializers.serialize(
+      object.shelves,
+      specifiedType: const FullType(BuiltList, [FullType(ShelfSummary)]),
     );
   }
 
@@ -356,6 +367,13 @@ class _$ItemSerializer implements PrimitiveSerializer<Item> {
             specifiedType: const FullType(BuiltList, [FullType(String)]),
           ) as BuiltList<String>;
           result.tags.replace(valueDes);
+          break;
+        case r'shelves':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(ShelfSummary)]),
+          ) as BuiltList<ShelfSummary>;
+          result.shelves.replace(valueDes);
           break;
         default:
           unhandled.add(key);

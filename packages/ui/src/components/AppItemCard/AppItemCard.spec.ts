@@ -97,4 +97,26 @@ describe('AppItemCard', () => {
     expect(w.find('[data-testid="fav"]').exists()).toBe(true);
     expect(w.find('[data-testid="del"]').exists()).toBe(true);
   });
+  it('shows the archive action by default in the article variant (archivable omitted)', () => {
+    const w = mount(AppItemCard, { global, props: { item: base, labels, variant: 'article' } });
+    expect(w.find('[data-testid="arc"]').exists()).toBe(true);
+  });
+  it('hides the archive action in the article variant when archivable is false', () => {
+    const w = mount(AppItemCard, {
+      global,
+      props: { item: base, labels, variant: 'article', archivable: false },
+    });
+    expect(w.find('[data-testid="arc"]').exists()).toBe(false);
+    // Not a bookmark — the other actions are unaffected by archivable.
+    expect(w.find('[data-testid="fav"]').exists()).toBe(true);
+    expect(w.find('[data-testid="del"]').exists()).toBe(true);
+  });
+  it('keeps the archive action hidden in the bookmark variant even when archivable is true', () => {
+    // `variant` gates the archive action first — `archivable` cannot override that.
+    const w = mount(AppItemCard, {
+      global,
+      props: { item: base, labels, variant: 'bookmark', archivable: true },
+    });
+    expect(w.find('[data-testid="arc"]').exists()).toBe(false);
+  });
 });

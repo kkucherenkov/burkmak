@@ -28,3 +28,7 @@ export type {
 } from './components/AppArticleReader/highlight-types';
 export { AppHighlightPopover } from './components/AppHighlightPopover';
 export { AppHighlightCard } from './components/AppHighlightCard';
+export { AppShelfRow } from './components/AppShelfRow';
+export type { AppShelfRowData } from './components/AppShelfRow/AppShelfRow.vue';
+export { AppShelfPicker } from './components/AppShelfPicker';
+export type { AppShelfPickerShelf } from './components/AppShelfPicker/AppShelfPicker.vue';

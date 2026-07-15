@@ -22,6 +22,7 @@ export interface ItemDetail {
   savedAt: string;
   readAt: string | null;
   tags: string[]; // slugs
+  shelves: { id: string; name: string }[];
 }
 
 export interface ItemMetadataPatch {
@@ -38,6 +39,7 @@ export interface ListItemsFilter {
   userId: string;
   readState?: ReadState;
   tag?: string; // slug
+  shelf?: string; // shelf ID
   favorite?: boolean;
   q?: string;
   kind?: ItemKind;

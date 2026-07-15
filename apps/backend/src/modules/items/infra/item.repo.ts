@@ -19,7 +19,12 @@ function toSlug(name: string): string {
     .replaceAll(/^-|-$/g, '');
 }
 
-function toDetail(row: Item & { tags?: { tag: { slug: string } }[] }): ItemDetail {
+function toDetail(
+  row: Item & {
+    tags?: { tag: { slug: string } }[];
+    shelves?: { shelf: { id: string; name: string } }[];
+  },
+): ItemDetail {
   return {
     id: row.id,
     url: row.url,
@@ -37,6 +42,7 @@ function toDetail(row: Item & { tags?: { tag: { slug: string } }[] }): ItemDetai
     savedAt: row.savedAt.toISOString(),
     readAt: row.readAt ? row.readAt.toISOString() : null,
     tags: (row.tags ?? []).map((t) => t.tag.slug),
+    shelves: (row.shelves ?? []).map((s) => ({ id: s.shelf.id, name: s.shelf.name })),
   };
 }
 
@@ -66,12 +72,30 @@ export function escapeFtsQuery(raw: string): string {
 /**
  * Build the Prisma `where` for item queries, shared by the plain and FTS paths.
  * A missing `kind` means "all kinds" — the list endpoint stays backward-compatible.
+ *
+ * Shelves are article-only (design non-goal: bookmarks are not shelvable).
+ * `ShelfRepo.ownsBoth` enforces that on the write path, but that guard alone
+ * is not enough: an article already on a shelf can be demoted to a bookmark
+ * via `PATCH /items/{id}`, which never touches shelf.repo.ts at all — the
+ * membership row just lingers. So `?shelf=` must ALSO imply `kind: 'article'`
+ * on every read, or a demoted item stays visible through the shelf filter.
+ *
+ * That implied constraint is composed via `AND` rather than a flat
+ * `where.kind` assignment, so it doesn't collide with an explicit `?kind=`
+ * (added below as a separate top-level key). Both then apply as independent,
+ * implicitly-ANDed conditions: `?kind=bookmark&shelf=X` correctly yields zero
+ * rows (no shelved item can be a bookmark) instead of one filter silently
+ * overwriting the other; `?kind=article&shelf=X` is simply redundant with the
+ * implied constraint; `?shelf=X` alone behaves as `kind=article` implicitly.
  */
 export function buildItemWhere(f: ListItemsFilter): Record<string, unknown> {
   const where: Record<string, unknown> = { userId: f.userId };
   if (f.readState) where['readState'] = f.readState;
   if (f.favorite !== undefined) where['favorite'] = f.favorite;
   if (f.tag) where['tags'] = { some: { tag: { slug: f.tag, userId: f.userId } } };
+  if (f.shelf) {
+    where['AND'] = [{ shelves: { some: { shelfId: f.shelf } } }, { kind: 'article' }];
+  }
   if (f.kind) where['kind'] = f.kind;
   return where;
 }
@@ -94,7 +118,10 @@ export class ItemRepo implements IItemRepo {
   async findById(userId: string, id: string): Promise<ItemDetail | null> {
     const row = await this.prisma.item.findFirst({
       where: { id, userId },
-      include: { tags: { include: { tag: true } } },
+      include: {
+        tags: { include: { tag: true } },
+        shelves: { select: { shelf: { select: { id: true, name: true } } } },
+      },
     });
     return row ? toDetail(row) : null;
   }
@@ -116,7 +143,10 @@ export class ItemRepo implements IItemRepo {
 
     const rows = await this.prisma.item.findMany({
       where,
-      include: { tags: { include: { tag: true } } },
+      include: {
+        tags: { include: { tag: true } },
+        shelves: { select: { shelf: { select: { id: true, name: true } } } },
+      },
       orderBy: { savedAt: 'desc' },
       take: f.limit + 1,
       ...(f.cursor ? { cursor: { id: f.cursor }, skip: 1 } : {}),
@@ -178,7 +208,10 @@ export class ItemRepo implements IItemRepo {
 
     const rows = await this.prisma.item.findMany({
       where,
-      include: { tags: { include: { tag: true } } },
+      include: {
+        tags: { include: { tag: true } },
+        shelves: { select: { shelf: { select: { id: true, name: true } } } },
+      },
       // Preserve FTS rank order — re-sort by position in candidateIds
       // (Prisma doesn't support ORDER BY FIELD; sort in JS after fetch)
     });
