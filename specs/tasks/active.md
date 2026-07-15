@@ -19,5 +19,6 @@
   - [x] mobile: kind=article on list query
   - [x] gates (fixers, turbo build/lint/test/typecheck, backend container, mobile analyze)
   - [x] live verification
-- Status: in-progress
+- PR: [#15](https://github.com/kkucherenkov/burkmak/pull/15)
+- Status: in-progress (in review)
 - Blockers: —
