@@ -309,7 +309,7 @@
         :shelves="shelvesStore.shelves.value"
         :selected-ids="item.shelves.map((s) => s.id)"
         :labels="shelfLabels"
-        @toggle="onToggleShelf"
+        @toggle="(shelfId, next) => runAction(() => onToggleShelf(shelfId, next))"
       />
     </section>
 
