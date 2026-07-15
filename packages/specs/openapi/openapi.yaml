@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: App API
-  version: 0.5.0
+  version: 0.6.0
   description: |
     Spec-first HTTP API. Paths include the versioned prefix (`/api/v1`) so
     generated clients can be used without additional base-URL rewriting.
@@ -49,6 +49,8 @@ tags:
     description: OPDS catalog feed and EPUB download for Kobo and other OPDS readers
   - name: export
     description: Obsidian-compatible markdown export of items and highlights
+  - name: shelves
+    description: Curated collections of articles
 
 paths:
   /api/v1/health:
@@ -201,6 +203,7 @@ paths:
                         savedAt: "2026-06-13T10:00:00Z"
                         readAt: null
                         tags: ["tech", "reading"]
+                        shelves: []
                     nextCursor: null
         "401":
           description: Not authenticated
@@ -261,6 +264,7 @@ paths:
                     savedAt: "2026-06-13T10:00:00Z"
                     readAt: null
                     tags: ["tech"]
+                    shelves: []
         "400":
           description: Request body invalid
           content:
@@ -331,6 +335,7 @@ paths:
                     savedAt: "2026-06-13T10:00:00Z"
                     readAt: null
                     tags: ["tech"]
+                    shelves: []
         "401":
           description: Not authenticated
           content:
@@ -406,6 +411,7 @@ paths:
                     savedAt: "2026-06-13T10:00:00Z"
                     readAt: "2026-06-13T11:00:00Z"
                     tags: ["tech"]
+                    shelves: []
         "400":
           description: Request body invalid
           content:
@@ -539,6 +545,7 @@ paths:
                     savedAt: "2026-06-13T10:00:00Z"
                     readAt: null
                     tags: ["tech", "reading"]
+                    shelves: []
         "400":
           description: Request body invalid
           content:
@@ -1838,6 +1845,213 @@ paths:
                     detail: "Token clxtok001 does not exist"
                     code: token-not-found
 
+  /api/v1/shelves:
+    get:
+      operationId: listShelves
+      summary: List shelves with item counts
+      description: Returns all shelves belonging to the authenticated user, each with its current item count.
+      tags: [shelves]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Shelves
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShelfList"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+    post:
+      operationId: createShelf
+      summary: Create a shelf
+      description: Creates a new shelf owned by the authenticated user. Shelf names must be unique per user.
+      tags: [shelves]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateShelfRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shelf"
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "409":
+          description: A shelf with that name already exists
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              example:
+                type: "urn:problem-type:shelf-name-conflict"
+                title: Shelf name already in use
+                status: 409
+                code: shelf-name-conflict
+
+  /api/v1/shelves/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Shelf ID (uuid)
+
+    patch:
+      operationId: renameShelf
+      summary: Rename a shelf
+      description: Renames the shelf and bumps `lastModified`. Returns 404 if the shelf does not exist or is not owned by the authenticated user.
+      tags: [shelves]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenameShelfRequest"
+      responses:
+        "200":
+          description: Renamed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shelf"
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Shelf not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "409":
+          description: A shelf with that name already exists
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+    delete:
+      operationId: deleteShelf
+      summary: Delete a shelf
+      description: Permanently deletes the shelf. Items that were on the shelf are not deleted.
+      tags: [shelves]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Shelf not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /api/v1/shelves/{id}/items/{itemId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Shelf ID (uuid)
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Item ID (cuid)
+
+    put:
+      operationId: addItemToShelf
+      summary: Add an item to a shelf (idempotent)
+      description: Adds the item to the shelf. Idempotent — calling again when the item is already on the shelf is a no-op.
+      tags: [shelves]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "204":
+          description: On the shelf (idempotent — repeating the call is a no-op)
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Shelf or item not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+    delete:
+      operationId: removeItemFromShelf
+      summary: Remove an item from a shelf
+      description: Removes the item from the shelf. Does not delete the item or the shelf.
+      tags: [shelves]
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Removed
+        "401":
+          description: Not authenticated
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Shelf or item not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
 components:
   securitySchemes:
     cookieAuth:
@@ -1918,7 +2132,7 @@ components:
 
     Item:
       type: object
-      required: [id, url, kind, status, extractStatus, readState, favorite, savedAt, tags]
+      required: [id, url, kind, status, extractStatus, readState, favorite, savedAt, tags, shelves]
       properties:
         id:
           type: string
@@ -1972,6 +2186,11 @@ components:
           items:
             type: string
           description: Slugs of tags attached to this item
+        shelves:
+          type: array
+          description: Shelves this item belongs to
+          items:
+            $ref: "#/components/schemas/ShelfSummary"
 
     ItemList:
       type: object
@@ -1984,6 +2203,63 @@ components:
         nextCursor:
           type: ["string", "null"]
           description: Opaque cursor for the next page; null when no more pages
+
+    ShelfSummary:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          description: Unique shelf ID (uuid; doubles as the Kobo Tag.Id)
+        name:
+          type: string
+
+    Shelf:
+      type: object
+      required: [id, name, itemCount, createdAt, lastModified]
+      properties:
+        id:
+          type: string
+          description: Unique shelf ID (uuid; doubles as the Kobo Tag.Id)
+        name:
+          type: string
+        itemCount:
+          type: integer
+          description: Number of items currently on the shelf
+        createdAt:
+          type: string
+          format: date-time
+        lastModified:
+          type: string
+          format: date-time
+          description: Bumped on rename and on any membership change
+
+    ShelfList:
+      type: object
+      required: [shelves]
+      properties:
+        shelves:
+          type: array
+          items:
+            $ref: "#/components/schemas/Shelf"
+
+    CreateShelfRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+
+    RenameShelfRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
 
     Tag:
       type: object
