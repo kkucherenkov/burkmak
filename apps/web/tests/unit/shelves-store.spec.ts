@@ -12,8 +12,13 @@ const shelf = (id: string, name: string, itemCount = 0) => ({
 
 describe('shelves store helpers', () => {
   it('sorts by name, case-insensitively', () => {
-    const sorted = sortShelves([shelf('1', 'zeta'), shelf('2', 'Alpha')]);
-    expect(sorted.map((s) => s.name)).toEqual(['Alpha', 'zeta']);
+    // 'Zeta' vs 'alpha': plain ASCII sort would put 'Zeta' first ('Z' = 90 <
+    // 'a' = 97), so this only passes if localeCompare's case folding is
+    // actually in effect. The original fixture (zeta/Alpha) happened to give
+    // the same answer under both a case-folding sort AND plain ASCII order,
+    // so it passed whether or not localeCompare was doing anything.
+    const sorted = sortShelves([shelf('1', 'Zeta'), shelf('2', 'alpha')]);
+    expect(sorted.map((s) => s.name)).toEqual(['alpha', 'Zeta']);
   });
 
   it('upsert replaces in place and keeps the sort', () => {
