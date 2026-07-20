@@ -17,7 +17,7 @@ dependencies:
   get_it: ^9.2.1
   intl: any
   dio: ^5.7.0
-  flutter_secure_storage: ^10.0.0
+  flutter_secure_storage: ^10.3.1
   freezed_annotation: ^3.0.0
   json_annotation: ^4.9.0
   cupertino_icons: ^1.0.8
