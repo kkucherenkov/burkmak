@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@app/api-client-ts": "workspace:*",
-    "@nuxt/ui": "^4.6.0"
+    "@nuxt/ui": "^4.10.0"
   },
   "devDependencies": {
     "@app/eslint-config": "workspace:*",
@@ -54,7 +54,7 @@
     "@storybook/test-runner": "^0.24.0",
     "jest-image-snapshot": "^6.4.0",
     "@types/jest-image-snapshot": "^6.4.0",
-    "@tailwindcss/vite": "^4.2.4",
+    "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-vue": "^6.0.6",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.9.1",
@@ -64,13 +64,13 @@
     "playwright": "^1.49.0",
     "sass": "^1.83.0",
     "storybook": "^10.3.5",
-    "tailwindcss": "^4.2.0",
+    "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
     "vite": "^8.0.10",
     "vitest": "^4.1.0",
     "wait-on": "^9.0.5",
-    "vue": "^3.5.13",
-    "vue-router": "^5.0.4",
+    "vue": "^3.5.40",
+    "vue-router": "^5.2.0",
     "vue-tsc": "^3.2.0"
   }
 }
