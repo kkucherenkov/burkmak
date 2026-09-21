@@ -17,9 +17,9 @@
     "@app/tsconfig": "workspace:*",
     "builtin-modules": "^5.0.0",
     "esbuild": "^0.28.1",
-    "eslint": "^9.19.0",
+    "eslint": "^10.10.0",
     "obsidian": "^1.13.1",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.0"
   }
 }
