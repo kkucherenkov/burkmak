@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@app/api-client-ts": "workspace:*",
-    "@nuxt/ui": "^4.6.0"
+    "@nuxt/ui": "^4.11.1"
   },
   "devDependencies": {
     "@app/eslint-config": "workspace:*",
